@@ -12,5 +12,7 @@ class Settings(BaseSettings):
 
     EXPLAIN_TEMPLATE_LOADING = False
 
+    BCRYPT_ROUNDS = 12
+
 
 settings = Settings()
