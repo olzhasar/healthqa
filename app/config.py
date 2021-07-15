@@ -1,0 +1,2 @@
+class Config:
+    TESTING = False
