@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 89
+ban-relative-imports = true
+exclude =
+    .git,

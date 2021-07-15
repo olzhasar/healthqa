@@ -1,0 +1,27 @@
+[tool.black]
+line-length = 89
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | static
+    | templates
+  )/
+)
+'''
+
+[tool.isort]
+profile = 'black'
+line_length = 89
+skip_gitignore = true
