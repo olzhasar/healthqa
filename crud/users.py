@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.security import hash_password
@@ -25,3 +26,11 @@ def create_user(db: Session, username: str, email: str, password: str) -> User:
     db.commit()
 
     return user
+
+
+def username_or_email_taken(db: Session, username: str, email: str):
+    return bool(
+        db.query(User.id)
+        .filter(or_(User.username == username, User.email == email))
+        .first()
+    )

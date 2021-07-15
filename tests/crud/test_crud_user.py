@@ -1,4 +1,9 @@
-from crud.users import create_user, get_by_email, get_by_username
+from crud.users import (
+    create_user,
+    get_by_email,
+    get_by_username,
+    username_or_email_taken,
+)
 from models.user import User
 
 
@@ -25,3 +30,10 @@ def test_create_user(db, user):
     assert isinstance(user, User)
     assert user.id
     assert db.query(User).filter(User.id == user.id).first() == user
+
+
+def test_username_or_email_taken(db, user):
+    assert username_or_email_taken(db, user.username, user.email)
+    assert username_or_email_taken(db, user.username, "other_email")
+    assert username_or_email_taken(db, "other_username", user.email)
+    assert not username_or_email_taken(db, "other_username", "other_email")
