@@ -2,5 +2,39 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-Login page
+<div class="w-full flex justify-center">
+  <div class="bg-white shadow-md px-8 pt-6 pb-8 mb-4 flex flex-col">
+    <form action="" method="POST">
+      <div class="mb-4">
+	<label class="block text-gray-800 text-sm font-bold mb-2" for="username">
+	  Email
+	</label>
+	<input class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="username" type="email" placeholder="someone@example.com">
+      </div>
+      <div class="mb-4">
+	<label class="block text-gray-800 text-sm font-bold mb-2" for="username">
+	  Username
+	</label>
+	<input class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="username" type="text" placeholder="Username">
+      </div>
+      <div class="mb-4">
+	<label class="block text-gray-800 text-sm font-bold mb-2" for="password">
+	  Password
+	</label>
+	<input class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="password" type="password" placeholder="******************">
+      </div>
+      <div class="mb-4">
+	<label class="block text-gray-800 text-sm font-bold mb-2" for="password">
+	  Repeat Password
+	</label>
+	<input class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="password" type="password" placeholder="******************">
+      </div>
+      <div class="flex items-center justify-center">
+	<button class="bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4" type="submit">
+	  Sign Up
+	</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
