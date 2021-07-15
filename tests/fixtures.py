@@ -32,4 +32,5 @@ def db() -> Generator:
 
 @pytest.fixture(scope="module")
 def client():
-    pass
+    with app.test_client() as client:
+        yield client

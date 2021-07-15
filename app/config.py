@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     EXPLAIN_TEMPLATE_LOADING = False
 
     BCRYPT_ROUNDS = 12
+    WTF_CSRF_ENABLED: bool = True
 
 
 settings = Settings()
