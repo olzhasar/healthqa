@@ -11,6 +11,7 @@ flask-login = "*"
 alembic = "*"
 pydantic = "*"
 bcrypt = "*"
+flask-wtf = "*"
 
 [dev-packages]
 flake8 = "*"
