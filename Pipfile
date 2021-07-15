@@ -12,6 +12,7 @@ alembic = "*"
 pydantic = "*"
 bcrypt = "*"
 flask-wtf = "*"
+email-validator = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -21,6 +22,8 @@ mypy = "*"
 pytest = "*"
 pytest-factoryboy = "*"
 psycopg2-binary = "*"
+sqlalchemy-stubs = "*"
+sqlalchemy-utils = "*"
 
 [requires]
 python_version = "3.9"
