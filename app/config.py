@@ -10,5 +10,7 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
 
+    EXPLAIN_TEMPLATE_LOADING = False
+
 
 settings = Settings()
