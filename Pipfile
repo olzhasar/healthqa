@@ -9,6 +9,8 @@ sqlalchemy = "*"
 flask-admin = "*"
 flask-login = "*"
 alembic = "*"
+pydantic = "*"
+bcrypt = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -17,6 +19,7 @@ isort = "*"
 mypy = "*"
 pytest = "*"
 pytest-factoryboy = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.9"
