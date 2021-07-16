@@ -22,8 +22,8 @@ mypy = "*"
 pytest = "*"
 pytest-factoryboy = "*"
 psycopg2-binary = "*"
-sqlalchemy-stubs = "*"
 sqlalchemy-utils = "*"
+sqlalchemy2-stubs = "*"
 
 [requires]
 python_version = "3.9"
