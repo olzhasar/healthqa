@@ -10,7 +10,7 @@ from db.engine import engine
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def get_db():
+def get_db() -> Session:
     db = getattr(g, "_database", None)
     if db is None:
         if settings.TESTING:
