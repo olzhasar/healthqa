@@ -182,3 +182,24 @@ class TestLogin:
         )
 
         assert response.status_code == 200
+
+
+class TestLogout:
+    url = "/logout"
+
+    def test_ok(self, as_user):
+        response = as_user.post(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("home.index")
+
+    def test_not_logged_in(self, client):
+        response = client.post(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 401

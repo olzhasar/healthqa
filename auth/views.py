@@ -1,5 +1,5 @@
-from flask import Blueprint, redirect, render_template, url_for
-from flask_login import current_user, login_required, login_user, logout_user
+from flask import Blueprint, abort, redirect, render_template, url_for
+from flask_login import current_user, login_user, logout_user
 
 from app.security import check_password
 from auth import forms
@@ -44,8 +44,10 @@ def signup():
     return render_template("signup.html", form=form)
 
 
-@bp.route("/logout")
-@login_required
+@bp.route("/logout", methods=["POST"])
 def logout():
+    if not current_user.is_authenticated:
+        abort(401)
+
     logout_user()
     return redirect(url_for("home.index"))
