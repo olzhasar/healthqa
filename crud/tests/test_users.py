@@ -31,7 +31,7 @@ def test_username_exists(db, user):
     assert not username_exists(db, "unexisting_username")
 
 
-def test_create_user(db, user):
+def test_create_user(db):
     user = create_user(
         db,
         username="test_user",
