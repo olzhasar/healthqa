@@ -1,5 +1,7 @@
+from typing import cast
+
 from flask import g
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import Session, scoped_session, sessionmaker
 from werkzeug.local import LocalProxy
 
 from app.config import settings
@@ -20,4 +22,5 @@ def get_db():
     return g._database
 
 
-db = LocalProxy(get_db)
+_db = LocalProxy(get_db)
+db = cast(Session, _db)
