@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Generator
 
 import pytest
@@ -5,6 +6,7 @@ from sqlalchemy_utils import create_database, database_exists
 
 import models
 from app.factory import create_app
+from app.login import login_manager
 from db.engine import engine
 from tests.common import TestSession
 
@@ -38,4 +40,22 @@ def app():
 @pytest.fixture
 def client(app):
     with app.test_client() as client:
+        yield client
+
+
+@contextmanager
+def authenticate(user, db):
+    @login_manager.request_loader
+    def load_user_from_request(request):
+        db.refresh(user)
+        return user
+
+    yield user
+
+    login_manager._request_callback = None
+
+
+@pytest.fixture
+def as_user(user, db, client):
+    with authenticate(user, db):
         yield client
