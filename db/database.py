@@ -1,9 +1,23 @@
-from sqlalchemy import create_engine
+from flask import g
 from sqlalchemy.orm import scoped_session, sessionmaker
+from werkzeug.local import LocalProxy
 
-from db.dsn import POSTGRES_DSN
-
-engine = create_engine(POSTGRES_DSN, pool_pre_ping=True)
+from app.config import settings
+from db.engine import engine
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-db = scoped_session(SessionLocal)
+
+
+def get_db():
+    db = getattr(g, "_database", None)
+    if db is None:
+        if settings.TESTING:
+            from tests.common import TestSession
+
+            g._database = TestSession
+        else:
+            g._database = scoped_session(SessionLocal)
+    return g._database
+
+
+db = LocalProxy(get_db)

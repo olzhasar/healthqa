@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, g
 
 from app.config import settings
 from auth.views import bp as auth_bp
@@ -22,5 +22,11 @@ def create_app():
 
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
+
+    @app.teardown_appcontext
+    def close_db_connection(exception):
+        db = getattr(g, "_database", None)
+        if db is not None:
+            db.close()
 
     return app

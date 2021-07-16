@@ -4,8 +4,8 @@ import pytest
 from sqlalchemy_utils import create_database, database_exists
 
 import models
-from app.main import app
-from db.database import engine
+from app.factory import create_app
+from db.engine import engine
 from tests.common import TestSession
 
 
@@ -22,15 +22,20 @@ def _prepare_db():
 
 @pytest.fixture
 def db() -> Generator:
-    session = TestSession()
-    try:
+    with TestSession() as session:
+        session.begin_nested()
         yield session
-    finally:
         session.rollback()
-        TestSession.remove()
+
+    TestSession.remove()
 
 
-@pytest.fixture(scope="module")
-def client():
+@pytest.fixture
+def app():
+    return create_app()
+
+
+@pytest.fixture
+def client(app):
     with app.test_client() as client:
         yield client
