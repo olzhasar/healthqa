@@ -23,6 +23,12 @@ class TestSignup:
 
         assert response.status_code == 200
 
+    def test_get_already_authenticated(self, as_user):
+        response = as_user.get(self.url, follow_redirects=False)
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("home.index")
+
     def test_ok(self, client, data, db):
         response = client.post(
             self.url,
@@ -139,6 +145,15 @@ class TestLogin:
         response = client.get(self.url)
 
         assert response.status_code == 200
+
+    def test_get_already_authenticated(self, as_user, user):
+        response = as_user.get(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("home.index")
 
     def test_ok(self, client, db, user):
         response = client.post(
