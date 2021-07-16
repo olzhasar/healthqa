@@ -3,6 +3,7 @@ from pathlib import Path
 from flask import Flask, g
 
 from app.config import settings
+from app.login import login_manager
 from auth.views import bp as auth_bp
 from home.views import bp as home_bp
 
@@ -28,5 +29,7 @@ def create_app():
         db = getattr(g, "_database", None)
         if db is not None:
             db.close()
+
+    login_manager.init_app(app)
 
     return app

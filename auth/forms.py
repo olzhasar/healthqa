@@ -31,3 +31,8 @@ class SignupForm(FlaskForm):
     def validate_username(form, field):
         if username_exists(db, field.data):
             raise ValidationError(f"Username {field.data} is already taken")
+
+
+class LoginForm(FlaskForm):
+    username_or_email = StringField("Username or email", [validators.InputRequired()])
+    password = StringField("Password", [validators.InputRequired()])

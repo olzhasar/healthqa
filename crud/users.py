@@ -23,6 +23,19 @@ def username_exists(db: Session, username: str) -> bool:
     return bool(db.query(User.id).filter(User.username == username).first())
 
 
+def get_by_username_or_email(db: Session, value: str) -> Optional[User]:
+    return (
+        db.query(User)
+        .filter(
+            or_(
+                User.username == value,
+                User.email == value,
+            )
+        )
+        .first()
+    )
+
+
 def create_user(db: Session, username: str, email: str, password: str) -> User:
     user = User(
         username=username,

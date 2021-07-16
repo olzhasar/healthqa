@@ -126,3 +126,44 @@ class TestSignup:
 
         assert response.status_code == 200
         assert db.query(func.count(User.id)).scalar() == 0
+
+
+class TestLogin:
+    url = "/login"
+
+    @pytest.fixture
+    def user__password(self):
+        return "123qweasd"
+
+    def test_get(self, client):
+        response = client.get(self.url)
+
+        assert response.status_code == 200
+
+    def test_ok(self, client, db, user):
+        response = client.post(
+            self.url,
+            data=dict(username_or_email=user.email, password="123qweasd"),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("home.index")
+
+    def test_wrong_password(self, client, db, user):
+        response = client.post(
+            self.url,
+            data=dict(username_or_email=user.email, password="wrong_password"),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+    def test_user_not_found(self, client, db):
+        response = client.post(
+            self.url,
+            data=dict(username_or_email="wrong@email.com", password="123qweasd"),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
