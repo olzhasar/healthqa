@@ -13,6 +13,7 @@ pydantic = "*"
 bcrypt = "*"
 flask-wtf = "*"
 email-validator = "*"
+python-dotenv = "*"
 
 [dev-packages]
 flake8 = "*"
