@@ -13,10 +13,10 @@ class Answer(TimeStamped, Base):
 
     id = Column(Integer, primary_key=True)
 
-    question_id = Column(Integer, ForeignKey("questions.id"))
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
     question: Question = relationship("Question", backref="answers")
 
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     user: User = relationship("User", backref="answers")
 
     content = Column(Text)
