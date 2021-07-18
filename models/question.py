@@ -38,4 +38,4 @@ class Question(TimeStamped, Base):
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
 
-    tags: list[Tag] = relationship("tag", secondary=question_tags_table)
+    tags: list[Tag] = relationship("Tag", secondary=question_tags_table)
