@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, String
 
 from db.base import Base
+from models.mixins import TimeStamped
 
 
-class User(Base):
+class User(TimeStamped, Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
