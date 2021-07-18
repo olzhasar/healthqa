@@ -2,6 +2,7 @@ from pathlib import Path
 
 from flask import Flask, g
 
+from app import commands
 from app.config import settings
 from app.login import login_manager
 from auth.views import bp as auth_bp
@@ -31,5 +32,6 @@ def create_app():
             db.close()
 
     login_manager.init_app(app)
+    commands.init_app(app)
 
     return app
