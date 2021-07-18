@@ -10,8 +10,20 @@ from models.user import User
 question_tags_table = Table(
     "question_tags",
     Base.metadata,
-    Column("question_id", Integer, ForeignKey("questions.id")),
-    Column("tag_id", Integer, ForeignKey("tags.id")),
+    Column(
+        "question_id",
+        Integer,
+        ForeignKey("questions.id"),
+        nullable=False,
+        index=True,
+    ),
+    Column(
+        "tag_id",
+        Integer,
+        ForeignKey("tags.id"),
+        nullable=False,
+        index=True,
+    ),
 )
 
 
@@ -20,10 +32,10 @@ class Question(TimeStamped, Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     user: User = relationship("User", backref="questions")
 
-    title = Column(String(200))
-    content = Column(Text)
+    title = Column(String(200), nullable=False)
+    content = Column(Text, nullable=False)
 
     tags: list[Tag] = relationship("tag", secondary=question_tags_table)
