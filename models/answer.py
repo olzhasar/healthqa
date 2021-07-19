@@ -32,3 +32,5 @@ class AnswerVote(BaseVote, Base):
         index=True,
     )
     answer: Answer = relationship("Answer", backref="votes")
+
+    user: User = relationship("User", backref="answer_votes")

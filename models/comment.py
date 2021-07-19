@@ -36,3 +36,5 @@ class CommentVote(BaseVote, Base):
         index=True,
     )
     comment: Comment = relationship("Comment", backref="votes")
+
+    user: User = relationship("User", backref="comment_votes")

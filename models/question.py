@@ -51,3 +51,5 @@ class QuestionVote(BaseVote, Base):
         index=True,
     )
     question: Question = relationship("Question", backref="votes")
+
+    user: User = relationship("User", backref="question_votes")
