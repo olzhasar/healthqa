@@ -3,7 +3,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, Text
 
 from db.base import Base
-from models.mixins import TimeStamped
+from models.mixins import BaseVote, TimeStamped
 from models.question import Question
 from models.user import User
 
@@ -20,3 +20,15 @@ class Answer(TimeStamped, Base):
     user: User = relationship("User", backref="answers")
 
     content = Column(Text)
+
+
+class AnswerVote(BaseVote, Base):
+    __tablename__ = "answer_votes"
+
+    answer_id = Column(
+        Integer,
+        ForeignKey("answers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    answer: Answer = relationship("Answer", backref="votes")

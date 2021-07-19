@@ -3,7 +3,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer, String, Text
 
 from db.base import Base
-from models.mixins import TimeStamped
+from models.mixins import BaseVote, TimeStamped
 from models.tag import Tag
 from models.user import User
 
@@ -39,3 +39,15 @@ class Question(TimeStamped, Base):
     content = Column(Text, nullable=False)
 
     tags: list[Tag] = relationship("Tag", secondary=question_tags_table)
+
+
+class QuestionVote(BaseVote, Base):
+    __tablename__ = "question_votes"
+
+    question_id = Column(
+        Integer,
+        ForeignKey("questions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    question: Question = relationship("Question", backref="votes")
