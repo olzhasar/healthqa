@@ -1,3 +1,4 @@
+from flask import url_for
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer, String, Text
@@ -39,6 +40,10 @@ class Question(TimeStamped, Base):
     content = Column(Text, nullable=False)
 
     tags: list[Tag] = relationship("Tag", secondary=question_tags_table)
+
+    @property
+    def url(self):
+        return url_for("questions.details", id=self.id)
 
 
 class QuestionVote(BaseVote, Base):

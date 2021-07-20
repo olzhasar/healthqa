@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, abort, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 import crud
@@ -10,9 +10,13 @@ bp = Blueprint(
 )
 
 
-@bp.route("/<question_id>")
-def details(question_id: int):
-    return render_template("details.html")
+@bp.route("/<int:id>")
+def details(id: int):
+    question = crud.question.get_by_id(db, id)
+    if not question:
+        abort(404)
+
+    return render_template("details.html", question=question)
 
 
 @bp.route("/ask", methods=["GET", "POST"])

@@ -4,6 +4,10 @@ from models.question import Question, Tag
 from models.user import User
 
 
+def get_by_id(db: Session, id: int):
+    return db.query(Question).filter(Question.id == id).first()
+
+
 def get_all(db: Session, *, limit: int = 10):
     return db.query(Question).order_by(Question.id.desc()).limit(limit).all()
 
