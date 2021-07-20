@@ -2,7 +2,7 @@ import factory
 from factory.alchemy import SQLAlchemyModelFactory as BaseFactory
 
 from app.security import hash_password
-from models import Answer, Question, Tag, User
+from models import Answer, Comment, Question, Tag, User
 from tests.common import TestSession
 
 
@@ -48,3 +48,21 @@ class AnswerFactory(BaseFactory):
     class Meta:
         model = Answer
         sqlalchemy_session = TestSession
+
+
+class BaseCommentFactory(BaseFactory):
+    user = factory.SubFactory(UserFactory)
+    content = factory.Faker("paragraph")
+
+    class Meta:
+        abstract = True
+        model = Comment
+        sqlalchemy_session = TestSession
+
+
+class QuestionCommentFactory(BaseCommentFactory):
+    question = factory.SubFactory(QuestionFactory)
+
+
+class AnwserCommentFactory(BaseCommentFactory):
+    answer = factory.SubFactory(AnswerFactory)
