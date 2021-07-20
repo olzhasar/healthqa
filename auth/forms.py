@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, ValidationError, validators
 from wtforms.widgets import PasswordInput
 
-from crud.users import email_exists, username_exists
+import crud
 from db.database import db
 
 
@@ -11,11 +11,6 @@ class SignupForm(FlaskForm):
         "Email",
         [validators.InputRequired(), validators.Email()],
         description="Your email address",
-    )
-    username = StringField(
-        "Username",
-        [validators.InputRequired(), validators.Length(min=4)],
-        description="Your unique username",
     )
     password = StringField(
         "Password",
@@ -37,16 +32,12 @@ class SignupForm(FlaskForm):
     )
 
     def validate_email(form, field):
-        if email_exists(db, field.data):
+        if crud.user.email_exists(db, field.data):
             raise ValidationError("User with this email is already registered")
-
-    def validate_username(form, field):
-        if username_exists(db, field.data):
-            raise ValidationError(f"Username {field.data} is already taken")
 
 
 class LoginForm(FlaskForm):
-    username_or_email = StringField("Username or email", [validators.InputRequired()])
+    email = StringField("Email", [validators.InputRequired()])
     password = StringField(
         "Password",
         [validators.InputRequired()],

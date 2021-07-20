@@ -12,7 +12,6 @@ class TestSignup:
     @pytest.fixture
     def data(self):
         return {
-            "username": "new_user",
             "email": "vincent@vega.com",
             "password": "123qweasd",
             "password_repeat": "123qweasd",
@@ -39,23 +38,10 @@ class TestSignup:
         assert response.status_code == 302
         assert response.location == full_url_for("home.index")
 
-        created = db.query(User).filter(User.username == data["username"]).first()
+        created = db.query(User).filter(User.email == data["email"]).first()
         assert created
         assert created.id
-        assert created.email == data["email"]
         assert check_password(data["password"], created.password)
-
-    def test_username_exists(self, client, data, db, user):
-        data["username"] = user.username
-
-        response = client.post(
-            self.url,
-            data=data,
-            follow_redirects=False,
-        )
-
-        assert response.status_code == 200
-        assert db.query(func.count(User.id)).scalar() == 1
 
     def test_email_exists(self, client, data, db, user):
         data["email"] = user.email
@@ -70,7 +56,12 @@ class TestSignup:
         assert db.query(func.count(User.id)).scalar() == 1
 
     @pytest.mark.parametrize(
-        "missing_field", ["username", "email", "password", "password_repeat"]
+        "missing_field",
+        [
+            "email",
+            "password",
+            "password_repeat",
+        ],
     )
     def test_field_missing(self, client, data, db, missing_field):
         data.pop(missing_field)
@@ -86,18 +77,6 @@ class TestSignup:
 
     def test_passwords_mismatch(self, client, data, db):
         data["password_repeat"] = "wrong_password"
-
-        response = client.post(
-            self.url,
-            data=data,
-            follow_redirects=False,
-        )
-
-        assert response.status_code == 200
-        assert db.query(func.count(User.id)).scalar() == 0
-
-    def test_username_min_length(self, client, data, db):
-        data["username"] = "ab"
 
         response = client.post(
             self.url,
@@ -158,7 +137,7 @@ class TestLogin:
     def test_ok(self, client, db, user):
         response = client.post(
             self.url,
-            data=dict(username_or_email=user.email, password="123qweasd"),
+            data=dict(email=user.email, password="123qweasd"),
             follow_redirects=False,
         )
 
@@ -168,7 +147,7 @@ class TestLogin:
     def test_wrong_password(self, client, db, user):
         response = client.post(
             self.url,
-            data=dict(username_or_email=user.email, password="wrong_password"),
+            data=dict(email=user.email, password="wrong_password"),
             follow_redirects=False,
         )
 
@@ -177,7 +156,7 @@ class TestLogin:
     def test_user_not_found(self, client, db):
         response = client.post(
             self.url,
-            data=dict(username_or_email="wrong@email.com", password="123qweasd"),
+            data=dict(email="wrong@email.com", password="123qweasd"),
             follow_redirects=False,
         )
 

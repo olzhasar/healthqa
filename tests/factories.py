@@ -8,7 +8,6 @@ from tests.common import TestSession
 
 class UserFactory(BaseFactory):
     email = factory.Faker("email")
-    username = factory.Sequence(lambda n: f"user_{n}")
     password = factory.Faker("password")
 
     @classmethod

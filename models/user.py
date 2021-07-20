@@ -10,7 +10,6 @@ class User(TimeStamped, Base):
     id = Column(Integer, primary_key=True)
     email = Column(String(255), nullable=False, unique=True, index=True)
     password = Column(String(100))
-    username = Column(String(50), nullable=False, unique=True, index=True)
 
     @property
     def is_authenticated(self) -> bool:
