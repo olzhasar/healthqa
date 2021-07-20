@@ -14,7 +14,7 @@ class TestAskQuestion:
     @pytest.fixture
     def data(self):
         return {
-            "title": "Test title",
+            "title": "Test title corresponding to reuqirements",
             "content": fake.paragraph(),
         }
 
@@ -47,8 +47,16 @@ class TestAskQuestion:
         assert response.status_code == 200
         assert db.query(func.count(Question.id)).scalar() == 0
 
-    def test_content_short(self, as_user, data, db):
-        data["content"] = "short"
+    @pytest.mark.parametrize(
+        ("field_name", "field_value"),
+        [
+            ("title", "short"),
+            ("title", fake.words(30)),
+            ("content", "short"),
+        ],
+    )
+    def test_fields_length_validation(self, as_user, data, db, field_name, field_value):
+        data[field_name] = field_value
 
         response = as_user.post(
             self.url,
