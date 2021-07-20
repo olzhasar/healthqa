@@ -4,14 +4,14 @@
 {% block content %}
   <div class="w-full lg:w-3/4 px-4">
     <div class="flex justify-between mb-4">
-      <h1 class="text-2xl font-bold">All questions</h1>
+      <h1 class="text-gray-500 text-2xl font-bold">All questions</h1>
       <a href="{{ url_for('questions.ask') }}" class="bg-green-500 hover:bg-green-600 text-white text-lg font-bold py-2 px-4 border border-green-100">
 	Ask question
       </a>
     </div>
     {% for question in questions %}
       <div class="mb-4 shadow bg-white border border-gray-200 shadow flex">
-	<div class="p-8 flex">
+	<div class="p-8 flex text-gray-600">
 	  <span class="mr-8 text-center">
 	    <p class="text-xl">0</p>
 	    <p>votes</p>
@@ -39,7 +39,7 @@
 	      {% endfor %}
 	    </div>
 
-	    <div class="text-sm py-2">
+	    <div class="text-sm text-gray-500 py-2">
 	      Asked 2 hours ago <a href="" class="text-blue-600 hover:text-blue-400">{{ question.user.name }}</a>
 
 	    </div>
@@ -52,10 +52,10 @@
 
   <div class="lg:w-1/4 px-4">
     <div class="p-4 border border-gray-400 bg-yellow-100 shadow">
-      <h2 class="text-xl font-bold">Tags</h2>
+      <h2 class="text-gray-500 text-xl font-bold">Tags</h2>
       <div class="flex flex-wrap mt-4">
 	{% for tag in tags %}
-	  <a href="" class="px-2 mr-2 my-2 bg-gray-300 rounded">
+	  <a href="" class="px-2 mr-2 my-2 bg-gray-300 text-gray-800 rounded">
 	    {{ tag.name }}
 	  </a>
 	{% endfor %}
