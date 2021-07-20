@@ -1,5 +1,6 @@
-from crud import user
+from crud import question, user
 
 __all__ = [
     "user",
+    "question",
 ]
