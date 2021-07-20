@@ -12,6 +12,7 @@ class TestSignup:
     @pytest.fixture
     def data(self):
         return {
+            "name": "Vincent Vega",
             "email": "vincent@vega.com",
             "password": "123qweasd",
             "password_repeat": "123qweasd",
@@ -59,6 +60,7 @@ class TestSignup:
         "missing_field",
         [
             "email",
+            "name",
             "password",
             "password_repeat",
         ],

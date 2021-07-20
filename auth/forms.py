@@ -9,8 +9,16 @@ from db.database import db
 class SignupForm(FlaskForm):
     email = StringField(
         "Email",
-        [validators.InputRequired(), validators.Email()],
+        [
+            validators.InputRequired(),
+            validators.Email(message="Your email is not valid"),
+        ],
         description="Your email address",
+    )
+    name = StringField(
+        "Name",
+        [validators.InputRequired(), validators.Length(min=3)],
+        description="Your display name",
     )
     password = StringField(
         "Password",

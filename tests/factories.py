@@ -9,6 +9,7 @@ from tests.common import TestSession
 class UserFactory(BaseFactory):
     email = factory.Faker("email")
     password = factory.Faker("password")
+    name = factory.Faker("name")
 
     @classmethod
     def _save(cls, model_class, session, *args, **kwargs):

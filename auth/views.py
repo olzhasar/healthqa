@@ -37,6 +37,7 @@ def signup():
         user = crud.user.create_user(
             db,
             email=form.email.data,
+            name=form.name.data,
             password=form.password.data,
         )
         login_user(user)

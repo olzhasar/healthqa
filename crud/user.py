@@ -14,9 +14,10 @@ def email_exists(db: Session, email: str) -> bool:
     return bool(db.query(User.id).filter(User.email == email).first())
 
 
-def create_user(db: Session, email: str, password: str) -> User:
+def create_user(db: Session, email: str, name: str, password: str) -> User:
     user = User(
         email=email,
+        name=name,
         password=hash_password(password),
     )
 

@@ -17,6 +17,7 @@ def test_create_user(db):
     user = create_user(
         db,
         email="vincent@vega.com",
+        name="Vincent Vega",
         password="123qweasd",
     )
 
