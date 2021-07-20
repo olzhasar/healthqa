@@ -5,7 +5,7 @@ from models.user import User
 
 
 def get_all(db: Session, *, limit: int = 10):
-    return db.query(Question).limit(limit).all()
+    return db.query(Question).order_by(Question.id.desc()).limit(limit).all()
 
 
 def create(db: Session, *, user: User, title: str, content: str, tags: list[Tag]):
