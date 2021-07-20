@@ -35,10 +35,10 @@
 	</li>
 	{% else %}
 	<li class="mr-3 py-2 lg:py-0">
-	  <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{{ url_for('auth.login') }}">Login</a>
+	  <a class="inline-block text-green-800 bg-white hover:bg-green-100 border border-green-400 py-2 px-4" href="{{ url_for('auth.login') }}">Login</a>
 	</li>
 	<li class="mr-3 py-2 lg:py-0">
-	  <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{{ url_for('auth.signup') }}">Sign Up</a>
+	  <a class="inline-block text-green-800 bg-green-200 hover:bg-green-300 border border-green-400 py-2 px-4" href="{{ url_for('auth.signup') }}">Sign Up</a>
 	</li>
 	{% endif %}
       </ul>
