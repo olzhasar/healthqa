@@ -7,6 +7,7 @@ from app.config import settings
 from app.login import login_manager
 from auth.views import bp as auth_bp
 from home.views import bp as home_bp
+from questions.views import bp as questions_bp
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 TEMPLATES_DIR = BASE_DIR.joinpath("templates")
@@ -24,6 +25,7 @@ def create_app():
 
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(questions_bp)
 
     @app.teardown_appcontext
     def close_db_connection(exception):
