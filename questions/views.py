@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, url_for
 from flask_login import login_required
 
+import crud
 from db.database import db
+from questions.forms import AskQuestionForm
 
 bp = Blueprint(
     "questions", __name__, template_folder="templates", url_prefix="/questions"
@@ -16,4 +18,12 @@ def details(question_id: int):
 @bp.route("/ask", methods=["GET", "POST"])
 @login_required
 def ask():
-    return render_template("ask_question.html")
+    form = AskQuestionForm()
+    if form.validate_on_submit():
+        crud.question.create(
+            db,
+            title=form.title.data,
+            content=form.content.data,
+        )
+        return redirect(url_for("home.index"))
+    return render_template("ask_question.html", form=form)
