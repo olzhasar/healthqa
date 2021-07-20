@@ -16,7 +16,7 @@ class AskQuestionForm(FlaskForm):
         "Content",
         [
             validators.InputRequired(),
-            validators.Length(min=50),
+            validators.Length(min=30),
         ],
         description="Question content",
         render_kw={"rows": 16},
