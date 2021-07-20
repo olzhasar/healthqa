@@ -4,25 +4,23 @@
     <h1 class="text-2xl">Ask new question</h1>
     <hr class="mt-4 mb-8" />
     <form action="" method="POST">
+      {{ form.csrf_token }}
       <div class="mb-4">
-        <label
-          class="block text-gray-800 text-sm font-bold mb-2"
-          for="{{ form.title.name }}"
-        >
-          {{ form.title.label.text }}
-        </label>
-        {{ form.title(class_="shadow appearance-none border rounded w-full py-2
-        px-3 text-grey-darker") }}
+	<label class="block text-gray-800 text-sm font-bold mb-2" for="{{ form.title.name }}">
+	  {{ form.title.label.text }}
+	</label>
+	{{ form.title(class_="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker") }}
       </div>
       <div class="mb-4">
-        <label
-          class="block text-gray-800 text-sm font-bold mb-2"
-          for="{{ form.content.name }}"
-        >
-          {{ form.content.label.text }}
-        </label>
-        {{ form.content(class_="shadow appearance-none border rounded w-full
-        py-2 px-3 text-grey-darker", type="textarea") }}
+	<label class="block text-gray-800 text-sm font-bold mb-2" for="{{ form.content.name }}">
+	  {{ form.content.label.text }}
+	</label>
+	{{ form.content(class_="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker", type="textarea") }}
+      </div>
+      <div>
+	<button class="bg-green-500 hover:bg-green-600 text-white font-bold border border-green-100 py-2 px-4" type="submit">
+	  Submit
+	</button>
       </div>
     </form>
   </div>
