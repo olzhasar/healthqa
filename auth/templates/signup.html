@@ -8,21 +8,7 @@
 	{{ form.csrf_token }}
 	{% for field in form if not field.id=='csrf_token' %}
 	<div class="mb-{% if field.errors %}6{% else %}4{% endif %}">
-	  <label class="block text-gray-800 text-sm font-bold mb-2" for="{{ field.name }}">
-	    {{ field.label.text }}
-	  </label>
-
-	  {% set class = "shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" %}
-	  {% if field.errors %}
-	    {% set class = class + " mb-3" %}
-	  {% endif %}
-
-	  {{ field(class_=class, placeholder=field.description) }}
-
-	  {% for error in field.errors %}
-	    <p class="text-red-500 text-xs italic">{{ error }}</p>
-	  {% endfor %}
-
+	  {% include "form/field.html" %}
 	</div>
       {% endfor %}
       <div class="flex items-center justify-center">

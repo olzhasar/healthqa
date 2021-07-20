@@ -17,16 +17,18 @@ class SignupForm(FlaskForm):
     )
     name = StringField(
         "Name",
-        [validators.InputRequired(), validators.Length(min=3)],
+        [
+            validators.InputRequired(),
+            validators.Length(min=3, message="Name must be at least 3 characters long"),
+        ],
         description="Your display name",
     )
     password = StringField(
         "Password",
         [
             validators.InputRequired(),
-            validators.Length(min=6),
-            validators.EqualTo(
-                "password_repeat", message="Please make sure your passwords match"
+            validators.Length(
+                min=6, message="Password must be at least 6 characters long"
             ),
         ],
         widget=PasswordInput(),
@@ -34,7 +36,12 @@ class SignupForm(FlaskForm):
     )
     password_repeat = StringField(
         "Repeat password",
-        [validators.InputRequired(), validators.Length(min=6)],
+        [
+            validators.InputRequired(),
+            validators.EqualTo(
+                "password", message="Please make sure your passwords match"
+            ),
+        ],
         widget=PasswordInput(),
         description="************",
     )

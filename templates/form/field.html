@@ -1,0 +1,14 @@
+<label class="block text-gray-800 text-sm font-bold mb-2" for="{{ field.name }}">
+  {{ field.label.text }}
+</label>
+
+{% set class = "shadow appearance-none border w-full py-2 px-3 text-grey-darker" %}
+{% if field.errors %}
+  {% set class = class + " border-red-400 mb-3" %}
+{% endif %}
+
+{{ field(class_=class, placeholder=field.description) }}
+
+{% for error in field.errors %}
+  <p class="text-red-500 text-xs italic">{{ error }}</p>
+{% endfor %}
