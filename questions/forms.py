@@ -41,9 +41,11 @@ class CommentForm(FlaskForm):
     content = TextAreaField(
         "Content",
         [
-            validators.InputRequired(),
-            validators.Length(min=3),
+            validators.InputRequired(message="Content field is required"),
+            validators.Length(
+                min=15, message="Make sure your comment is at least 15 symbols long"
+            ),
         ],
         description="Question content",
-        render_kw={"rows": 16},
+        render_kw={"rows": 4},
     )

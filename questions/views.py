@@ -32,8 +32,14 @@ def details(id: int):
         abort(404)
 
     answer_form = forms.AnswerForm()
+    comment_form = forms.CommentForm()
 
-    return render_template("details.html", question=question, answer_form=answer_form)
+    return render_template(
+        "details.html",
+        question=question,
+        answer_form=answer_form,
+        comment_form=comment_form,
+    )
 
 
 @bp.route("/questions/<int:id>/answer", methods=["POST"])
@@ -71,9 +77,9 @@ def question_comment(id: int):
             return jsonify({"success": True}), 201
         except IntegrityError:
             db.rollback()
-            return jsonify({"error": "invalid question_id"}), 403
+            return jsonify({"error": "invalid question_id"}), 400
 
-    return jsonify(form.errors), 403
+    return jsonify(form.errors), 400
 
 
 @bp.route("/answers/<int:id>/comment", methods=["POST"])
@@ -91,6 +97,6 @@ def answer_comment(id: int):
             return jsonify({"success": True}), 201
         except IntegrityError:
             db.rollback()
-            return jsonify({"error": "invalid answer_id"}), 403
+            return jsonify({"error": "invalid answer_id"}), 400
 
-    return jsonify(form.errors), 403
+    return jsonify(form.errors), 400

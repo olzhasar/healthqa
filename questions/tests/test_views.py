@@ -162,7 +162,7 @@ class TestAnswerComment:
             data=data,
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 400
         assert response.json == {"error": "invalid answer_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
@@ -207,7 +207,7 @@ class TestQuestionComment:
             data=data,
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 400
         assert response.json == {"error": "invalid question_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
