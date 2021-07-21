@@ -30,6 +30,7 @@
 	{% if current_user.is_authenticated %}
 	<li class="mr-3 py-2 lg:py-0">
 	  <form action="{{ url_for('auth.logout') }}" method="POST">
+	    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 	    <button class="inline-block text-gray-600 no-underline hover:text-gray-900 border border-gray-400 hover:bg-gray-100 py-2 px-4" href="{{ url_for('auth.logout') }}" type="submit">Logout</button>
 	  </form>
 	</li>
