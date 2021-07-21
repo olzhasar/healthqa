@@ -32,7 +32,7 @@ class AnswerForm(FlaskForm):
             validators.InputRequired(),
             validators.Length(min=20),
         ],
-        description="Question content",
+        description="Answer content",
         render_kw={"rows": 16},
     )
 
