@@ -1,8 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <div class="w-full lg:w-3/5 px-4">
-  <div class="bg-white border border-gray-200 shadow p-8">
-    <h1 class="text-2xl">Ask new question</h1>
-    <hr class="mt-4 mb-8" />
+  <div class="bg-white p-8">
+    <h1 class="text-2xl pb-4 border-b mb-8">Ask new question</h1>
     <form action="" method="POST">
       {{ form.csrf_token }}
       <div class="mb-4">
