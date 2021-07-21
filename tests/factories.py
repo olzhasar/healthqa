@@ -7,6 +7,7 @@ from tests.common import TestSession
 
 
 class UserFactory(BaseFactory):
+    id = factory.Sequence(lambda n: n)
     email = factory.Faker("email")
     password = factory.Faker("password")
     name = factory.Faker("name")
@@ -30,6 +31,7 @@ class TagFactory(BaseFactory):
 
 
 class QuestionFactory(BaseFactory):
+    id = factory.Sequence(lambda n: n)
     user = factory.SubFactory(UserFactory)
 
     title = factory.Faker("sentence")
@@ -41,6 +43,7 @@ class QuestionFactory(BaseFactory):
 
 
 class AnswerFactory(BaseFactory):
+    id = factory.Sequence(lambda n: n)
     question = factory.SubFactory(QuestionFactory)
     user = factory.SubFactory(UserFactory)
 
@@ -52,6 +55,7 @@ class AnswerFactory(BaseFactory):
 
 
 class BaseCommentFactory(BaseFactory):
+    id = factory.Sequence(lambda n: n)
     user = factory.SubFactory(UserFactory)
     content = factory.Faker("paragraph")
 

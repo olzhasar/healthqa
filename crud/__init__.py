@@ -1,6 +1,8 @@
-from crud import question, tag, user
+from crud import answer, comment, question, tag, user
 
 __all__ = [
+    "answer",
+    "comment",
     "question",
     "tag",
     "user",

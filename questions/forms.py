@@ -23,3 +23,27 @@ class AskQuestionForm(FlaskForm):
     )
 
     tags = SelectMultipleField("Tags", description="Tags")
+
+
+class AnswerForm(FlaskForm):
+    content = TextAreaField(
+        "Content",
+        [
+            validators.InputRequired(),
+            validators.Length(min=20),
+        ],
+        description="Question content",
+        render_kw={"rows": 16},
+    )
+
+
+class CommentForm(FlaskForm):
+    content = TextAreaField(
+        "Content",
+        [
+            validators.InputRequired(),
+            validators.Length(min=3),
+        ],
+        description="Question content",
+        render_kw={"rows": 16},
+    )
