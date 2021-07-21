@@ -6,12 +6,12 @@
       {{ form.csrf_token }}
       <div class="mb-4">
 	{% with field=form.title %}
-	  {% include "form/field.html" %}
+	  {% include "form/field_with_label.html" %}
 	{% endwith %}
       </div>
       <div class="mb-4">
 	{% with field=form.content %}
-	  {% include "form/field.html" %}
+	  {% include "form/field_with_label.html" %}
 	{% endwith %}
       </div>
       <div>

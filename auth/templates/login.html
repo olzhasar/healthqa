@@ -8,12 +8,12 @@
       {{ form.csrf_token }}
       <div class="mb-4">
 	{% with field=form.email %}
-	  {% include "form/field.html" %}
+	  {% include "form/field_with_label.html" %}
 	{% endwith %}
       </div>
       <div class="mb-6">
 	{% with field=form.password %}
-	  {% include "form/field.html" %}
+	  {% include "form/field_with_label.html" %}
 	{% endwith %}
 
 	{% if error %}

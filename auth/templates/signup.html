@@ -8,7 +8,7 @@
 	{{ form.csrf_token }}
 	{% for field in form if not field.id=='csrf_token' %}
 	<div class="mb-{% if field.errors %}6{% else %}4{% endif %}">
-	  {% include "form/field.html" %}
+	  {% include "form/field_with_label.html" %}
 	</div>
       {% endfor %}
       <div class="flex items-center justify-center">
