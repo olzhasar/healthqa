@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from flask import Flask, g
+from flask_wtf import CSRFProtect
 
 from app import commands
 from app.config import settings
@@ -26,6 +27,8 @@ def create_app():
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(questions_bp)
+
+    CSRFProtect(app)
 
     @app.teardown_appcontext
     def close_db_connection(exception):
