@@ -2,10 +2,9 @@
 
 {% block content %}
 <div class="w-full lg:w-3/5 px-4">
-  <div class="bg-white border border-gray-200 shadow p-8">
+  <div class="border-b border-gray-200 p-12">
     <div class="flex">
       <div class="mr-8">
-	
 	<svg class="text-black hover:fill-current hover:text-black" width="36px" height="36px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 	  <path d="M5.16108 14.9083C4.45387 15.7165 5.02785 16.9814 6.1018 16.9814H17.898C18.972 16.9814 19.5459 15.7165 18.8388 14.9083L13.3169 8.59762C12.6197 7.80079 11.3801 7.80079 10.6829 8.59762L5.16108 14.9083ZM6.65274 15.4814L11.8118 9.58537C11.9114 9.47154 12.0885 9.47154 12.1881 9.58537L17.3471 15.4814H6.65274Z" fill="#212121"/>
 	</svg>
@@ -16,17 +15,124 @@
 	</svg>
 
       </div>
-      <div>
-	<h1 class="text-2xl mb-2 text-green-800">{{ question.title }}</h1>
-	<div class="flex mb-4 text-gray-500 text-sm">
-	  <span class="mr-4">Asked today</span>
-	  <span>Viewed 15 times</span>
+
+      <div class="w-full">
+	<div class="mb-8">
+	  <h1 class="text-2xl mb-2 text-green-800">{{ question.title }}</h1>
+	  <div class="flex mb-4 text-gray-500 text-sm">
+	    <span class="mr-4">Asked today</span>
+	    <span>Viewed 15 times</span>
+	  </div>
+	  <div class="text-gray-800">
+	    {{ question.content|safe }}
+	  </div>
 	</div>
-	<div class="text-gray-800">
-	  {{ question.content|safe }}
+
+	<div class="flex justify-between">
+	  <div>
+	  </div>
+	  <div>
+	    <span class="block text-gray-400">
+	      Asked {{ question.created_at.strftime('%Y-%m-%d at %H:%M') }}
+	    </span>
+	    <span class="block">
+	      <a href="" class="text-green-500 hover:text-green-400 mr-2">{{ question.user.name }}</a>
+	      <span class="font-bold text-gray-800">400</span>
+	    </span>
+	  </div>
+
 	</div>
+
+	<div id="question_comments" class="mt-8 text-sm text-gray-800">
+	  {% for comment in question.comments %}
+	    <div id="question_comment_{{ comment.id }}" class="flex my-4">
+	      <div class="text-center">
+		<svg class="text-black hover:fill-current hover:text-black" width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		  <path d="M5.16108 14.9083C4.45387 15.7165 5.02785 16.9814 6.1018 16.9814H17.898C18.972 16.9814 19.5459 15.7165 18.8388 14.9083L13.3169 8.59762C12.6197 7.80079 11.3801 7.80079 10.6829 8.59762L5.16108 14.9083ZM6.65274 15.4814L11.8118 9.58537C11.9114 9.47154 12.0885 9.47154 12.1881 9.58537L17.3471 15.4814H6.65274Z" fill="#212121"/>
+		</svg>
+		<span id="comment_rating">0</span>
+
+		<svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		  <path d="M5.16108 10.0731C4.45387 9.2649 5.02785 8 6.1018 8H17.898C18.972 8 19.5459 9.2649 18.8388 10.0731L13.3169 16.3838C12.6197 17.1806 11.3801 17.1806 10.6829 16.3838L5.16108 10.0731ZM6.65274 9.5L11.8118 15.396C11.9114 15.5099 12.0885 15.5099 12.1881 15.396L17.3471 9.5H6.65274Z" fill="#212121"/>
+		</svg>
+	      </div>
+	      <div class="ml-4">
+		{{ comment.content }} - <a href="" class="text-green-500 hover:text-green-400">{{ comment.user.name }}</a> <span class="text-gray-400">{{ comment.created_at.strftime('%Y-%m-%d at %H:%M') }}</span>
+	      </div>
+	    </div>
+	  {% endfor %}
+	  <div class="mt-8" x-data="questionCommentForm()">
+	    <button @click="showForm = true" x-show="!showForm" class="text-green-500 hover:text-green-400">Add comment</button>
+	    <form x-show="showForm" id="question_comment_form" method="POST" @submit.prevent="submitData">
+	      <div class="flex">
+		<div class="w-full mr-4">
+		  <textarea name="content" rows="4" class="appearance-none border w-full py-2 px-3 text-grey-darker focus:outline-none focus:border-green-300" placeholder="{{ comment_form.content.description }}" x-model="data.content"></textarea>
+		</div>
+		<div>
+		  <button type="submit" class="bg-green-600 p-2 text-white whitespace-nowrap">Add comment</button>
+		</div>
+	      </div>
+	      <div class="mt-2 text-red-500 font-italic" x-show="errorMessage" x-text="errorMessage"></div>
+	    </form>
+	  </div>
+
+	</div>
+
       </div>
     </div>
   </div>
+
+  {% for answer in question.answers %}
+    {% include "_answer.html" %}
+
+  {% endfor %}
+
+  <div class="p-12 mt-4">
+    <h3 class="text-lg font-bold text-gray-600">Your answer</h3>
+    <form action="">
+      <input type="text" class="shadow appearance-none border w-full py-2 px-3 text-grey-darker focus:outline-none focus:border-green-400">
+
+    </form>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    function questionCommentForm() {
+      return {
+        data: {
+          content: ''
+        },
+
+	errorMessage: '',
+	showForm: false,
+
+	submitData() {
+	  const formData = new FormData();
+	  formData.append('content', this.data.content);
+
+	  fetch('{{ url_for("questions.question_comment", id=question.id) }}', {
+	    method: 'POST',
+	    headers: {
+	      'X-CSRFToken': '{{ csrf_token() }}'
+	    },
+	    body: formData
+	  })
+	    .then(async(response) => {
+	      if (!response.ok) {
+		result = await response.json();
+		this.errorMessage = result.content;
+	      } else {
+		location.reload();
+	      }
+	    })
+	    .catch(error => {
+	      this.errorMessage = "Network error occured. Try refreshing this page";
+	    })
+	}
+      }
+    }
+  </script>
 {% endblock %}
