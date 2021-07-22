@@ -88,13 +88,13 @@ def answer_comment(id: int):
     form = forms.CommentForm()
     if form.validate_on_submit():
         try:
-            crud.comment.create_for_answer(
+            comment = crud.comment.create_for_answer(
                 db,
                 user=current_user,
                 answer_id=id,
                 content=form.content.data,
             )
-            return jsonify({"success": True}), 201
+            return render_template("_comment.html", comment=comment)
         except IntegrityError:
             db.rollback()
             return jsonify({"error": "invalid answer_id"}), 400
