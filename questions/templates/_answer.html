@@ -37,19 +37,9 @@
 	  {% include "_comment.html" %}
 	{% endfor %}
 
-	<div class="comment_form mt-8" x-data="{showForm: false}">
-	  <button @click="showForm = true" x-show="!showForm" class="text-green-500 hover:text-green-400">Add comment</button>
-	  <form x-show="showForm" id="question_comment_form" method="POST">
-	    <div class="flex">
-	      <div class="w-full mr-4">
-		<textarea name="content" rows="4" class="appearance-none border w-full py-2 px-3 text-grey-darker focus:outline-none focus:border-green-300" placeholder="{{ comment_form.content.description }}"></textarea>
-	      </div>
-	      <div>
-		<button hx-post="{{ url_for("questions.answer_comment", id=answer.id) }}" hx-include="textarea[name='content']" hx-target="closest .comment_form" hx-swap="outerHTML" class="bg-green-600 p-2 text-white whitespace-nowrap">Add comment</button>
-	      </div>
-	    </div>
-	  </form>
-	</div>
+	{% with url=url_for("questions.answer_comment", id=answer.id) %}
+	  {% include "_comment_form.html" %}
+	{% endwith %}
 
       </div>
     </div>

@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, jsonify, redirect, render_template, url_for
+from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 
@@ -54,10 +54,16 @@ def answer(id: int):
                 question_id=id,
                 content=form.content.data,
             )
-            return render_template("_answer.html", answer=answer)
         except IntegrityError:
             db.rollback()
             return jsonify({"error": "invalid question_id"}), 403
+        else:
+            comment_form = forms.CommentForm()
+            return render_template(
+                "_answer.html",
+                answer=answer,
+                comment_form=comment_form,
+            )
 
     return jsonify(form.errors), 403
 
@@ -68,13 +74,13 @@ def question_comment(id: int):
     form = forms.CommentForm()
     if form.validate_on_submit():
         try:
-            crud.comment.create_for_question(
+            comment = crud.comment.create_for_question(
                 db,
                 user=current_user,
                 question_id=id,
                 content=form.content.data,
             )
-            return jsonify({"success": True}), 201
+            return render_template("_comment.html", comment=comment)
         except IntegrityError:
             db.rollback()
             return jsonify({"error": "invalid question_id"}), 400
@@ -86,6 +92,7 @@ def question_comment(id: int):
 @login_required
 def answer_comment(id: int):
     form = forms.CommentForm()
+
     if form.validate_on_submit():
         try:
             comment = crud.comment.create_for_answer(
@@ -97,6 +104,10 @@ def answer_comment(id: int):
             return render_template("_comment.html", comment=comment)
         except IntegrityError:
             db.rollback()
-            return jsonify({"error": "invalid answer_id"}), 400
+            return jsonify({"error": "invalid question_id"}), 400
 
-    return jsonify(form.errors), 400
+    return render_template(
+        "_comment_form.html",
+        comment_form=form,
+        url=request.url,
+    )
