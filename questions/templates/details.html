@@ -45,22 +45,9 @@
 
 	<div id="question_comments" class="mt-8 text-sm text-gray-800">
 	  {% for comment in question.comments %}
-	    <div id="question_comment_{{ comment.id }}" class="flex my-4">
-	      <div class="text-center">
-		<svg class="text-black hover:fill-current hover:text-black" width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		  <path d="M5.16108 14.9083C4.45387 15.7165 5.02785 16.9814 6.1018 16.9814H17.898C18.972 16.9814 19.5459 15.7165 18.8388 14.9083L13.3169 8.59762C12.6197 7.80079 11.3801 7.80079 10.6829 8.59762L5.16108 14.9083ZM6.65274 15.4814L11.8118 9.58537C11.9114 9.47154 12.0885 9.47154 12.1881 9.58537L17.3471 15.4814H6.65274Z" fill="#212121"/>
-		</svg>
-		<span id="comment_rating">0</span>
-
-		<svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		  <path d="M5.16108 10.0731C4.45387 9.2649 5.02785 8 6.1018 8H17.898C18.972 8 19.5459 9.2649 18.8388 10.0731L13.3169 16.3838C12.6197 17.1806 11.3801 17.1806 10.6829 16.3838L5.16108 10.0731ZM6.65274 9.5L11.8118 15.396C11.9114 15.5099 12.0885 15.5099 12.1881 15.396L17.3471 9.5H6.65274Z" fill="#212121"/>
-		</svg>
-	      </div>
-	      <div class="ml-4">
-		{{ comment.content }} - <a href="" class="text-green-500 hover:text-green-400">{{ comment.user.name }}</a> <span class="text-gray-400">{{ comment.created_at.strftime('%Y-%m-%d at %H:%M') }}</span>
-	      </div>
-	    </div>
+	    {% include "_question_comment.html" %}
 	  {% endfor %}
+
 	  <div class="mt-8" x-data="questionCommentForm()">
 	    <button @click="showForm = true" x-show="!showForm" class="text-green-500 hover:text-green-400">Add comment</button>
 	    <form x-show="showForm" id="question_comment_form" method="POST" @submit.prevent="submitData">
@@ -75,7 +62,6 @@
 	      <div class="mt-2 text-red-500 font-italic" x-show="errorMessage" x-text="errorMessage"></div>
 	    </form>
 	  </div>
-
 	</div>
 
       </div>
@@ -87,17 +73,7 @@
   {% endfor %}
 
   {% if current_user.is_authenticated %}
-  <div id="answer_form" class="p-12 mt-4">
-    <h3 class="text-lg font-bold text-gray-600 mb-4">Your answer</h3>
-    <form method="POST">
-      <div class="mb-4">
-	<textarea name="content" rows="12" class="appearance-none border w-full py-2 px-3 text-grey-darker focus:outline-none focus:border-green-300" placeholder="{{ comment_form.content.description }}"></textarea>
-      </div>
-      <button hx-post="{{ url_for('questions.answer', id=question.id) }}" hx-include="textarea[name='content']" hx-target="#answer_form" hx-swap="outerHTML" class="bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4">
-	Submit
-      </button>
-    </form>
-  </div>
+    {% include "_answer_form.html" %}
   {% endif %}
 
 
