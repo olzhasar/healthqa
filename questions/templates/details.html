@@ -45,7 +45,7 @@
 
 	<div id="question_comments" class="mt-8 text-sm text-gray-800">
 	  {% for comment in question.comments %}
-	    {% include "_question_comment.html" %}
+	    {% include "_comment.html" %}
 	  {% endfor %}
 
 	  <div class="mt-8" x-data="questionCommentForm()">
