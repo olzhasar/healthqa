@@ -12,3 +12,5 @@ def create(db: Session, *, user: User, question_id: int, content: str):
 
     db.add(answer)
     db.commit()
+
+    return answer
