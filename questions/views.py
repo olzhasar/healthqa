@@ -48,13 +48,13 @@ def answer(id: int):
     form = forms.AnswerForm()
     if form.validate_on_submit():
         try:
-            crud.answer.create(
+            answer = crud.answer.create(
                 db,
                 user=current_user,
                 question_id=id,
                 content=form.content.data,
             )
-            return jsonify({"success": True}), 201
+            return render_template("_answer.html", answer=answer)
         except IntegrityError:
             db.rollback()
             return jsonify({"error": "invalid question_id"}), 403

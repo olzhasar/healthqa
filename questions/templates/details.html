@@ -84,26 +84,32 @@
 
   {% for answer in question.answers %}
     {% include "_answer.html" %}
-
   {% endfor %}
 
-  <div class="p-12 mt-4" x-data="answerForm()">
+  {% if current_user.is_authenticated %}
+  <div id="answer_form" class="p-12 mt-4">
     <h3 class="text-lg font-bold text-gray-600 mb-4">Your answer</h3>
-    <form method="POST" @submit.prevent="submitData">
+    <form method="POST">
       <div class="mb-4">
-	<textarea name="content" rows="12" class="appearance-none border w-full py-2 px-3 text-grey-darker focus:outline-none focus:border-green-300" placeholder="{{ comment_form.content.description }}" x-model="data.content"></textarea>
+	<textarea name="content" rows="12" class="appearance-none border w-full py-2 px-3 text-grey-darker focus:outline-none focus:border-green-300" placeholder="{{ comment_form.content.description }}"></textarea>
       </div>
-      <button class="bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4" type="submit">
+      <button hx-post="{{ url_for('questions.answer', id=question.id) }}" hx-include="textarea[name='content']" hx-target="#answer_form" hx-swap="outerHTML" class="bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4">
 	Submit
       </button>
     </form>
   </div>
+  {% endif %}
+
 
 </div>
 {% endblock %}
 
 {% block extra_js %}
   <script>
+    document.body.addEventListener('htmx:configRequest', function(event) {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token() }}';
+    });
+
     function questionCommentForm() {
       return {
         data: {
@@ -118,41 +124,6 @@
 	  formData.append('content', this.data.content);
 
 	  fetch('{{ url_for("questions.question_comment", id=question.id) }}', {
-	    method: 'POST',
-	    headers: {
-	      'X-CSRFToken': '{{ csrf_token() }}'
-	    },
-	    body: formData
-	  })
-	    .then(async(response) => {
-	      if (!response.ok) {
-		result = await response.json();
-		this.errorMessage = result.content;
-	      } else {
-		location.reload();
-	      }
-	    })
-	    .catch(error => {
-	      this.errorMessage = "Network error occured. Try refreshing this page";
-	    })
-	}
-      }
-    }
-
-    function answerForm() {
-      return {
-        data: {
-          content: ''
-        },
-
-	errorMessage: '',
-	showForm: false,
-
-	submitData() {
-	  const formData = new FormData();
-	  formData.append('content', this.data.content);
-
-	  fetch('{{ url_for("questions.answer", id=question.id) }}', {
 	    method: 'POST',
 	    headers: {
 	      'X-CSRFToken': '{{ csrf_token() }}'
