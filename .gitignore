@@ -138,3 +138,5 @@ dmypy.json
 cython_debug/
 
 frontend/node_modules
+
+static/
