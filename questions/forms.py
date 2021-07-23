@@ -1,5 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectMultipleField, StringField, TextAreaField, validators
+from wtforms import SelectMultipleField, StringField, validators
+
+from common.forms import RichField
 
 
 class AskQuestionForm(FlaskForm):
@@ -12,7 +14,7 @@ class AskQuestionForm(FlaskForm):
         description="Question title",
     )
 
-    content = TextAreaField(
+    content = RichField(
         "Content",
         [
             validators.InputRequired(),
@@ -26,7 +28,7 @@ class AskQuestionForm(FlaskForm):
 
 
 class AnswerForm(FlaskForm):
-    content = TextAreaField(
+    content = RichField(
         "Content",
         [
             validators.InputRequired(),
@@ -38,7 +40,7 @@ class AnswerForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    content = TextAreaField(
+    content = RichField(
         "Content",
         [
             validators.InputRequired(message="Content field is required"),
