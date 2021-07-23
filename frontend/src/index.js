@@ -1,4 +1,5 @@
 import "htmx.org";
+import "trix";
 
 import Alpine from "alpinejs";
 
