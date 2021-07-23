@@ -13,7 +13,7 @@
     "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
-    "build-tailwind": "tailwindcss build ./src/styles.css -o ./../static/css/styles.css",
+    "build-tailwind": "yarn run postcss ./src/styles.css -o ./../static/css/styles.css",
     "watch": "webpack --watch"
   },
   "devDependencies": {
@@ -21,6 +21,7 @@
     "autoprefixer": "^10.3.1",
     "css-loader": "^6.2.0",
     "postcss": "^8.3.6",
+    "postcss-cli": "^8.3.1",
     "postcss-loader": "^6.1.1",
     "prettier": "^2.3.2",
     "style-loader": "^3.2.1",

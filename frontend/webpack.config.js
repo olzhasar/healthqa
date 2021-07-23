@@ -10,6 +10,7 @@ const config = {
   entry: "./src/index.js",
   output: {
     path: path.resolve(__dirname, "..", "static"),
+    filename: "bundle.js",
   },
   plugins: [
     // Add your plugins here
@@ -19,7 +20,8 @@ const config = {
     rules: [
       {
         test: /\.css$/i,
-        use: [stylesHandler, "css-loader", "postcss-loader"],
+        include: path.resolve(__dirname, "src"),
+        use: ["css-loader", "postcss-loader"],
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
