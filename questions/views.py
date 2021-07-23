@@ -65,7 +65,7 @@ def answer(id: int):
                 comment_form=comment_form,
             )
 
-    return jsonify(form.errors), 403
+    return render_template("_answer_form.html", answer_form=form, url=request.url)
 
 
 @bp.route("/questions/<int:id>/comment", methods=["POST"])

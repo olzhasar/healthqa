@@ -62,7 +62,9 @@
   {% endfor %}
 
   {% if current_user.is_authenticated %}
-    {% include "_answer_form.html" %}
+    {% with url=url_for('questions.answer', id=question.id) %}
+      {% include "_answer_form.html" %}
+    {% endwith %}
   {% endif %}
 
 
