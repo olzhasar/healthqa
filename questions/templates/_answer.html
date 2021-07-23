@@ -30,7 +30,7 @@
       </svg>
     </div>
     <div class="w-full">
-      {{ answer.content }}
+      {{ answer.content|safe }}
       <div class="mt-8 text-sm text-gray-800">
 
 	{% for comment in answer.comments %}
