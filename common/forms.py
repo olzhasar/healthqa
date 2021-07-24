@@ -12,7 +12,7 @@ class TrixWidget:
             kwargs["required"] = True
         markup = (
             f'<input type="hidden" name="{field.name}" id="{id}" value="{escape(field._value())}">'
-            + f'<trix-editor input="{id}" html_params(name=field.name, **kwargs)></trix-editor>'
+            + f'<trix-editor input="{id}" {html_params(name=field.name, **kwargs)}></trix-editor>'
         )
         return Markup(markup)
 
