@@ -1,3 +1,4 @@
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, Text
@@ -28,6 +29,13 @@ class Comment(TimeStamped, Base):
 
 class CommentVote(BaseVote, Base):
     __tablename__ = "comment_votes"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "comment_id",
+            name="user_comment_uc",
+        ),
+    )
 
     comment_id = Column(
         Integer,

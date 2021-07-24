@@ -1,3 +1,4 @@
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, Text
@@ -24,6 +25,13 @@ class Answer(TimeStamped, Base):
 
 class AnswerVote(BaseVote, Base):
     __tablename__ = "answer_votes"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "answer_id",
+            name="user_answer_uc",
+        ),
+    )
 
     answer_id = Column(
         Integer,

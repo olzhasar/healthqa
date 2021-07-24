@@ -1,4 +1,5 @@
 from flask import url_for
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer, String, Text
@@ -48,6 +49,13 @@ class Question(TimeStamped, Base):
 
 class QuestionVote(BaseVote, Base):
     __tablename__ = "question_votes"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "question_id",
+            name="user_question_uc",
+        ),
+    )
 
     question_id = Column(
         Integer,
