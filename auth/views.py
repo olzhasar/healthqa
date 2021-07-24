@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, redirect, render_template, url_for
+from flask import Blueprint, abort, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
 
 import crud
@@ -21,7 +21,8 @@ def login():
         user = crud.user.get_by_email(db, form.email.data)
         if user and check_password(form.password.data, user.password):
             login_user(user)
-            return redirect(url_for("home.index"))
+            redirect_url = request.args.get("next", url_for("home.index"))
+            return redirect(redirect_url)
         error = "Invalid credentials"
 
     return render_template("login.html", form=form, error=error)
