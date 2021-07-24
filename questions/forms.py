@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectMultipleField, StringField, validators
+from wtforms import SelectMultipleField, StringField, TextAreaField, validators
 
 from common.forms import RichField
 
@@ -40,7 +40,7 @@ class AnswerForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    content = RichField(
+    content = TextAreaField(
         "Content",
         [
             validators.InputRequired(message="Content field is required"),
