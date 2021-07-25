@@ -2,8 +2,8 @@ from flask import Flask
 
 from db.database import db
 from tests.factories import (
+    AnswerCommentFactory,
     AnswerFactory,
-    AnwserCommentFactory,
     QuestionCommentFactory,
     QuestionFactory,
     TagFactory,
@@ -19,7 +19,7 @@ def init_app(app: Flask):
 
         factories = [
             AnswerFactory,
-            AnwserCommentFactory,
+            AnswerCommentFactory,
             QuestionFactory,
             QuestionCommentFactory,
             TagFactory,
@@ -40,6 +40,6 @@ def init_app(app: Flask):
 
                 answers = AnswerFactory.create_batch(3, question=question)
                 for answer in answers:
-                    AnwserCommentFactory.create_batch(2, answer=answer)
+                    AnswerCommentFactory.create_batch(2, answer=answer)
 
             db.commit()

@@ -70,5 +70,5 @@ class QuestionCommentFactory(BaseCommentFactory):
     question = factory.SubFactory(QuestionFactory)
 
 
-class AnwserCommentFactory(BaseCommentFactory):
+class AnswerCommentFactory(BaseCommentFactory):
     answer = factory.SubFactory(AnswerFactory)
