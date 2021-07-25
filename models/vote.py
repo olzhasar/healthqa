@@ -15,7 +15,7 @@ class Vote(UserAction):
         nullable=False,
         index=True,
     )
-    score = Column(SmallInteger, nullable=False)
+    value = Column(SmallInteger, nullable=False)
 
     __mapper_args__ = {
         "polymorphic_identity": 4,
