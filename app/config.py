@@ -11,10 +11,11 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "healthqa"
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
+    SQLALCHEMY_LOGGING_LEVEL: str = "WARNING"
 
-    EXPLAIN_TEMPLATE_LOADING = False
+    EXPLAIN_TEMPLATE_LOADING: bool = False
 
-    BCRYPT_ROUNDS = 12
+    BCRYPT_ROUNDS: int = 12
     WTF_CSRF_ENABLED: bool = True
 
 
