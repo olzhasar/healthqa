@@ -1,5 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectMultipleField, StringField, TextAreaField, validators
+from wtforms import (
+    IntegerField,
+    SelectMultipleField,
+    StringField,
+    TextAreaField,
+    validators,
+)
 
 from common.forms import RichField
 
@@ -40,6 +46,7 @@ class AnswerForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
+    user_action_id = IntegerField(validators=[validators.InputRequired()])
     content = TextAreaField(
         "Content",
         [

@@ -27,7 +27,7 @@ def ask():
 
 @bp.route("/questions/<int:id>")
 def details(id: int):
-    question = crud.question.get_for_details_view(db, id, current_user)
+    question = crud.question.get_by_id(db, id)
     if not question:
         abort(404)
 
@@ -68,48 +68,23 @@ def answer(id: int):
     return render_template("_answer_form.html", answer_form=form, url=request.url)
 
 
-@bp.route("/questions/<int:id>/comment", methods=["POST"])
+@bp.route("/comment", methods=["POST"])
 @login_required
-def question_comment(id: int):
+def comment():
     form = forms.CommentForm()
 
     if form.validate_on_submit():
         try:
-            comment = crud.comment.create_for_question(
+            comment = crud.comment.create(
                 db,
                 user=current_user,
-                question_id=id,
+                user_action_id=form.user_action_id.data,
                 content=form.content.data,
             )
             return render_template("_comment.html", comment=comment)
         except IntegrityError:
             db.rollback()
-            return jsonify({"error": "invalid question_id"}), 400
-
-    return render_template(
-        "_comment_form.html",
-        comment_form=form,
-        url=request.url,
-    )
-
-
-@bp.route("/answers/<int:id>/comment", methods=["POST"])
-@login_required
-def answer_comment(id: int):
-    form = forms.CommentForm()
-
-    if form.validate_on_submit():
-        try:
-            comment = crud.comment.create_for_answer(
-                db,
-                user=current_user,
-                answer_id=id,
-                content=form.content.data,
-            )
-            return render_template("_comment.html", comment=comment)
-        except IntegrityError:
-            db.rollback()
-            return jsonify({"error": "invalid answer_id"}), 400
+            return jsonify({"error": "invalid user_action_id"}), 400
 
     return render_template(
         "_comment_form.html",
