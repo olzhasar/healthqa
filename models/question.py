@@ -1,13 +1,13 @@
+from datetime import datetime
+
 from flask import url_for
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
-from sqlalchemy.sql.sqltypes import Integer, String, Text
+from sqlalchemy.sql.sqltypes import DateTime, Integer, String, Text
 
 from db.base import Base
-from models.mixins import BaseVote, TimeStamped
 from models.tag import Tag
-from models.user import User
+from models.user_action import UserAction
 
 question_tags_table = Table(
     "question_tags",
@@ -29,40 +29,22 @@ question_tags_table = Table(
 )
 
 
-class Question(TimeStamped, Base):
+class Question(UserAction):
     __tablename__ = "questions"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, ForeignKey("user_actions.id"), primary_key=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    user: User = relationship("User", backref="questions")
+    edited_at = Column(DateTime, onupdate=datetime.utcnow)
 
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
 
     tags: list[Tag] = relationship("Tag", secondary=question_tags_table)
 
+    __mapper_args__ = {
+        "polymorphic_identity": 1,
+    }
+
     @property
     def url(self):
         return url_for("questions.details", id=self.id)
-
-
-class QuestionVote(BaseVote, Base):
-    __tablename__ = "question_votes"
-    __table_args__ = (
-        UniqueConstraint(
-            "user_id",
-            "question_id",
-            name="user_question_uc",
-        ),
-    )
-
-    question_id = Column(
-        Integer,
-        ForeignKey("questions.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    question: Question = relationship("Question", backref="votes")
-
-    user: User = relationship("User", backref="question_votes")

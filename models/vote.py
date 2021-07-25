@@ -1,17 +1,13 @@
-from datetime import datetime
-
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
+from sqlalchemy.sql.sqltypes import Integer, SmallInteger
 
 from models.entity import UserAction
 
 
-class Comment(UserAction):
-    __tablename__ = "comments"
+class Vote(UserAction):
+    __tablename__ = "votes"
 
     id = Column(Integer, ForeignKey("user_actions.id"), primary_key=True)
-
-    edited_at = Column(DateTime, onupdate=datetime.utcnow)
 
     user_action_id = Column(
         Integer,
@@ -19,9 +15,8 @@ class Comment(UserAction):
         nullable=False,
         index=True,
     )
-
-    content = Column(Text, nullable=False)
+    score = Column(SmallInteger, nullable=False)
 
     __mapper_args__ = {
-        "polymorphic_identity": 3,
+        "polymorphic_identity": 4,
     }
