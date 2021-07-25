@@ -15,8 +15,6 @@ from tests.common import TestSession
 
 @pytest.fixture(scope="session", autouse=True)
 def _prepare_db():
-    engine.echo = True
-
     if not database_exists(engine.url):
         create_database(engine.url)
 
@@ -91,3 +89,18 @@ class QueriesCounter:
 @pytest.fixture
 def queries_counter(db):
     return QueriesCounter(db)
+
+
+@pytest.fixture
+def max_num_queries(db):
+    @contextmanager
+    def _max_num_queries(num_queries: int):
+        queries_counter = QueriesCounter(db)
+        with queries_counter as c:
+            yield
+            if len(c) > num_queries:
+                raise AssertionError(
+                    f"Expected {num_queries} queries, but {len(c)} were performed"
+                )
+
+    return _max_num_queries
