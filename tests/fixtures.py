@@ -1,7 +1,9 @@
 from contextlib import contextmanager
-from typing import Generator
+from typing import Any, Generator
 
 import pytest
+from sqlalchemy import event
+from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 
 import models
@@ -13,6 +15,8 @@ from tests.common import TestSession
 
 @pytest.fixture(scope="session", autouse=True)
 def _prepare_db():
+    engine.echo = True
+
     if not database_exists(engine.url):
         create_database(engine.url)
 
@@ -59,3 +63,31 @@ def authenticate(user, db):
 def as_user(user, db, client):
     with authenticate(user, db):
         yield client
+
+
+class QueriesCounter:
+    def __init__(self, db: Session):
+        self._count: int = 0
+        self._do_count: bool = False
+        self.queries: list[tuple[Any, ...]] = []
+        event.listen(db.bind, "after_cursor_execute", self.callback)
+
+    def __enter__(self):
+        self._do_count = True
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._do_count = False
+
+    def callback(self, conn, cursor, statement, parameters, context, executemany):
+        if self._do_count:
+            self._count += 1
+            self.queries.append((statement, parameters, context))
+
+    def __len__(self) -> int:
+        return self._count
+
+
+@pytest.fixture
+def queries_counter(db):
+    return QueriesCounter(db)
