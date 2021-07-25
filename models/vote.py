@@ -1,7 +1,7 @@
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, SmallInteger
 
-from models.entity import UserAction
+from models.user_action import UserAction
 
 
 class Vote(UserAction):
@@ -19,4 +19,5 @@ class Vote(UserAction):
 
     __mapper_args__ = {
         "polymorphic_identity": 4,
+        "inherit_condition": id == UserAction.id,
     }
