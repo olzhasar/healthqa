@@ -103,7 +103,7 @@ class TestAnswer:
             data=data,
             follow_redirects=False,
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
 
         answer = db.query(Answer).filter(Answer.question_id == question.id).first()
 
@@ -124,7 +124,7 @@ class TestAnswer:
 
 
 class TestAnswerComment:
-    url = "/answers/{id}/comment"
+    url = "/user_actions/{id}/comment"
 
     @pytest.fixture
     def data(self):
@@ -147,14 +147,13 @@ class TestAnswerComment:
             data=data,
             follow_redirects=False,
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
 
-        comment = db.query(Comment).filter(Comment.answer_id == answer.id).first()
+        comment = db.query(Comment).filter(Comment.user_action_id == answer.id).first()
 
         assert comment
         assert comment.user == user
         assert comment.content == data["content"]
-        assert comment.question is None
 
     def test_unexisting_answer_id(self, as_user, db, data):
         response = as_user.post(
@@ -163,13 +162,13 @@ class TestAnswerComment:
             follow_redirects=False,
         )
         assert response.status_code == 400
-        assert response.json == {"error": "invalid answer_id"}
+        assert response.json == {"error": "invalid user_action_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
 
 
 class TestQuestionComment:
-    url = "/questions/{id}/comment"
+    url = "/user_actions/{id}/comment"
 
     @pytest.fixture
     def data(self):
@@ -192,14 +191,13 @@ class TestQuestionComment:
             data=data,
             follow_redirects=False,
         )
-        assert response.status_code == 201
+        assert response.status_code == 200
 
-        comment = db.query(Comment).filter(Comment.question_id == question.id).first()
+        comment = db.query(Comment).filter(Comment.user_action_id == question.id).first()
 
         assert comment
         assert comment.user == user
         assert comment.content == data["content"]
-        assert comment.answer is None
 
     def test_unexisting_question(self, as_user, db, data):
         response = as_user.post(
@@ -208,6 +206,6 @@ class TestQuestionComment:
             follow_redirects=False,
         )
         assert response.status_code == 400
-        assert response.json == {"error": "invalid question_id"}
+        assert response.json == {"error": "invalid user_action_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
