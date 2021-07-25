@@ -14,7 +14,6 @@ class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 
 class UserFactory(BaseFactory):
-    id = factory.Sequence(lambda n: n)
     email = factory.Faker("email")
     password = factory.Faker("password")
     name = factory.Faker("name")
