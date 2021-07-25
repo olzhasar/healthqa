@@ -1,9 +1,15 @@
 import factory
-from factory.alchemy import SQLAlchemyModelFactory as BaseFactory
 
 from app.security import hash_password
 from models import Answer, Comment, Question, Tag, User
 from tests.common import TestSession
+
+
+class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        abstract = True
+        sqlalchemy_session = TestSession
+        sqlalchemy_session_persistence = "flush"
 
 
 class UserFactory(BaseFactory):
@@ -19,7 +25,6 @@ class UserFactory(BaseFactory):
 
     class Meta:
         model = User
-        sqlalchemy_session = TestSession
 
 
 class TagFactory(BaseFactory):
@@ -27,7 +32,6 @@ class TagFactory(BaseFactory):
 
     class Meta:
         model = Tag
-        sqlalchemy_session = TestSession
 
 
 class QuestionFactory(BaseFactory):
@@ -39,7 +43,6 @@ class QuestionFactory(BaseFactory):
 
     class Meta:
         model = Question
-        sqlalchemy_session = TestSession
 
 
 class AnswerFactory(BaseFactory):
@@ -51,7 +54,6 @@ class AnswerFactory(BaseFactory):
 
     class Meta:
         model = Answer
-        sqlalchemy_session = TestSession
 
 
 class BaseCommentFactory(BaseFactory):
@@ -62,7 +64,6 @@ class BaseCommentFactory(BaseFactory):
     class Meta:
         abstract = True
         model = Comment
-        sqlalchemy_session = TestSession
 
 
 class QuestionCommentFactory(BaseCommentFactory):
