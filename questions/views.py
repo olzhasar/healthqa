@@ -27,7 +27,7 @@ def ask():
 
 @bp.route("/questions/<int:id>")
 def details(id: int):
-    question = crud.question.get_by_id(db, id)
+    question = crud.question.get_for_view(db, id)
     if not question:
         abort(404)
 

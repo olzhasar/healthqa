@@ -3,6 +3,7 @@ from faker import Faker
 from sqlalchemy import func
 
 from models import Answer, Comment, Question
+from tests import factories
 from tests.utils import full_url_for
 
 fake = Faker()
@@ -77,6 +78,34 @@ class TestAskQuestion:
         assert response.location.startswith(full_url_for("auth.login"))
 
         assert db.query(func.count(Question.id)).scalar() == 0
+
+
+class TestDetails:
+    url = "/questions/{id}"
+
+    @pytest.fixture
+    def question(self):
+        obj = factories.QuestionFactory()
+
+        factories.CommentFactory.create_batch(2, user_action_id=obj.id)
+        factories.VoteFactory.create_batch(2, user_action_id=obj.id)
+
+        for answer in factories.AnswerFactory.create_batch(2, question=obj):
+            factories.CommentFactory.create_batch(2, user_action_id=answer.id)
+            factories.VoteFactory.create_batch(2, user_action_id=answer.id)
+
+        return obj
+
+    def test_ok(self, client, db, question, max_num_queries):
+        with max_num_queries(1):
+            response = client.get(self.url.format(id=question.id))
+
+        assert response.status_code == 200
+
+    def test_unexisting_question(self, client):
+        response = client.get(self.url.format(id=999))
+
+        assert response.status_code == 404
 
 
 class TestAnswer:
