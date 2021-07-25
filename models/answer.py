@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
 
-from models.entity import UserAction
 from models.question import Question
+from models.user_action import UserAction
 
 
 class Answer(UserAction):
