@@ -46,7 +46,6 @@ class AnswerForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    user_action_id = IntegerField(validators=[validators.InputRequired()])
     content = TextAreaField(
         "Content",
         [

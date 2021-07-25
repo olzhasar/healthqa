@@ -49,7 +49,7 @@
 	    {% include "_comment.html" %}
 	  {% endfor %}
 
-	  {% with user_action_id=question.id %}
+	  {% with url=url_for('questions.comment', id=question.id) %}
 	    {% include "_comment_form.html" %}
 	  {% endwith %}
 	</div>

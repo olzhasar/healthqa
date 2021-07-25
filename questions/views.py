@@ -68,9 +68,9 @@ def answer(id: int):
     return render_template("_answer_form.html", answer_form=form, url=request.url)
 
 
-@bp.route("/comment", methods=["POST"])
+@bp.route("/user_actions/<int:id>/comment", methods=["POST"])
 @login_required
-def comment():
+def comment(id: int):
     form = forms.CommentForm()
 
     if form.validate_on_submit():
@@ -78,13 +78,14 @@ def comment():
             comment = crud.comment.create(
                 db,
                 user=current_user,
-                user_action_id=form.user_action_id.data,
+                user_action_id=id,
                 content=form.content.data,
             )
-            return render_template("_comment.html", comment=comment)
         except IntegrityError:
             db.rollback()
             return jsonify({"error": "invalid user_action_id"}), 400
+        else:
+            return render_template("_comment.html", comment=comment)
 
     return render_template(
         "_comment_form.html",

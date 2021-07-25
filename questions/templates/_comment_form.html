@@ -4,7 +4,6 @@
       <button @click="showForm = true" x-show="!showForm" class="text-green-500 hover:text-green-400">Add comment</button>
     {% endif %}
     <form {% if not comment_form.errors %}x-show="showForm"{% endif %} method="POST">
-      <input type="hidden" name="user_action_id" value="{{ user_action_id }}">
       <div class="flex">
 	<div class="w-full mr-4">
 	  {% with field=comment_form.content %}
@@ -12,7 +11,7 @@
 	  {% endwith %}
 	</div>
 	<div>
-	  <button hx-post="{{ url_for("questions.comment") }}" hx-include="textarea[name='content']" hx-target="closest .comment_form" hx-swap="outerHTML" class="bg-green-600 hover:bg-green-500 p-2 text-white whitespace-nowrap shadow rounded">Add comment</button>
+	  <button hx-post="{{ url }}" hx-include="textarea[name='content']" hx-target="closest .comment_form" hx-swap="outerHTML" class="bg-green-600 hover:bg-green-500 p-2 text-white whitespace-nowrap shadow rounded">Add comment</button>
 	</div>
 
 	{% if error_message %}
