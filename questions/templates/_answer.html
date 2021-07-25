@@ -37,7 +37,7 @@
 	  {% include "_comment.html" %}
 	{% endfor %}
 
-	{% with url=url_for("questions.answer_comment", id=answer.id) %}
+	{% with user_action_id=answer.id %}
 	  {% include "_comment_form.html" %}
 	{% endwith %}
 
