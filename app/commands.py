@@ -2,12 +2,12 @@ from flask import Flask
 
 from db.database import db
 from tests.factories import (
-    AnswerCommentFactory,
     AnswerFactory,
-    QuestionCommentFactory,
+    CommentFactory,
     QuestionFactory,
     TagFactory,
     UserFactory,
+    VoteFactory,
 )
 
 
@@ -19,16 +19,15 @@ def init_app(app: Flask):
 
         factories = [
             AnswerFactory,
-            AnswerCommentFactory,
+            CommentFactory,
             QuestionFactory,
-            QuestionCommentFactory,
             TagFactory,
             UserFactory,
+            VoteFactory,
         ]
 
         for f in factories:
             f._meta.sqlalchemy_session = db
-            f._meta.sqlalchemy_session_persistence = "flush"
 
         for _ in range(10):
             tags = TagFactory.create_batch(3)
@@ -36,10 +35,18 @@ def init_app(app: Flask):
             questions = QuestionFactory.create_batch(3, tags=tags)
 
             for question in questions:
-                QuestionCommentFactory.create_batch(2, question=question)
+                for answer in AnswerFactory.create_batch(3, question=question):
+                    VoteFactory.create_batch(3, user_action_id=answer.id)
+                    for comment in CommentFactory.create_batch(
+                        2, user_action_id=answer.id
+                    ):
+                        VoteFactory.create_batch(3, user_action_id=comment.id)
 
-                answers = AnswerFactory.create_batch(3, question=question)
-                for answer in answers:
-                    AnswerCommentFactory.create_batch(2, answer=answer)
+                for comment in CommentFactory.create_batch(
+                    2, user_action_id=question.id
+                ):
+                    VoteFactory.create_batch(3, user_action_id=comment.id)
+
+                VoteFactory.create_batch(5, user_action_id=question.id)
 
             db.commit()
