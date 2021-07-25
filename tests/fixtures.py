@@ -1,3 +1,4 @@
+import logging
 from contextlib import contextmanager
 from typing import Any, Generator
 
@@ -11,6 +12,8 @@ from app.factory import create_app
 from app.login import login_manager
 from db.engine import engine
 from tests.common import TestSession
+
+logger = logging.Logger(__name__)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -99,6 +102,10 @@ def max_num_queries(db):
         with queries_counter as c:
             yield
             if len(c) > num_queries:
+                logger.error("Captured queries:\n")
+                for query in c.queries:
+                    logger.error(f"{query[0]}\n")
+
                 raise AssertionError(
                     f"Expected {num_queries} queries, but {len(c)} were performed"
                 )
