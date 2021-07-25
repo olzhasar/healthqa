@@ -16,7 +16,9 @@ class Answer(UserAction):
     edited_at = Column(DateTime, onupdate=datetime.utcnow)
 
     question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
-    question: Question = relationship("Question", backref="answers")
+    question: Question = relationship(
+        "Question", backref="answers", foreign_keys=[question_id]
+    )
 
     content = Column(Text)
 

@@ -1,3 +1,4 @@
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, SmallInteger
 
@@ -14,6 +15,9 @@ class Vote(UserAction):
         ForeignKey("user_actions.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+    user_action: UserAction = relationship(
+        "UserAction", backref="votes", foreign_keys=[user_action_id]
     )
     value = Column(SmallInteger, nullable=False)
 
