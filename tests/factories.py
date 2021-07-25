@@ -1,7 +1,8 @@
 import factory
+import factory.fuzzy
 
 from app.security import hash_password
-from models import Answer, Comment, Question, Tag, User
+from models import Answer, Comment, Question, Tag, User, Vote
 from tests.common import TestSession
 
 
@@ -35,7 +36,6 @@ class TagFactory(BaseFactory):
 
 
 class QuestionFactory(BaseFactory):
-    id = factory.Sequence(lambda n: n)
     user = factory.SubFactory(UserFactory)
 
     title = factory.Faker("sentence")
@@ -46,7 +46,6 @@ class QuestionFactory(BaseFactory):
 
 
 class AnswerFactory(BaseFactory):
-    id = factory.Sequence(lambda n: n)
     question = factory.SubFactory(QuestionFactory)
     user = factory.SubFactory(UserFactory)
 
@@ -56,19 +55,19 @@ class AnswerFactory(BaseFactory):
         model = Answer
 
 
-class BaseCommentFactory(BaseFactory):
-    id = factory.Sequence(lambda n: n)
+class CommentFactory(BaseFactory):
     user = factory.SubFactory(UserFactory)
     content = factory.Faker("paragraph")
+    user_action_id = None
 
     class Meta:
-        abstract = True
         model = Comment
 
 
-class QuestionCommentFactory(BaseCommentFactory):
-    question = factory.SubFactory(QuestionFactory)
+class VoteFactory(BaseFactory):
+    user = factory.SubFactory(UserFactory)
+    user_action_id = None
+    value = factory.fuzzy.FuzzyChoice([-1, 1])
 
-
-class AnswerCommentFactory(BaseCommentFactory):
-    answer = factory.SubFactory(AnswerFactory)
+    class Meta:
+        model = Vote
