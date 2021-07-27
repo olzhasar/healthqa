@@ -1,4 +1,4 @@
-from crud import answer, comment, question, tag, user
+from crud import answer, comment, question, tag, user, vote
 
 __all__ = [
     "answer",
@@ -6,4 +6,5 @@ __all__ = [
     "question",
     "tag",
     "user",
+    "vote",
 ]
