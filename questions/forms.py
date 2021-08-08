@@ -57,3 +57,7 @@ class CommentForm(FlaskForm):
         description="Question content",
         render_kw={"rows": 4},
     )
+
+
+class VoteForm(FlaskForm):
+    value = IntegerField("Value", [validators.InputRequired()])

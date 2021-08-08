@@ -92,3 +92,26 @@ def comment(id: int):
         comment_form=form,
         url=request.url,
     )
+
+
+@bp.route("/user_actions/<int:id>/vote", methods=["POST", "DELETE"])
+@login_required
+def vote(id: int):
+    form = forms.VoteForm()
+
+    if form.validate_on_submit():
+        value = form.value.data
+
+        if value != 0:
+            try:
+                vote = crud.vote.create(
+                    db, current_user, user_action_id=id, value=form.value.data
+                )
+            except IntegrityError:
+                db.rollback()
+                return jsonify({"error": "invalid user_action_id"}), 400
+            else:
+                return jsonify({"success": True, "id": vote.id}), 201
+        return jsonify({"success": True}, 204)
+
+    return jsonify({"error": "invalid form data"}), 400

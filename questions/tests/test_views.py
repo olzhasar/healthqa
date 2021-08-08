@@ -1,8 +1,9 @@
 import pytest
 from faker import Faker
+from pytest_factoryboy import LazyFixture
 from sqlalchemy import func
 
-from models import Answer, Comment, Question
+from models import Answer, Comment, Question, Vote
 from tests import factories
 from tests.utils import full_url_for
 
@@ -238,3 +239,33 @@ class TestQuestionComment:
         assert response.json == {"error": "invalid user_action_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
+
+
+class TestVote:
+    url = "/user_actions/{id}/vote"
+
+    @pytest.fixture(
+        params=[
+            LazyFixture("question"),
+            LazyFixture("answer"),
+            LazyFixture("question_comment"),
+            LazyFixture("answer_comment"),
+        ]
+    )
+    def instance(self, request):
+        return request.param.evaluate(request)
+
+    @pytest.mark.parametrize("value", [-1, 1])
+    def test_new_vote(self, db, as_user, user, value, instance):
+        response = as_user.post(
+            self.url.format(id=instance.id),
+            data={"value": value},
+        )
+
+        assert response.status_code == 201
+
+        from_db = db.query(Vote).filter(Vote.user_action_id == instance.id).first()
+
+        assert from_db
+        assert from_db.id
+        assert from_db.user_action == instance
