@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.sql.sqltypes import DateTime, Integer, SmallInteger
 
 from db.base import Base
@@ -27,3 +27,5 @@ class Vote(Base):
     entry: Entry = relationship("Entry", backref="votes", foreign_keys=[entry_id])
 
     value = Column(SmallInteger, nullable=False)
+
+    __table_args__ = (UniqueConstraint("user_id", "entry_id", name="user_entry_uc"),)
