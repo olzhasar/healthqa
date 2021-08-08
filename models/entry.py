@@ -5,16 +5,16 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer
 
 from db.base import Base
-from models.mixins import TimeStamped
 from models.user import User
 
 
-class Entry(TimeStamped, Base):
+class Entry(Base):
     __tablename__ = "entries"
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     id = Column(Integer, primary_key=True)
     type = Column(Integer, nullable=False)
+
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     user: User = relationship("User", backref="entries")
