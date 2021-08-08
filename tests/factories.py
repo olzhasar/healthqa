@@ -57,7 +57,7 @@ class AnswerFactory(BaseFactory):
 class CommentFactory(BaseFactory):
     user = factory.SubFactory(UserFactory)
     content = factory.Faker("paragraph")
-    user_action_id = None
+    entry_id = None
 
     class Meta:
         model = Comment
@@ -65,7 +65,7 @@ class CommentFactory(BaseFactory):
 
 class VoteFactory(BaseFactory):
     user = factory.SubFactory(UserFactory)
-    user_action_id = None
+    entry_id = None
     value = factory.fuzzy.FuzzyChoice([-1, 1])
 
     class Meta:

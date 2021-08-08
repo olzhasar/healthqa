@@ -36,17 +36,13 @@ def init_app(app: Flask):
 
             for question in questions:
                 for answer in AnswerFactory.create_batch(3, question=question):
-                    VoteFactory.create_batch(3, user_action_id=answer.id)
-                    for comment in CommentFactory.create_batch(
-                        2, user_action_id=answer.id
-                    ):
-                        VoteFactory.create_batch(3, user_action_id=comment.id)
+                    VoteFactory.create_batch(3, entry_id=answer.id)
+                    for comment in CommentFactory.create_batch(2, entry_id=answer.id):
+                        VoteFactory.create_batch(3, entry_id=comment.id)
 
-                for comment in CommentFactory.create_batch(
-                    2, user_action_id=question.id
-                ):
-                    VoteFactory.create_batch(3, user_action_id=comment.id)
+                for comment in CommentFactory.create_batch(2, entry_id=question.id):
+                    VoteFactory.create_batch(3, entry_id=comment.id)
 
-                VoteFactory.create_batch(5, user_action_id=question.id)
+                VoteFactory.create_batch(5, entry_id=question.id)
 
             db.commit()

@@ -88,12 +88,12 @@ class TestDetails:
     def question(self):
         obj = factories.QuestionFactory()
 
-        factories.CommentFactory.create_batch(2, user_action_id=obj.id)
-        factories.VoteFactory.create_batch(2, user_action_id=obj.id)
+        factories.CommentFactory.create_batch(2, entry_id=obj.id)
+        factories.VoteFactory.create_batch(2, entry_id=obj.id)
 
         for answer in factories.AnswerFactory.create_batch(2, question=obj):
-            factories.CommentFactory.create_batch(2, user_action_id=answer.id)
-            factories.VoteFactory.create_batch(2, user_action_id=answer.id)
+            factories.CommentFactory.create_batch(2, entry_id=answer.id)
+            factories.VoteFactory.create_batch(2, entry_id=answer.id)
 
         return obj
 
@@ -154,7 +154,7 @@ class TestAnswer:
 
 
 class TestAnswerComment:
-    url = "/user_actions/{id}/comment"
+    url = "/entries/{id}/comment"
 
     @pytest.fixture
     def data(self):
@@ -179,7 +179,7 @@ class TestAnswerComment:
         )
         assert response.status_code == 200
 
-        comment = db.query(Comment).filter(Comment.user_action_id == answer.id).first()
+        comment = db.query(Comment).filter(Comment.entry_id == answer.id).first()
 
         assert comment
         assert comment.user == user
@@ -192,13 +192,13 @@ class TestAnswerComment:
             follow_redirects=False,
         )
         assert response.status_code == 400
-        assert response.json == {"error": "invalid user_action_id"}
+        assert response.json == {"error": "invalid entry_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
 
 
 class TestQuestionComment:
-    url = "/user_actions/{id}/comment"
+    url = "/entries/{id}/comment"
 
     @pytest.fixture
     def data(self):
@@ -223,7 +223,7 @@ class TestQuestionComment:
         )
         assert response.status_code == 200
 
-        comment = db.query(Comment).filter(Comment.user_action_id == question.id).first()
+        comment = db.query(Comment).filter(Comment.entry_id == question.id).first()
 
         assert comment
         assert comment.user == user
@@ -236,13 +236,13 @@ class TestQuestionComment:
             follow_redirects=False,
         )
         assert response.status_code == 400
-        assert response.json == {"error": "invalid user_action_id"}
+        assert response.json == {"error": "invalid entry_id"}
 
         assert db.query(func.count(Comment.id)).scalar() == 0
 
 
 class TestVote:
-    url = "/user_actions/{id}/vote"
+    url = "/entries/{id}/vote"
 
     @pytest.fixture(
         params=[
@@ -264,7 +264,7 @@ class TestVote:
 
         assert response.status_code == 201
 
-        from_db = db.query(Vote).filter(Vote.user_action_id == instance.id).first()
+        from_db = db.query(Vote).filter(Vote.entry_id == instance.id).first()
 
         assert from_db
         assert from_db.id

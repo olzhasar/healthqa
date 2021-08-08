@@ -1,27 +1,29 @@
+from datetime import datetime
+
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, SmallInteger
+from sqlalchemy.sql.sqltypes import DateTime, Integer, SmallInteger
 
-from models.user_action import UserAction
+from db.base import Base
+from models.entry import Entry
+from models.user import User
 
 
-class Vote(UserAction):
+class Vote(Base):
     __tablename__ = "votes"
 
-    id = Column(Integer, ForeignKey("user_actions.id"), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    user_action_id = Column(
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user: User = relationship("User", backref="votes")
+
+    entry_id = Column(
         Integer,
-        ForeignKey("user_actions.id", ondelete="CASCADE"),
+        ForeignKey("entries.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    user_action: UserAction = relationship(
-        "UserAction", backref="votes", foreign_keys=[user_action_id]
-    )
-    value = Column(SmallInteger, nullable=False)
+    entry: Entry = relationship("Entry", backref="votes", foreign_keys=[entry_id])
 
-    __mapper_args__ = {
-        "polymorphic_identity": 4,
-        "inherit_condition": id == UserAction.id,
-    }
+    value = Column(SmallInteger, nullable=False)

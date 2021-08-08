@@ -4,14 +4,14 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
 
+from models.entry import Entry
 from models.question import Question
-from models.user_action import UserAction
 
 
-class Answer(UserAction):
+class Answer(Entry):
     __tablename__ = "answers"
 
-    id = Column(Integer, ForeignKey("user_actions.id"), primary_key=True)
+    id = Column(Integer, ForeignKey("entries.id"), primary_key=True)
 
     edited_at = Column(DateTime, onupdate=datetime.utcnow)
 

@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from models import Comment, User
 
 
-def create(db: Session, *, user: User, user_action_id: int, content: str):
+def create(db: Session, *, user: User, entry_id: int, content: str):
     comment = Comment(
         user=user,
-        user_action_id=user_action_id,
+        entry_id=entry_id,
         content=content,
     )
 

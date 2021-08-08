@@ -6,8 +6,8 @@ from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import DateTime, Integer, String, Text
 
 from db.base import Base
+from models.entry import Entry
 from models.tag import Tag
-from models.user_action import UserAction
 
 question_tags_table = Table(
     "question_tags",
@@ -29,10 +29,10 @@ question_tags_table = Table(
 )
 
 
-class Question(UserAction):
+class Question(Entry):
     __tablename__ = "questions"
 
-    id = Column(Integer, ForeignKey("user_actions.id"), primary_key=True)
+    id = Column(Integer, ForeignKey("entries.id"), primary_key=True)
 
     edited_at = Column(DateTime, onupdate=datetime.utcnow)
 

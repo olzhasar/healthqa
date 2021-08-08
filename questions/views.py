@@ -68,7 +68,7 @@ def answer(id: int):
     return render_template("_answer_form.html", answer_form=form, url=request.url)
 
 
-@bp.route("/user_actions/<int:id>/comment", methods=["POST"])
+@bp.route("/entries/<int:id>/comment", methods=["POST"])
 @login_required
 def comment(id: int):
     form = forms.CommentForm()
@@ -78,12 +78,12 @@ def comment(id: int):
             comment = crud.comment.create(
                 db,
                 user=current_user,
-                user_action_id=id,
+                entry_id=id,
                 content=form.content.data,
             )
         except IntegrityError:
             db.rollback()
-            return jsonify({"error": "invalid user_action_id"}), 400
+            return jsonify({"error": "invalid entry_id"}), 400
         else:
             return render_template("_comment.html", comment=comment)
 
@@ -94,7 +94,7 @@ def comment(id: int):
     )
 
 
-@bp.route("/user_actions/<int:id>/vote", methods=["POST", "DELETE"])
+@bp.route("/entries/<int:id>/vote", methods=["POST", "DELETE"])
 @login_required
 def vote(id: int):
     form = forms.VoteForm()
@@ -105,7 +105,10 @@ def vote(id: int):
         if value != 0:
             try:
                 vote = crud.vote.create(
-                    db, current_user, user_action_id=id, value=form.value.data
+                    db,
+                    user=current_user,
+                    entry_id=id,
+                    value=form.value.data,
                 )
             except IntegrityError:
                 db.rollback()

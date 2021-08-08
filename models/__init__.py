@@ -1,10 +1,10 @@
 from db.base import Base
 from models.answer import Answer
 from models.comment import Comment
+from models.entry import Entry
 from models.question import Question
 from models.tag import Tag
 from models.user import User
-from models.user_action import UserAction
 from models.vote import Vote
 
 __all__ = [
@@ -14,6 +14,6 @@ __all__ = [
     "Question",
     "Tag",
     "User",
-    "UserAction",
+    "Entry",
     "Vote",
 ]

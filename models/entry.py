@@ -9,15 +9,15 @@ from models.mixins import TimeStamped
 from models.user import User
 
 
-class UserAction(TimeStamped, Base):
-    __tablename__ = "user_actions"
+class Entry(TimeStamped, Base):
+    __tablename__ = "entries"
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     id = Column(Integer, primary_key=True)
     type = Column(Integer, nullable=False)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    user: User = relationship("User", backref="answers")
+    user: User = relationship("User", backref="entries")
 
     score = Column(Integer, nullable=False, default=0)
 
