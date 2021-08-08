@@ -268,4 +268,20 @@ class TestVote:
 
         assert from_db
         assert from_db.id
-        assert from_db.user_action == instance
+        assert from_db.entry == instance
+
+    def test_delete_ok(self, db, as_user, user, instance):
+        factories.VoteFactory(entry_id=instance.id)
+
+        response = as_user.post(
+            self.url.format(id=instance.id),
+            data={"value": 0},
+        )
+
+        assert response.status_code == 204
+
+        assert not bool(
+            db.query(Vote.id)
+            .filter(Vote.entry_id == instance.id, Vote.user_id == user.id)
+            .first()
+        )

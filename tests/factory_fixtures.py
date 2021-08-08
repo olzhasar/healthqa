@@ -11,12 +11,12 @@ register(factories.AnswerFactory)
 register(
     factories.CommentFactory,
     "question_comment",
-    user_action_id=LazyFixture(lambda question: question.id),
+    entry_id=LazyFixture(lambda question: question.id),
 )
 register(
     factories.CommentFactory,
     "answer_comment",
-    user_action_id=LazyFixture(lambda answer: answer.id),
+    entry_id=LazyFixture(lambda answer: answer.id),
 )
 
 register(factories.TagFactory)

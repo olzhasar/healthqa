@@ -94,27 +94,31 @@ def comment(id: int):
     )
 
 
-@bp.route("/entries/<int:id>/vote", methods=["POST", "DELETE"])
+@bp.route("/entries/<int:id>/vote", methods=["POST"])
 @login_required
 def vote(id: int):
-    form = forms.VoteForm()
+    if not crud.entry.exists(db, id=id):
+        return jsonify({"error": "invalid entry_id"}), 404
 
+    form = forms.VoteForm()
     if form.validate_on_submit():
         value = form.value.data
 
-        if value != 0:
-            try:
-                vote = crud.vote.create(
-                    db,
-                    user=current_user,
-                    entry_id=id,
-                    value=form.value.data,
-                )
-            except IntegrityError:
-                db.rollback()
-                return jsonify({"error": "invalid user_action_id"}), 400
-            else:
-                return jsonify({"success": True, "id": vote.id}), 201
-        return jsonify({"success": True}, 204)
+        if value == 0:
+            crud.vote.delete(db, user_id=current_user.id, entry_id=id)
+            return jsonify({"success": True}), 204
+
+        try:
+            vote = crud.vote.create(
+                db,
+                user_id=current_user.id,
+                entry_id=id,
+                value=form.value.data,
+            )
+        except IntegrityError:
+            db.rollback()
+            return jsonify({"error": "Vote already exists"}), 400
+        else:
+            return jsonify({"success": True, "id": vote.id}), 201
 
     return jsonify({"error": "invalid form data"}), 400
