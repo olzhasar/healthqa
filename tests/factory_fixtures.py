@@ -1,12 +1,23 @@
-from pytest_factoryboy import register
+from pytest_factoryboy import LazyFixture, register
 
-from tests.factories import AnswerFactory, QuestionFactory, TagFactory, UserFactory
+from tests import factories
 
-register(UserFactory)
-register(UserFactory, "other_user")
+register(factories.UserFactory)
+register(factories.UserFactory, "other_user")
 
-register(QuestionFactory)
-register(AnswerFactory)
+register(factories.QuestionFactory)
+register(factories.AnswerFactory)
 
-register(TagFactory)
-register(TagFactory, "other_tag")
+register(
+    factories.CommentFactory,
+    "question_comment",
+    user_action_id=LazyFixture(lambda question: question.id),
+)
+register(
+    factories.CommentFactory,
+    "answer_comment",
+    user_action_id=LazyFixture(lambda answer: answer.id),
+)
+
+register(factories.TagFactory)
+register(factories.TagFactory, "other_tag")
