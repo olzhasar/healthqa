@@ -120,12 +120,11 @@ def vote(id: int, value: int):
 
         if existing:
             if existing.value == value:
-                db.delete(existing)
-                db.commit()
-            else:
-                existing.value = value
-                db.add(existing)
-                db.commit()
+                return jsonify({"error": "Vote already exists"}), 400
+
+            existing.value = value
+            db.add(existing)
+            db.commit()
         else:
             crud.vote.create(
                 db,

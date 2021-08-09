@@ -294,12 +294,8 @@ class TestVote:
             self.url.format(id=instance.id, value=url_param),
         )
 
-        assert response.status_code == 200
-        assert not bool(
-            db.query(Vote.id)
-            .filter(Vote.user_id == user.id, Vote.entry_id == instance.id)
-            .first()
-        )
+        assert response.status_code == 400
+        assert response.json == {"error": "Vote already exists"}
 
     @pytest.mark.parametrize(
         ("url_param", "value"),
