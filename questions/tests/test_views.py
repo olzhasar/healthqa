@@ -3,7 +3,7 @@ from faker import Faker
 from pytest_factoryboy import LazyFixture
 from sqlalchemy import func
 
-from models import Answer, Comment, Question, Vote
+from models import Answer, Comment, Entry, Question, Vote
 from tests import factories
 from tests.utils import full_url_for
 
@@ -270,8 +270,14 @@ class TestVote:
         assert from_db.id
         assert from_db.entry == instance
 
+        assert db.query(Entry.score).filter(Entry.id == instance.id).scalar() == value
+
     def test_delete_ok(self, db, as_user, user, instance):
-        factories.VoteFactory(entry_id=instance.id)
+        vote = factories.VoteFactory(entry_id=instance.id, user=user)
+
+        assert (
+            db.query(Entry.score).filter(Entry.id == instance.id).scalar() == vote.value
+        )
 
         response = as_user.post(
             self.url.format(id=instance.id),
@@ -280,8 +286,6 @@ class TestVote:
 
         assert response.status_code == 200
 
-        assert not bool(
-            db.query(Vote.id)
-            .filter(Vote.entry_id == instance.id, Vote.user_id == user.id)
-            .first()
-        )
+        assert not bool(db.query(Vote.id).filter(Vote.entry_id == instance.id).first())
+
+        assert db.query(Entry.score).filter(Entry.id == instance.id).scalar() == 0
