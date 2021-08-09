@@ -1,13 +1,15 @@
 import logging
+import os
 from contextlib import contextmanager
 from typing import Any, Generator
 
 import pytest
 from sqlalchemy import event
 from sqlalchemy.orm import Session
-from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
-import models
+from alembic.command import upgrade as alembic_upgrade
+from alembic.config import Config as AlembicConfig
 from app.factory import create_app
 from app.login import login_manager
 from db.engine import engine
@@ -18,11 +20,15 @@ logger = logging.Logger(__name__)
 
 @pytest.fixture(scope="session", autouse=True)
 def _prepare_db():
-    if not database_exists(engine.url):
-        create_database(engine.url)
+    if database_exists(engine.url):
+        drop_database(engine.url)
 
-    models.Base.metadata.drop_all(bind=engine)
-    models.Base.metadata.create_all(bind=engine)
+    create_database(engine.url)
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    alembic_cfg = AlembicConfig(os.path.join(base_dir, "alembic.ini"))
+    alembic_upgrade(alembic_cfg, "head")
 
     TestSession.configure(bind=engine)
 
