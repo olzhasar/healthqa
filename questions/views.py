@@ -106,19 +106,19 @@ def vote(id: int):
 
         if value == 0:
             crud.vote.delete(db, user_id=current_user.id, entry_id=id)
-            return jsonify({"success": True}), 204
-
-        try:
-            vote = crud.vote.create(
-                db,
-                user_id=current_user.id,
-                entry_id=id,
-                value=form.value.data,
-            )
-        except IntegrityError:
-            db.rollback()
-            return jsonify({"error": "Vote already exists"}), 400
         else:
-            return jsonify({"success": True, "id": vote.id}), 201
+            try:
+                crud.vote.create(
+                    db,
+                    user_id=current_user.id,
+                    entry_id=id,
+                    value=form.value.data,
+                )
+            except IntegrityError:
+                db.rollback()
+                return jsonify({"error": "Vote already exists"}), 400
+
+        new_score = crud.entry.get_score(db, id=id)
+        return str(new_score)
 
     return jsonify({"error": "invalid form data"}), 400

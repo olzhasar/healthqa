@@ -262,7 +262,7 @@ class TestVote:
             data={"value": value},
         )
 
-        assert response.status_code == 201
+        assert response.status_code == 200
 
         from_db = db.query(Vote).filter(Vote.entry_id == instance.id).first()
 
@@ -278,7 +278,7 @@ class TestVote:
             data={"value": 0},
         )
 
-        assert response.status_code == 204
+        assert response.status_code == 200
 
         assert not bool(
             db.query(Vote.id)
