@@ -6,8 +6,12 @@ from sqlalchemy.orm.session import Session
 from models.vote import Vote
 
 
-def get(db: Session, *, user_id: int, entry_id: int) -> Optional[Vote]:
-    return db.query(Vote).filter(Vote.user_id == user_id, entry_id == entry_id).first()
+def one_or_none(db: Session, *, user_id: int, entry_id: int) -> Optional[Vote]:
+    return (
+        db.query(Vote)
+        .filter(Vote.user_id == user_id, Vote.entry_id == entry_id)
+        .one_or_none()
+    )
 
 
 def get_dict_for_user(db: Session, *, user_id: int):

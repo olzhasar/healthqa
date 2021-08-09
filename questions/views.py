@@ -94,31 +94,52 @@ def comment(id: int):
     )
 
 
-@bp.route("/entries/<int:id>/vote", methods=["POST"])
+@bp.route("/entries/<int:id>/vote/<int:value>", methods=["POST"])
 @login_required
-def vote(id: int):
+def vote(id: int, value: int):
+    """
+    value 1 - upvote
+    value 2 - downvote
+    """
+
     if not crud.entry.exists(db, id=id):
         return jsonify({"error": "invalid entry_id"}), 404
 
-    form = forms.VoteForm()
-    if form.validate_on_submit():
-        value = form.value.data
+    existing = crud.vote.one_or_none(db, user_id=current_user.id, entry_id=id)
 
-        if value == 0:
-            crud.vote.delete(db, user_id=current_user.id, entry_id=id)
+    if value == 0:
+        if existing:
+            db.delete(existing)
+            db.commit()
         else:
-            try:
-                crud.vote.create(
-                    db,
-                    user_id=current_user.id,
-                    entry_id=id,
-                    value=form.value.data,
-                )
-            except IntegrityError:
-                db.rollback()
-                return jsonify({"error": "Vote already exists"}), 400
+            return jsonify({"error": "Vote does not exist"}), 400
 
-        new_score = crud.entry.get_score(db, id=id)
-        return str(new_score)
+    elif value in [1, 2]:
+        if value == 2:
+            value = -1
 
-    return jsonify({"error": "invalid form data"}), 400
+        if existing:
+            if existing.value == value:
+                db.delete(existing)
+                db.commit()
+            else:
+                existing.value = value
+                db.add(existing)
+                db.commit()
+        else:
+            crud.vote.create(
+                db,
+                user_id=current_user.id,
+                entry_id=id,
+                value=value,
+            )
+    else:
+        return jsonify({"error": "Invalid vote value"}), 400
+
+    entry = crud.entry.get(db, id=id)
+    if entry.type == 3:
+        template_name = "_vote_comment.html"
+    else:
+        template_name = "_vote_large.html"
+
+    return render_template(template_name, entry=entry)
