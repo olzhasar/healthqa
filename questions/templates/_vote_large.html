@@ -1,9 +1,9 @@
 <div class="mr-8 text-gray-500 vote">
-  <button hx-post="{{ url_for('questions.vote', id=entry.id, value=1) }}" hx-target="closest .vote" hx-swap="outerHTML">
-    <svg aria-hidden="true" class="svg-icon fill-current" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg>
+<button hx-post="{% if entry.user_vote.value == 1 %}{{ url_for('questions.vote', id=entry.id, value=0) }}{% else %}{{ url_for('questions.vote', id=entry.id, value=1) }}{% endif %}" hx-target="closest .vote" hx-swap="outerHTML">
+    <svg aria-hidden="true" class="svg-icon fill-current {% if entry.user_vote.value == 1 %}text-green-500{% endif %}" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg>
   </button>
   <div class="text-3xl score text-center">{{ entry.score }}</div>
-  <button hx-post="{{ url_for('questions.vote', id=entry.id, value=2) }}" hx-target="closest .vote" hx-swap="outerHTML">
-    <svg aria-hidden="true" class="svg-icon fill-current" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg>
+<button hx-post="{% if entry.user_vote.value == -1 %}{{ url_for('questions.vote', id=entry.id, value=0) }}{% else %}{{ url_for('questions.vote', id=entry.id, value=2) }}{% endif %}" hx-target="closest .vote" hx-swap="outerHTML">
+    <svg aria-hidden="true" class="svg-icon fill-current {% if entry.user_vote.value == -1 %}text-green-500{% endif %}" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg>
   </button>
 </div>
