@@ -1,15 +1,26 @@
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import deferred
+from sqlalchemy.sql.sqltypes import DateTime
 
 from db.base import Base
-from models.mixins import TimeStamped
 
 
-class User(TimeStamped, Base):
+class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
+
+    created_at = deferred(Column(DateTime, nullable=False, default=datetime.utcnow))
+    modified_at = deferred(
+        Column(
+            DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        )
+    )
+
     email = Column(String(255), nullable=False, unique=True, index=True)
-    password = Column(String(100))
+    password = deferred(Column(String(100)))
     name = Column(String(100), nullable=False)
 
     @property
