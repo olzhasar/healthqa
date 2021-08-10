@@ -28,7 +28,7 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
         )
         .outerjoin(Answer, Question.id == Answer.question_id)
         .order_by(Answer.score.desc())
-        .join(AnswerUser, Answer.user_id == AnswerUser.id)
+        .outerjoin(AnswerUser, Answer.user_id == AnswerUser.id)
         .outerjoin(
             AnswerVote,
             and_(Answer.id == AnswerVote.entry_id, AnswerVote.user_id == user_id),
@@ -48,8 +48,8 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
                 AnswerCommentVote.user_id == user_id,
             ),
         )
-        .join(CommentUser, Comment.user_id == CommentUser.id)
-        .join(AnswerCommentUser, AnswerComment.user_id == AnswerCommentUser.id)
+        .outerjoin(CommentUser, Comment.user_id == CommentUser.id)
+        .outerjoin(AnswerCommentUser, AnswerComment.user_id == AnswerCommentUser.id)
         .options(
             contains_eager(Question.user),
             contains_eager(Question.votes.of_type(QuestionVote)),
