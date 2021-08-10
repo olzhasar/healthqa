@@ -24,7 +24,7 @@ class Vote(Base):
         nullable=False,
         index=True,
     )
-    entry: Entry = relationship("Entry", backref="votes", foreign_keys=[entry_id])
+    entry: Entry = relationship("Entry", back_populates="votes", foreign_keys=[entry_id])
 
     value = Column(SmallInteger, nullable=False)
 
