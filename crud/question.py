@@ -1,29 +1,42 @@
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.orm.session import Session
 
 from models import Answer, Comment, Question, Tag, User
 
 
-def get_by_id(db: Session, id: int):
-    return db.query(Question).filter(Question.id == id).first()
+def get_by_id(db: Session, id: int) -> Question:
+    return db.query(Question).filter(Question.id == id).one()
 
 
-def get_for_view(db: Session, id: int):
+def get_for_view(db: Session, id: int, user_id: int = 0) -> Question:
+    AnswerComment = aliased(Comment)
+    AnswerUser = aliased(User)
+    CommentUser = aliased(User)
+    AnswerCommentUser = aliased(User)
+
     return (
         db.query(Question)
-        .filter(Question.id == id)
+        .join(User, Question.user_id == User.id)
+        .outerjoin(Answer, Question.id == Answer.question_id)
+        .join(AnswerUser, Answer.user_id == AnswerUser.id)
+        .outerjoin(Comment, Question.id == Comment.entry_id)
+        .outerjoin(AnswerComment, Answer.id == AnswerComment.entry_id)
+        .join(CommentUser, Comment.user_id == CommentUser.id)
+        .join(AnswerCommentUser, AnswerComment.user_id == AnswerCommentUser.id)
         .options(
-            joinedload(Question.tags),
-            joinedload(Question.user).load_only("id", "name"),
-            joinedload(Question.comments).options(
-                joinedload(Comment.user).load_only("id", "name")
+            contains_eager(Question.user),
+            contains_eager(Question.comments).contains_eager(
+                Comment.user.of_type(CommentUser)
             ),
-            joinedload(Question.answers).options(
-                joinedload(Answer.user).load_only("id", "name"),
-                joinedload(Answer.comments).options(joinedload(Comment.user)),
-            ),
+            contains_eager(Question.answers)
+            .contains_eager(Answer.comments.of_type(AnswerComment))
+            .contains_eager(AnswerComment.user.of_type(AnswerCommentUser)),
         )
-        .first()
+        .options(
+            contains_eager(Question.answers).contains_eager(Answer.user, AnswerUser)
+        )
+        .filter(Question.id == id)
+        .one()
     )
 
 
