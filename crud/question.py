@@ -78,7 +78,7 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
     )
 
 
-def get_all(db: Session, *, limit: int = 10):
+def get_list(db: Session, *, limit: int = 10, offset: int = 0):
     return (
         db.query(Question)
         .options(
@@ -87,6 +87,7 @@ def get_all(db: Session, *, limit: int = 10):
         )
         .order_by(Question.id.desc())
         .limit(limit)
+        .offset(offset)
         .all()
     )
 
