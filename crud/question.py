@@ -9,7 +9,7 @@ def get_by_id(db: Session, id: int) -> Question:
     return db.query(Question).filter(Question.id == id).one()
 
 
-def get_for_view(db: Session, id: int, user_id: int = 0) -> Question:
+def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
     AnswerComment = aliased(Comment)
     AnswerUser = aliased(User)
     CommentUser = aliased(User)

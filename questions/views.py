@@ -27,8 +27,12 @@ def ask():
 
 @bp.route("/questions/<int:id>")
 def details(id: int):
+    params = {"id": id}
+    if current_user.is_authenticated:
+        params["user_id"] = current_user.id
+
     try:
-        question = crud.question.get_for_view(db, id)
+        question = crud.question.get_for_view(db, **params)
     except NoResultFound:
         abort(404)
 
