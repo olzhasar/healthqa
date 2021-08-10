@@ -73,7 +73,6 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
             ),
         )
         .filter(Question.id == id)
-        .filter()
         .one()
     )
 
