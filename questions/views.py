@@ -140,7 +140,7 @@ def vote(id: int, value: int):
     else:
         return jsonify({"error": "Invalid vote value"}), 400
 
-    entry = crud.entry.get(db, id=id)
+    entry = crud.entry.get_with_user_vote(db, id=id, user_id=current_user.id)
     if entry.type == 3:
         template_name = "_vote_comment.html"
     else:
