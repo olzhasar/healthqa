@@ -27,6 +27,7 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
             and_(Question.id == QuestionVote.entry_id, QuestionVote.user_id == user_id),
         )
         .outerjoin(Answer, Question.id == Answer.question_id)
+        .order_by(Answer.score.desc())
         .join(AnswerUser, Answer.user_id == AnswerUser.id)
         .outerjoin(
             AnswerVote,

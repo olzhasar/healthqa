@@ -25,7 +25,7 @@ class Entry(Base):
 
     score = Column(Integer, nullable=False, default=0)
 
-    votes: List["Vote"] = relationship("Vote", lazy="raise")
+    votes: List["Vote"] = relationship("Vote", lazy="noload")
 
     @property
     def user_vote(self):
