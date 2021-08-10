@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.sql.sqltypes import DateTime, Integer, SmallInteger
 
@@ -13,16 +13,20 @@ class Vote(Base):
     __tablename__ = "votes"
 
     id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = deferred(Column(DateTime, nullable=False, default=datetime.utcnow))
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = deferred(
+        Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    )
     user: User = relationship("User", backref="votes")
 
-    entry_id = Column(
-        Integer,
-        ForeignKey("entries.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
+    entry_id = deferred(
+        Column(
+            Integer,
+            ForeignKey("entries.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        )
     )
     entry: Entry = relationship("Entry", back_populates="votes", foreign_keys=[entry_id])
 
