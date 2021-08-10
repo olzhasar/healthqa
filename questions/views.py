@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 
 import crud
 from db.database import db
@@ -27,8 +27,9 @@ def ask():
 
 @bp.route("/questions/<int:id>")
 def details(id: int):
-    question = crud.question.get_for_view(db, id)
-    if not question:
+    try:
+        question = crud.question.get_for_view(db, id)
+    except NoResultFound:
         abort(404)
 
     answer_form = forms.AnswerForm()
