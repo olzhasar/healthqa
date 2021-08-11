@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from flask import url_for
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import DateTime, Integer, String, Text
 
@@ -49,7 +50,7 @@ class Question(Entry):
         "Answer", back_populates="question", foreign_keys="Answer.question_id"
     )
 
-    answer_count: int
+    answer_count: Mapped[int]
 
     __mapper_args__ = {
         "polymorphic_identity": 1,
