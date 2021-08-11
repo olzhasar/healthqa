@@ -3,6 +3,7 @@ import factory.fuzzy
 
 from app.security import hash_password
 from models import Answer, Comment, Question, Tag, User, Vote
+from models.view import View
 from tests.common import TestSession
 
 
@@ -72,3 +73,11 @@ class VoteFactory(BaseFactory):
 
     class Meta:
         model = Vote
+
+
+class ViewFactory(BaseFactory):
+    entry_id = None
+    user_id = None
+
+    class Meta:
+        model = View
