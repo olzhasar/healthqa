@@ -1,17 +1,9 @@
-from flask import (
-    Blueprint,
-    abort,
-    current_app,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
 import crud
+from common.pagination import Paginator
 from db.database import db
 from questions import forms
 
@@ -36,22 +28,39 @@ def ask():
 
 @bp.route("/questions")
 def all():
-    per_page = current_app.config["PAGINATION"]
-    current_page = int(request.args.get("page", 1))
-    limit = per_page * current_page
-    offset = per_page * (current_page - 1)
+    total = crud.question.total(db)
+    paginator = Paginator(total)
 
-    questions = crud.question.get_list(db, limit=limit, offset=offset)
-    num_pages = (crud.question.total(db) - 1) // per_page + 1
+    questions = crud.question.get_list(
+        db, limit=paginator.limit, offset=paginator.offset
+    )
 
     tags = crud.tag.get_all(db)
 
     return render_template(
         "question_list.html",
         questions=questions,
-        num_pages=num_pages,
-        current_page=current_page,
         tags=tags,
+        paginator=paginator,
+    )
+
+
+@bp.route("/questions/search")
+def search():
+    query = request.args.get("q", "")
+
+    total = crud.question.search_total(db, query=query)
+    paginator = Paginator(total)
+
+    questions = crud.question.search(
+        db, query=query, limit=paginator.limit, offset=paginator.offset
+    )
+
+    return render_template(
+        "search_results.html",
+        questions=questions,
+        query=query,
+        paginator=paginator,
     )
 
 
@@ -177,23 +186,3 @@ def vote(id: int, value: int):
         template_name = "_vote_large.html"
 
     return render_template(template_name, entry=entry)
-
-
-@bp.route("/questions/search")
-def search():
-    per_page = current_app.config["PAGINATION"]
-    current_page = int(request.args.get("page", 1))
-    limit = per_page * current_page
-    offset = per_page * (current_page - 1)
-    query = request.args.get("q", "")
-
-    questions = crud.question.search(db, query=query, limit=limit, offset=offset)
-    num_pages = (crud.question.search_total(db, query=query) - 1) // per_page + 1
-
-    return render_template(
-        "search_results.html",
-        questions=questions,
-        query=query,
-        num_pages=num_pages,
-        current_page=current_page,
-    )
