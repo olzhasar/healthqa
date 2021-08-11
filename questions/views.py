@@ -69,6 +69,7 @@ def details(id: int):
     params = {"id": id}
     if current_user.is_authenticated:
         params["user_id"] = current_user.id
+        crud.view.create(db, entry_id=id, user_id=current_user.id)
 
     try:
         question = crud.question.get_for_view(db, **params)

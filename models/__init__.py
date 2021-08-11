@@ -5,6 +5,7 @@ from models.entry import Entry
 from models.question import Question
 from models.tag import Tag
 from models.user import User
+from models.view import View
 from models.vote import Vote
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "Tag",
     "User",
     "Entry",
+    "View",
     "Vote",
 ]
