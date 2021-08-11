@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Health QA | Search{% endblock %}
+
+{% block content %}
+  <div class="w-full lg:w-3/4 px-4">
+    <div class="flex justify-between mb-4">
+      {% if questions %}
+      <h1 class="text-gray-500 text-2xl font-bold">Search results for "{{ query }}"</h1>
+      {% else %}
+      <h1 class="text-gray-500 text-2xl font-bold">No results found for"{{ query }}"</h1>
+      {% endif %}
+    </div>
+    {% for question in questions %}
+      {% include "_question_card.html" %}
+    {% endfor %}
+
+    {% with base_url=url_for('questions.search') + '?q=' + query + '&' %}
+      {% include "_pagination.html" %}
+    {% endwith %}
+  </div>
+{% endblock %}

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.expression import and_
+from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql.functions import func
 
 from models import Answer, Comment, Question, Tag, User, Vote
@@ -122,5 +122,30 @@ def create(
     return question
 
 
-def count(db: Session):
+def total(db: Session) -> int:
     return db.query(func.count(Question.id)).scalar()
+
+
+def search(
+    db: Session, *, query: str, limit: int = 20, offset: int = 0
+) -> list[Question]:
+    return (
+        db.query(Question)
+        .options(
+            joinedload(Question.user),
+            joinedload(Question.tags),
+        )
+        .filter(or_(Question.title.match(query), Question.content.match(query)))
+        .order_by(Question.id.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+
+def search_total(db: Session, *, query: str) -> int:
+    return (
+        db.query(func.count(Question.id))
+        .filter(or_(Question.title.match(query), Question.content.match(query)))
+        .scalar()
+    )

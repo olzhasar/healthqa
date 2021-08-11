@@ -42,7 +42,7 @@ def all():
     offset = per_page * (current_page - 1)
 
     questions = crud.question.get_list(db, limit=limit, offset=offset)
-    num_pages = (crud.question.count(db) - 1) // per_page + 1
+    num_pages = (crud.question.total(db) - 1) // per_page + 1
 
     tags = crud.tag.get_all(db)
 
@@ -177,3 +177,23 @@ def vote(id: int, value: int):
         template_name = "_vote_large.html"
 
     return render_template(template_name, entry=entry)
+
+
+@bp.route("/questions/search")
+def search():
+    per_page = current_app.config["PAGINATION"]
+    current_page = int(request.args.get("page", 1))
+    limit = per_page * current_page
+    offset = per_page * (current_page - 1)
+    query = request.args.get("q", "")
+
+    questions = crud.question.search(db, query=query, limit=limit, offset=offset)
+    num_pages = (crud.question.search_total(db, query=query) - 1) // per_page + 1
+
+    return render_template(
+        "search_results.html",
+        questions=questions,
+        query=query,
+        num_pages=num_pages,
+        current_page=current_page,
+    )

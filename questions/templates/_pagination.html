@@ -1,0 +1,13 @@
+{% if num_pages > 1 %}
+<div id="pagination" class="py-4 text-sm text-gray-600">
+  {% if current_page > 1 %}
+  <a href="{{ base_url }}page={{ current_page - 1 }}" class="mr-2 px-4 py-2 bg-white hover:bg-green-400 hover:text-white rounded shadow">Previous</a>
+  {% endif %}
+  {% for i in range(1, num_pages + 1) %}
+  <a {% if current_page != i %}href="{{ base_url }}page={{ i }}"{% endif %} class="mr-2 px-4 py-2 rounded shadow {% if current_page == i %}bg-green-500 text-white font-bold{% else %}bg-white hover:bg-green-400 hover:text-white{% endif %}">{{ i }}</a>
+  {% endfor %}
+  {% if current_page < num_pages %}
+  <a href="{{ base_url }}page={{ current_page + 1 }}" class="mr-2 px-4 py-2 bg-white hover:bg-green-400 hover:text-white rounded shadow">Next</a>
+  {% endif %}
+</div>
+{% endif %}
