@@ -1,4 +1,13 @@
-from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
@@ -23,6 +32,18 @@ def ask():
         )
         return redirect(url_for("home.index"))
     return render_template("ask_question.html", form=form)
+
+
+@bp.route("/questions")
+def all():
+    per_page = current_app.config["PAGINATION"]
+    page = int(request.args.get("page", 1))
+    limit = per_page * page
+    offset = per_page * (page - 1)
+
+    questions = crud.question.get_list(db, limit=limit, offset=offset)
+    tags = crud.tag.get_all(db)
+    return render_template("question_list.html", questions=questions, tags=tags)
 
 
 @bp.route("/questions/<int:id>")

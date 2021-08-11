@@ -1,0 +1,10 @@
+<div class="p-4 bg-yellow-100 shadow rounded">
+  <h2 class="text-gray-500 text-xl font-bold">Tags</h2>
+  <div class="flex flex-wrap mt-4">
+    {% for tag in tags %}
+    <a href="" class="px-2 mr-2 my-2 bg-gray-300 text-gray-700 text-sm shadow-sm rounded">
+      {{ tag.name }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
