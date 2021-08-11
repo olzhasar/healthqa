@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -9,6 +9,7 @@ from db.base import Base
 from models.user import User
 
 if TYPE_CHECKING:
+    from models.comment import Comment
     from models.vote import Vote
 
 
@@ -25,13 +26,16 @@ class Entry(Base):
 
     score = Column(Integer, nullable=False, default=0)
 
-    votes: List["Vote"] = relationship("Vote", lazy="noload")
+    votes: list["Vote"] = relationship("Vote", lazy="noload")
+    comments: list["Comment"] = relationship(
+        "Comment", back_populates="entry", foreign_keys="Comment.entry_id"
+    )
 
     @property
-    def user_vote(self):
+    def user_vote(self) -> Optional["Vote"]:
         try:
             return self.votes[0]
-        except (AttributeError, IndexError):
+        except IndexError:
             return None
 
     __mapper_args__ = {

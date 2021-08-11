@@ -20,7 +20,9 @@ class Comment(Entry):
         nullable=False,
         index=True,
     )
-    entry: Entry = relationship("Entry", backref="comments", foreign_keys=[entry_id])
+    entry: Entry = relationship(
+        "Entry", back_populates="comments", foreign_keys=[entry_id]
+    )
 
     content = Column(Text, nullable=False)
 

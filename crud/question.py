@@ -77,7 +77,7 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
     )
 
 
-def get_list(db: Session, *, limit: int = 10, offset: int = 0):
+def get_list(db: Session, *, limit: int = 20, offset: int = 0) -> list[Question]:
     return (
         db.query(Question)
         .options(
@@ -91,7 +91,9 @@ def get_list(db: Session, *, limit: int = 10, offset: int = 0):
     )
 
 
-def create(db: Session, *, user: User, title: str, content: str, tags: list[Tag]):
+def create(
+    db: Session, *, user: User, title: str, content: str, tags: list[Tag]
+) -> Question:
     question = Question(
         user=user,
         title=title,

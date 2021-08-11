@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from flask import url_for
 from sqlalchemy.orm import relationship
@@ -8,6 +9,10 @@ from sqlalchemy.sql.sqltypes import DateTime, Integer, String, Text
 from db.base import Base
 from models.entry import Entry
 from models.tag import Tag
+
+if TYPE_CHECKING:
+    from models.answer import Answer
+
 
 question_tags_table = Table(
     "question_tags",
@@ -40,6 +45,11 @@ class Question(Entry):
     content = Column(Text, nullable=False)
 
     tags: list[Tag] = relationship("Tag", secondary=question_tags_table)
+    answers: list["Answer"] = relationship(
+        "Answer", back_populates="question", foreign_keys="Answer.question_id"
+    )
+
+    answer_count: int
 
     __mapper_args__ = {
         "polymorphic_identity": 1,

@@ -19,7 +19,7 @@ class Answer(Entry):
 
     question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
     question: Question = relationship(
-        "Question", backref="answers", foreign_keys=[question_id]
+        "Question", back_populates="answers", foreign_keys=[question_id]
     )
 
     content = Column(Text)
@@ -29,7 +29,7 @@ class Answer(Entry):
     }
 
 
-Question.answer_count = column_property(
+Question.answer_count = column_property(  # type:ignore
     select(func.count("id"))
     .where(Answer.question_id == Question.id)
     .correlate_except(Answer)
