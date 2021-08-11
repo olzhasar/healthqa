@@ -91,6 +91,20 @@ def get_list(db: Session, *, limit: int = 20, offset: int = 0) -> list[Question]
     )
 
 
+def get_popular_list(db: Session, *, limit: int = 20, offset: int = 0) -> list[Question]:
+    return (
+        db.query(Question)
+        .options(
+            joinedload(Question.user),
+            joinedload(Question.tags),
+        )
+        .order_by(Question.score.desc(), Question.answer_count.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+
+
 def create(
     db: Session, *, user: User, title: str, content: str, tags: list[Tag]
 ) -> Question:

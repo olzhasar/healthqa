@@ -40,6 +40,8 @@ class QuestionFactory(BaseFactory):
     title = factory.Faker("sentence")
     content = factory.Faker("paragraph")
 
+    score = 0
+
     class Meta:
         model = Question
 
