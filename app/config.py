@@ -18,5 +18,7 @@ class Settings(BaseSettings):
     BCRYPT_ROUNDS: int = 12
     WTF_CSRF_ENABLED: bool = True
 
+    PAGINATION: int = 25
+
 
 settings = Settings()
