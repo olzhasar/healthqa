@@ -1,6 +1,7 @@
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_
+from sqlalchemy.sql.functions import func
 
 from models import Answer, Comment, Question, Tag, User, Vote
 
@@ -119,3 +120,7 @@ def create(
     db.commit()
 
     return question
+
+
+def count(db: Session):
+    return db.query(func.count(Question.id)).scalar()

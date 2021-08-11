@@ -37,13 +37,22 @@ def ask():
 @bp.route("/questions")
 def all():
     per_page = current_app.config["PAGINATION"]
-    page = int(request.args.get("page", 1))
-    limit = per_page * page
-    offset = per_page * (page - 1)
+    current_page = int(request.args.get("page", 1))
+    limit = per_page * current_page
+    offset = per_page * (current_page - 1)
 
     questions = crud.question.get_list(db, limit=limit, offset=offset)
+    num_pages = (crud.question.count(db) - 1) // per_page + 1
+
     tags = crud.tag.get_all(db)
-    return render_template("question_list.html", questions=questions, tags=tags)
+
+    return render_template(
+        "question_list.html",
+        questions=questions,
+        num_pages=num_pages,
+        current_page=current_page,
+        tags=tags,
+    )
 
 
 @bp.route("/questions/<int:id>")
