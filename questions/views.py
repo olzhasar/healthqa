@@ -26,7 +26,7 @@ def ask():
     return render_template("ask_question.html", form=form)
 
 
-@bp.route("/questions")
+@bp.route("/questions/")
 def all():
     total = crud.question.total(db)
     paginator = Paginator(total)
