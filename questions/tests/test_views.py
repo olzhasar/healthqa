@@ -93,22 +93,9 @@ class TestAskQuestion:
 class TestDetails:
     url = "/questions/{id}"
 
-    @pytest.fixture
-    def question(self):
-        obj = factories.QuestionFactory()
-
-        factories.CommentFactory.create_batch(2, entry_id=obj.id)
-        factories.VoteFactory.create_batch(2, entry_id=obj.id)
-
-        for answer in factories.AnswerFactory.create_batch(2, question=obj):
-            factories.CommentFactory.create_batch(2, entry_id=answer.id)
-            factories.VoteFactory.create_batch(2, entry_id=answer.id)
-
-        return obj
-
-    def test_ok(self, client, db, question, max_num_queries):
+    def test_ok(self, client, db, question_full, max_num_queries):
         with max_num_queries(1):
-            response = client.get(self.url.format(id=question.id))
+            response = client.get(self.url.format(id=question_full.id))
 
         assert response.status_code == 200
 

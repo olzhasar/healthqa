@@ -4,6 +4,7 @@ from sqlalchemy.orm.session import Session
 
 import crud
 from models import Question
+from models.vote import Vote
 from tests import factories
 
 fake = Faker()
@@ -83,3 +84,82 @@ def test_get_popular_list(db: Session, question_list, question_list_params):
     order = ["third", "second", "fourth", "first"]
 
     assert [q.title for q in questions] == order
+
+
+class TestGetForView:
+    @pytest.fixture(autouse=True)
+    def other_data(self):
+        for answer in factories.AnswerFactory.create_batch(2):
+            factories.VoteFactory(entry_id=answer.question.id)
+            factories.VoteFactory(entry_id=answer.id)
+
+            for comment in factories.CommentFactory.create_batch(
+                2, entry_id=answer.question.id
+            ):
+                factories.VoteFactory(entry_id=comment.id)
+
+            for comment in factories.CommentFactory.create_batch(2, entry_id=answer.id):
+                factories.VoteFactory(entry_id=comment.id)
+
+    def test_single_query(self, db: Session, question_full, user, max_num_queries):
+        with max_num_queries(1):
+            question = crud.question.get_for_view(
+                db, id=question_full.id, user_id=user.id
+            )
+
+            assert question == question_full
+            assert question.user_vote
+
+            for comment in question.comments:
+                comment.id
+                assert comment.user_vote
+
+            for answer in question.answers:
+                answer.id
+                assert answer.user_vote
+
+                for comment in answer.comments:
+                    comment.id
+                    assert comment.user_vote
+
+    def test_correct_data(self, db: Session, question_full, user):
+        question = crud.question.get_for_view(db, id=question_full.id, user_id=user.id)
+
+        assert (
+            db.query(Vote.user_id).filter(Vote.id == question.user_vote.id).scalar()
+            == user.id
+        )
+
+        for comment in question.comments:
+            assert (
+                db.query(Vote.user_id).filter(Vote.id == comment.user_vote.id).scalar()
+                == user.id
+            )
+
+        for answer in question.answers:
+            assert (
+                db.query(Vote.user_id).filter(Vote.id == answer.user_vote.id).scalar()
+                == user.id
+            )
+
+            for comment in answer.comments:
+                assert (
+                    db.query(Vote.user_id)
+                    .filter(Vote.id == comment.user_vote.id)
+                    .scalar()
+                    == user.id
+                )
+
+    def test_no_user(self, db: Session, question_full):
+        question = crud.question.get_for_view(db, id=question_full.id)
+
+        assert not question.user_vote
+
+        for comment in question.comments:
+            assert not comment.user_vote
+
+        for answer in question.answers:
+            assert not answer.user_vote
+
+            for comment in answer.comments:
+                assert not comment.user_vote

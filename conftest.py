@@ -6,5 +6,6 @@ os.environ["WTF_CSRF_ENABLED"] = "0"
 
 pytest_plugins = [
     "tests.fixtures",
+    "tests.db_fixtures",
     "tests.factory_fixtures",
 ]

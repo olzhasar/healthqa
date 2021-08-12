@@ -53,24 +53,24 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
         .outerjoin(AnswerCommentUser, AnswerComment.user_id == AnswerCommentUser.id)
         .options(
             contains_eager(Question.user),
-            contains_eager(Question.votes.of_type(QuestionVote)),
+            contains_eager(Question.user_vote.of_type(QuestionVote)),
             contains_eager(Question.comments).contains_eager(
                 Comment.user.of_type(CommentUser)
             ),
             contains_eager(Question.comments).contains_eager(
-                Comment.votes.of_type(CommentVote)
+                Comment.user_vote.of_type(CommentVote)
             ),
             contains_eager(Question.answers)
             .contains_eager(Answer.comments.of_type(AnswerComment))
             .contains_eager(AnswerComment.user.of_type(AnswerCommentUser)),
             contains_eager(Question.answers)
             .contains_eager(Answer.comments.of_type(AnswerComment))
-            .contains_eager(AnswerComment.votes.of_type(AnswerCommentVote)),
+            .contains_eager(AnswerComment.user_vote.of_type(AnswerCommentVote)),
             contains_eager(Question.answers).contains_eager(
                 Answer.user.of_type(AnswerUser)
             ),
             contains_eager(Question.answers).contains_eager(
-                Answer.votes.of_type(AnswerVote)
+                Answer.user_vote.of_type(AnswerVote)
             ),
         )
         .filter(Question.id == id)
