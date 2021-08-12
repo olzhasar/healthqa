@@ -1,15 +1,14 @@
-<div class="bg-white border-gray-200 border-2 rounded shadow p-4 text-gray-800">
-  <a href="{{ url_for('users.profile', id=user.id) }}" class="text-lg text-green-600 hover:text-green-500 hover:underline mb-4">
+<div class="bg-white border-gray-200 rounded-lg shadow p-4 text-gray-800">
+  <a
+    href="{{ url_for('users.profile', id=user.id) }}"
+    class="text-lg text-green-600 hover:text-green-500 hover:underline mb-4"
+  >
     {{ user.name }}
   </a>
-  <p class="mb-4 text-gray-500">Joined {{ user.created_at.strftime('%Y-%m-%d') }}</p>
-  <p>
-    Questions: {{ user.question_count }}
+  <p class="mb-4 text-gray-500">
+    Joined {{ user.created_at.strftime('%Y-%m-%d') }}
   </p>
-  <p>
-    Answers: {{ user.answer_count }}
-  </p>
-  <p>
-    Comments: {{ user.comment_count }}
-  </p>
+  <p>Questions: {{ user.question_count }}</p>
+  <p>Answers: {{ user.answer_count }}</p>
+  <p>Comments: {{ user.comment_count }}</p>
 </div>

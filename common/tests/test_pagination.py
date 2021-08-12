@@ -41,9 +41,17 @@ class TestPaginator:
         paginator = Paginator(total=100, current=current, per_page=10)
         assert paginator.has_previous == expected
 
-    def test_iteration(self):
-        paginator = Paginator(total=100, current=1, per_page=10)
-        assert [i for i in paginator] == list(range(1, 11))
+    @pytest.mark.parametrize(
+        ("current", "expected"),
+        [
+            (1, list(range(1, 6))),
+            (5, list(range(1, 10))),
+            (9, list(range(5, 11))),
+        ],
+    )
+    def test_iteration(self, current, expected):
+        paginator = Paginator(total=100, current=current, per_page=10)
+        assert [i for i in paginator] == expected
 
     @pytest.mark.parametrize(
         ("total", "per_page", "expected"),

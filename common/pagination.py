@@ -27,7 +27,10 @@ class Paginator:
         return self.current > 1
 
     def __iter__(self):
-        for i in range(1, self.pages + 1):
+        low = max(1, self.current - 4)
+        high = min(self.pages + 1, self.current + 5)
+
+        for i in range(low, high):
             yield i
 
     def __bool__(self) -> bool:
