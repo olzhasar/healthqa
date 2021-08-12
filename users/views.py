@@ -14,7 +14,7 @@ def all():
     paginator = Paginator(
         total=crud.user.count(db),
         current=request.args.get("page", 1),
-        per_page=30,
+        per_page=16,
     )
 
     users = crud.user.for_list(db, limit=paginator.limit, offset=paginator.offset)
