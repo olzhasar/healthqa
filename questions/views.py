@@ -150,35 +150,10 @@ def vote(id: int, value: int):
     if not crud.entry.exists(db, id=id):
         return jsonify({"error": "invalid entry_id"}), 404
 
-    existing = crud.vote.one_or_none(db, user_id=current_user.id, entry_id=id)
-
-    if value == 0:
-        if existing:
-            db.delete(existing)
-            db.commit()
-        else:
-            return jsonify({"error": "Vote does not exist"}), 400
-
-    elif value in [1, 2]:
-        if value == 2:
-            value = -1
-
-        if existing:
-            if existing.value == value:
-                return jsonify({"error": "Vote already exists"}), 400
-
-            existing.value = value
-            db.add(existing)
-            db.commit()
-        else:
-            crud.vote.create(
-                db,
-                user_id=current_user.id,
-                entry_id=id,
-                value=value,
-            )
-    else:
-        return jsonify({"error": "Invalid vote value"}), 400
+    try:
+        crud.vote.record(db, user_id=current_user.id, entry_id=id, value=value)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     entry = crud.entry.get_with_user_vote(db, id=id, user_id=current_user.id)
     if entry.type == 3:

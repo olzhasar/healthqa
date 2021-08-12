@@ -37,3 +37,37 @@ def create(db: Session, *, user_id: int, entry_id: int, value: int) -> Vote:
     db.commit()
 
     return vote
+
+
+def record(db: Session, *, user_id: int, entry_id: int, value: int) -> Optional[Vote]:
+    existing = one_or_none(db, user_id=user_id, entry_id=entry_id)
+
+    if value == 0:
+        if not existing:
+            raise ValueError("Vote does not exist")
+
+        db.delete(existing)
+        db.commit()
+        return None
+
+    if value not in [1, 2]:
+        raise ValueError("Invalid vote value")
+
+    if value == 2:
+        value = -1
+
+    if existing:
+        if existing.value == value:
+            raise ValueError("Vote already exists")
+
+        existing.value = value
+        db.add(existing)
+        db.commit()
+        return existing
+
+    return create(
+        db,
+        user_id=user_id,
+        entry_id=entry_id,
+        value=value,
+    )
