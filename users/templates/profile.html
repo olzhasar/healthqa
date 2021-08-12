@@ -1,6 +1,34 @@
-{% extends "base.html" %} {% block title %}Health QA | Users{% endblock %} {%
+{% extends "base.html" %} {% block title %}Health QA | {{ user.name }}{% endblock %} {%
 block content %}
-<div class="w-full px-4">
-  {{ user.name }}
+<div class="w-full lg:w-1/3 px-4">
+  <div class="bg-white border-gray-200 shadow text-gray-800">
+    <div class="p-8">
+      <h1 class="text-lg font-bold mb-4">{{ user.name }}</h1>
+      <p class="text-gray-500 mb-4">
+	Joined {{ user.created_at.strftime('%Y-%m-%d') }}
+      </p>
+      {% if user == current_user %}
+	<a href="{{ url_for('users.profile', id=user.id) }}?tab=answers" class="flex text-green-800 hover:text-green-600 hover:underline py-2">
+	  Edit profile
+	</a>
+	<a href="{{ url_for('auth.change_password') }}?tab=answers" class="flex text-green-800 hover:text-green-600 hover:underline py-2">
+	  Change password
+	</a>
+      {% endif %}
+    </div>
+    <div class="font-bold">
+      <a href="{{ url_for('users.profile', id=user.id) }}?tab=questions" class="flex py-4 px-8 hover:bg-gray-50 {% if tab=='questions' %}bg-gray-100 border-r-8 border-green-700{% endif %}">
+	Questions: {{ user.question_count }}
+      </a>
+      <a href="{{ url_for('users.profile', id=user.id) }}?tab=answers" class="flex py-4 px-8 hover:bg-gray-50 {% if tab=='answers' %}bg-gray-100 border-r-8 border-green-700{% endif %}">
+	Answers: {{ user.question_count }}
+      </a>
+    </div>
+  </div>
+</div>
+<div class="w-full lg:w-2/3 px-4">
+  {% for question in questions %}
+    {% include "_question_card.html" %}
+  {% endfor %}
 </div>
 {% endblock %}

@@ -29,18 +29,15 @@ def profile(id: int):
     except NoResultFound:
         abort(404)
 
-    questions = crud.question.list_for_user(db, user_id=user.id)
+    tab = request.args.get("tab", "questions")
 
-    return render_template("profile.html", user=user, questions=questions)
+    if tab == "questions":
+        questions = crud.question.list_for_user(db, user_id=user.id)
+        answers = []
+    else:
+        questions = []
+        answers = crud.answer.list_for_user(db, user_id=user.id)
 
-
-@bp.route("/<int:id>/answers/")
-def answers(id: int):
-    try:
-        user = crud.user.get_with_counts(db, id=id)
-    except NoResultFound:
-        abort(404)
-
-    answers = crud.answer.list_for_user(db, user_id=user.id)
-
-    return render_template("profile.html", user=user, answers=answers)
+    return render_template(
+        "profile.html", user=user, questions=questions, answers=answers, tab=tab
+    )
