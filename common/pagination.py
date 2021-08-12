@@ -1,3 +1,6 @@
+from typing import Union
+
+
 class Paginator:
     total: int
     current: int
@@ -5,9 +8,9 @@ class Paginator:
     limit: int
     offset: int
 
-    def __init__(self, *, total: int, current: int, per_page: int):
+    def __init__(self, *, total: int, current: Union[str, int], per_page: int):
         self.total = total
-        self.current = current
+        self.current = int(current)
         self.limit = per_page
         self.offset = self.limit * (self.current - 1)
         self.pages = (self.total - 1) // self.limit + 1
