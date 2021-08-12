@@ -3,7 +3,6 @@ from sqlalchemy.orm.session import Session
 import crud
 from models.question import Question
 from models.view import View
-from tests import factories
 
 
 class TestCreate:
@@ -33,6 +32,16 @@ class TestCreate:
         )
 
     def test_duplicate(self, db: Session, question, user):
-        factories.ViewFactory(entry_id=question.id, user_id=user.id)
+        crud.view.create(db, entry_id=question.id, user_id=user.id)
 
-        assert not crud.view.create(db, entry_id=question.id, user_id=user.id)
+        assert (
+            db.query(Question.view_count).filter(Question.id == question.id).scalar()
+            == 1
+        )
+
+        crud.view.create(db, entry_id=question.id, user_id=user.id)
+
+        assert (
+            db.query(Question.view_count).filter(Question.id == question.id).scalar()
+            == 1
+        )
