@@ -1,4 +1,5 @@
 from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
+from flask.globals import current_app
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
@@ -29,7 +30,11 @@ def ask():
 @bp.route("/questions/")
 def all():
     total = crud.question.total(db)
-    paginator = Paginator(total)
+    paginator = Paginator(
+        total=total,
+        current=request.args.get("page", 1),
+        per_page=current_app.config["PAGINATION"],
+    )
 
     questions = crud.question.get_list(
         db, limit=paginator.limit, offset=paginator.offset
@@ -50,7 +55,11 @@ def search():
     query = request.args.get("q", "")
 
     total = crud.question.search_total(db, query=query)
-    paginator = Paginator(total)
+    paginator = Paginator(
+        total=total,
+        current=request.args.get("page", 1),
+        per_page=current_app.config["PAGINATION"],
+    )
 
     questions = crud.question.search(
         db, query=query, limit=paginator.limit, offset=paginator.offset

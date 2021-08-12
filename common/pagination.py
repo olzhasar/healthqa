@@ -1,19 +1,16 @@
-from flask import current_app, request
-
-
 class Paginator:
-    n: int
+    total: int
     current: int
     pages: int
     limit: int
     offset: int
 
-    def __init__(self, n: int):
-        self.n = n
-        self.current = int(request.args.get("page", 1))
-        self.limit = current_app.config["PAGINATION"]
+    def __init__(self, *, total: int, current: int, per_page: int):
+        self.total = total
+        self.current = current
+        self.limit = per_page
         self.offset = self.limit * (self.current - 1)
-        self.pages = (self.n - 1) // self.limit + 1
+        self.pages = (self.total - 1) // self.limit + 1
 
     def __len__(self):
         return self.pages

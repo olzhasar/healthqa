@@ -9,7 +9,7 @@ def test_all(db: Session, client):
 
 
 class TestProfile:
-    url = "/users/{id}"
+    url = "/users/{id}/"
 
     def test_ok(self, db: Session, client, user):
         response = client.get(self.url.format(id=user.id))
