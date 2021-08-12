@@ -95,3 +95,13 @@ def test_get_with_counts(db: Session, user, user_questions_answers, max_num_quer
         assert result.answer_count
 
     assert_user_counts_match_db(db, result)
+
+
+def test_change_password(db: Session, user):
+    new_password = "super_strong_password"
+
+    crud.user.change_password(db, user_id=user.id, new_password=new_password)
+
+    db.refresh(user, ["password"])
+
+    assert check_password(new_password, user.password)

@@ -73,3 +73,10 @@ def create_user(db: Session, *, email: str, name: str, password: str) -> User:
     db.commit()
 
     return user
+
+
+def change_password(db: Session, *, user_id: int, new_password: str):
+    hashed = hash_password(new_password)
+
+    db.query(User).filter(User.id == user_id).update({"password": hashed})
+    db.commit()
