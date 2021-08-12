@@ -28,8 +28,7 @@
       </div>
 
       <div class="text-sm text-gray-500 py-2">
-	Asked 2 hours ago by <a href="" class="text-green-500 hover:text-green-300">{{ question.user.name }}</a>
-
+	Asked 2 hours ago by <a href="{{ question.user.get_absolute_url() }}" class="text-green-500 hover:text-green-300">{{ question.user.name }}</a>
       </div>
 
     </div>

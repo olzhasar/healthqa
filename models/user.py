@@ -1,5 +1,7 @@
 from datetime import datetime
+from typing import Optional
 
+from flask.helpers import url_for
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import deferred, query_expression
 from sqlalchemy.sql.sqltypes import DateTime
@@ -40,3 +42,8 @@ class User(Base):
 
     def get_id(self) -> str:
         return str(self.id)
+
+    def get_absolute_url(self) -> Optional[str]:
+        if not self.is_authenticated:
+            return None
+        return url_for("users.profile", id=self.id)
