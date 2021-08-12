@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Health QA | Users{% endblock %}
+
+{% block content %}
+  <div class="w-full px-4">
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-4">
+      {% for user in users %}
+	{% include "_user_card.html" %}
+      {% endfor %}
+    </div>
+    {% with base_url=url_for("users.all") + '?' %}
+      {% include "_pagination.html" %}
+    {% endwith %}
+  </div>
+{% endblock %}
