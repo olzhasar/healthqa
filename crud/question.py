@@ -38,7 +38,7 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
         .order_by(Comment.id)
         .outerjoin(
             CommentVote,
-            and_(Comment.id == CommentVote.entry_id, Comment.user_id == user_id),
+            and_(Comment.id == CommentVote.entry_id, CommentVote.user_id == user_id),
         )
         .outerjoin(AnswerComment, Answer.id == AnswerComment.entry_id)
         .order_by(AnswerComment.id)
