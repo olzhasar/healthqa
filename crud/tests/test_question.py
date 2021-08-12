@@ -163,3 +163,47 @@ class TestGetForView:
 
             for comment in answer.comments:
                 assert not comment.user_vote
+
+
+def test_total(db: Session):
+    assert crud.question.total(db) == 0
+
+    factories.QuestionFactory.create_batch(3)
+    assert crud.question.total(db) == 3
+
+    factories.QuestionFactory.create_batch(2)
+    assert crud.question.total(db) == 5
+
+
+class TestSearch:
+    @pytest.fixture(autouse=True)
+    def question_1(self):
+        return factories.QuestionFactory(
+            title="Upper back", content="Upper back pain after workout. Spine"
+        )
+
+    @pytest.fixture(autouse=True)
+    def question_2(self):
+        return factories.QuestionFactory(
+            title="Spine", content="Lower back hurts sitting"
+        )
+
+    @pytest.fixture(autouse=True)
+    def question_3(self):
+        return factories.QuestionFactory(title="Sciatica", content="Sciatica hurts back")
+
+    @pytest.mark.parametrize(
+        ("query", "expected"),
+        [
+            ("back", {"Upper back", "Spine", "Sciatica"}),
+            ("spine", {"Upper back", "Spine"}),
+            ("upper", {"Upper back"}),
+            ("sitting", {"Spine"}),
+            ("hurts", {"Spine", "Sciatica"}),
+        ],
+    )
+    def test_ok(self, db: Session, query, expected):
+        results = crud.question.search(db, query=query)
+
+        assert {r.title for r in results} == expected
+        assert crud.question.search_total(db, query=query) == len(expected)
