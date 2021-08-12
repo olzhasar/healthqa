@@ -207,3 +207,10 @@ class TestSearch:
 
         assert {r.title for r in results} == expected
         assert crud.question.search_total(db, query=query) == len(expected)
+
+
+def test_list_for_user(db: Session, user, other_user):
+    questions = factories.QuestionFactory.create_batch(3, user=user)
+
+    assert set(crud.question.list_for_user(db, user_id=user.id)) == set(questions)
+    assert crud.question.list_for_user(db, user_id=other_user.id) == []

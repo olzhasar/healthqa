@@ -1,12 +1,14 @@
 from faker import Faker
+from sqlalchemy.orm.session import Session
 
 import crud
 from models import Answer
+from tests import factories
 
 fake = Faker()
 
 
-def test_create_answer(db, user, question):
+def test_create_answer(db: Session, user, question):
     content = fake.paragraph()
 
     answer = crud.answer.create(
@@ -23,3 +25,11 @@ def test_create_answer(db, user, question):
     assert answer.content == content
 
     assert db.query(Answer).filter(Answer.user_id == user.id).first() == answer
+
+
+def test_list_for_user(db: Session, user, other_user):
+    answers = factories.AnswerFactory.create_batch(3, user=user)
+    factories.AnswerFactory.create_batch(3)
+
+    assert set(crud.answer.list_for_user(db, user_id=user.id)) == set(answers)
+    assert crud.question.list_for_user(db, user_id=other_user.id) == []

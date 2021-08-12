@@ -9,9 +9,32 @@ from app.security import hash_password
 from models.entry import Entry
 from models.user import User
 
+question_count = (
+    select(func.count(Entry.id))
+    .where(and_(Entry.user_id == User.id, Entry.type == 1))
+    .scalar_subquery()
+)
+answer_count = (
+    select(func.count(Entry.id))
+    .where(and_(Entry.user_id == User.id, Entry.type == 2))
+    .scalar_subquery()
+)
+
 
 def get(db: Session, *, id: int) -> User:
     return db.query(User).filter(User.id == id).one()
+
+
+def get_with_counts(db: Session, *, id: int) -> User:
+    return (
+        db.query(User)
+        .options(
+            with_expression(User.question_count, question_count),
+            with_expression(User.answer_count, answer_count),
+        )
+        .filter(User.id == id)
+        .one()
+    )
 
 
 def get_by_email(db: Session, *, email: str) -> Optional[User]:
@@ -23,28 +46,11 @@ def email_exists(db: Session, *, email: str) -> bool:
 
 
 def for_list(db: Session, *, limit: int = 30, offset: int = 0) -> list[User]:
-    question_count = (
-        select(func.count(Entry.id))
-        .where(and_(Entry.user_id == User.id, Entry.type == 1))
-        .scalar_subquery()
-    )
-    answer_count = (
-        select(func.count(Entry.id))
-        .where(and_(Entry.user_id == User.id, Entry.type == 2))
-        .scalar_subquery()
-    )
-    comment_count = (
-        select(func.count(Entry.id))
-        .where(and_(Entry.user_id == User.id, Entry.type == 3))
-        .scalar_subquery()
-    )
-
     return (
         db.query(User)
         .options(
             with_expression(User.question_count, question_count),
             with_expression(User.answer_count, answer_count),
-            with_expression(User.comment_count, comment_count),
         )
         .limit(limit)
         .offset(offset)

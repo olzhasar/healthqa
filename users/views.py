@@ -25,8 +25,22 @@ def all():
 @bp.route("/<int:id>/")
 def profile(id: int):
     try:
-        user = crud.user.get(db, id=id)
+        user = crud.user.get_with_counts(db, id=id)
     except NoResultFound:
         abort(404)
 
-    return render_template("profile.html", user=user)
+    questions = crud.question.list_for_user(db, user_id=user.id)
+
+    return render_template("profile.html", user=user, questions=questions)
+
+
+@bp.route("/<int:id>/answers/")
+def answers(id: int):
+    try:
+        user = crud.user.get_with_counts(db, id=id)
+    except NoResultFound:
+        abort(404)
+
+    answers = crud.answer.list_for_user(db, user_id=user.id)
+
+    return render_template("profile.html", user=user, answers=answers)

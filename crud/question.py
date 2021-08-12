@@ -149,3 +149,16 @@ def search_total(db: Session, *, query: str) -> int:
         .filter(or_(Question.title.match(query), Question.content.match(query)))
         .scalar()
     )
+
+
+def list_for_user(
+    db: Session, *, user_id: int, limit: int = 10, offset: int = 0
+) -> list[Question]:
+    return (
+        db.query(Question)
+        .filter(Question.user_id == user_id)
+        .order_by(Question.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )

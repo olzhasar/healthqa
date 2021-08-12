@@ -37,46 +37,61 @@ def test_create_user(db: Session):
     assert db.query(User).filter(User.id == user.id).first() == user
 
 
+def _create_questions_answers(user: User):
+    questions = factories.QuestionFactory.create_batch(random.randint(1, 4), user=user)
+    factories.AnswerFactory.create_batch(
+        random.randint(1, 4), question=questions[0], user=user
+    )
+
+
 @pytest.fixture
 def users():
     users = factories.UserFactory.create_batch(5)
 
     for user in users:
-        questions = factories.QuestionFactory.create_batch(
-            random.randint(1, 4), user=user
-        )
-        factories.AnswerFactory.create_batch(
-            random.randint(1, 4), question=questions[0], user=user
-        )
-        factories.CommentFactory.create_batch(
-            random.randint(1, 4), entry_id=questions[0].id, user=user
-        )
+        _create_questions_answers(user)
 
     return users
+
+
+@pytest.fixture
+def user_questions_answers(user):
+    _create_questions_answers(user)
+
+
+def assert_user_counts_match_db(db: Session, user: User):
+    assert (
+        user.question_count
+        == db.query(func.count(Entry.id))
+        .where(Entry.user_id == user.id, Entry.type == 1)
+        .scalar()
+    )
+    assert (
+        user.answer_count
+        == db.query(func.count(Entry.id))
+        .where(Entry.user_id == user.id, Entry.type == 2)
+        .scalar()
+    )
 
 
 def test_for_list(db: Session, users, max_num_queries):
     with max_num_queries(1):
         result = crud.user.for_list(db)
+        for user in result:
+            assert user.question_count
+            assert user.answer_count
 
     assert set(result) == set(users)
 
     for user in result:
-        assert (
-            user.question_count
-            == db.query(func.count(Entry.id))
-            .where(Entry.user_id == user.id, Entry.type == 1)
-            .scalar()
-        )
-        assert (
-            user.answer_count
-            == db.query(func.count(Entry.id))
-            .where(Entry.user_id == user.id, Entry.type == 2)
-            .scalar()
-        )
-        assert (
-            user.comment_count
-            == db.query(func.count(Entry.id))
-            .where(Entry.user_id == user.id, Entry.type == 3)
-            .scalar()
-        )
+        assert_user_counts_match_db(db, user)
+
+
+def test_get_with_counts(db: Session, user, user_questions_answers, max_num_queries):
+    with max_num_queries(1):
+        result = crud.user.get_with_counts(db, id=user.id)
+        assert isinstance(result, User)
+        assert result.question_count
+        assert result.answer_count
+
+    assert_user_counts_match_db(db, result)

@@ -25,7 +25,6 @@ class User(Base):
 
     question_count: int = query_expression()
     answer_count: int = query_expression()
-    comment_count: int = query_expression()
 
     @property
     def is_authenticated(self) -> bool:

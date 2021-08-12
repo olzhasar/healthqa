@@ -20,3 +20,17 @@ class TestProfile:
         response = client.get(self.url.format(id=999))
 
         assert response.status_code == 404
+
+
+class TestProfileAnswers:
+    url = "/users/{id}/answers/"
+
+    def test_ok(self, db: Session, client, user):
+        response = client.get(self.url.format(id=user.id))
+
+        assert response.status_code == 200
+
+    def test_non_existing(self, db: Session, client, user):
+        response = client.get(self.url.format(id=999))
+
+        assert response.status_code == 404
