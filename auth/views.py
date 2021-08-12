@@ -56,7 +56,7 @@ def logout():
     return redirect(url_for("home.index"))
 
 
-@bp.route("/change_password", methods=["POST"])
+@bp.route("/change_password", methods=["GET", "POST"])
 @login_required
 def change_password():
     form = forms.ChangePasswordForm()

@@ -65,6 +65,7 @@ class ChangePasswordForm(FlaskForm):
         "Current password",
         [validators.InputRequired()],
         widget=PasswordInput(),
+        description="************",
     )
     password = StringField(
         "Password",

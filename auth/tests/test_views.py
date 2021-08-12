@@ -202,6 +202,14 @@ class TestChangePassword:
             "password_repeat": "123qweasd",
         }
 
+    def test_get(self, db: Session, as_user):
+        response = as_user.get(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
     def test_ok(self, db: Session, as_user, user, data):
         response = as_user.post(
             self.url,
