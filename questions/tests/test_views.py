@@ -16,7 +16,7 @@ class TestAskQuestion:
     @pytest.fixture
     def data(self):
         return {
-            "title": "Test title corresponding to reuqirements",
+            "title": "Test title corresponding to requirements",
             "content": fake.paragraph(),
         }
 
@@ -47,17 +47,21 @@ class TestAskQuestion:
         )
 
         assert response.status_code == 200
-        assert db.query(func.count(Question.id)).scalar() == 0
+        assert not bool(
+            db.query(Question.id).filter(Question.user_id == user.id).first()
+        )
 
     @pytest.mark.parametrize(
         ("field_name", "field_value"),
         [
             ("title", "short"),
-            ("title", fake.words(30)),
+            ("title", fake.pystr(min_chars=151, max_chars=160)),
             ("content", "short"),
         ],
     )
-    def test_fields_length_validation(self, as_user, data, db, field_name, field_value):
+    def test_fields_length_validation(
+        self, as_user, user, data, db, field_name, field_value
+    ):
         data[field_name] = field_value
 
         response = as_user.post(
@@ -67,18 +71,23 @@ class TestAskQuestion:
         )
 
         assert response.status_code == 200
-        assert db.query(func.count(Question.id)).scalar() == 0
+        assert not bool(
+            db.query(Question.id).filter(Question.title == data["title"]).first()
+        )
 
-    def test_unauthorized(self, client, db):
+    def test_unauthorized(self, client, data, db):
         response = client.post(
             self.url,
+            data=data,
             follow_redirects=False,
         )
 
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-        assert db.query(func.count(Question.id)).scalar() == 0
+        assert not bool(
+            db.query(Question.id).filter(Question.title == data["title"]).first()
+        )
 
 
 class TestDetails:
