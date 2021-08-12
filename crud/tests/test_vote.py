@@ -1,34 +1,10 @@
 import pytest
 from pytest_factoryboy import LazyFixture
+from sqlalchemy.orm.session import Session
 
 import crud
-from models import Entry, Vote
+from models import Vote
 from tests import factories
-
-
-def test_get_dict_for_user(db, user):
-    expected = {}
-
-    for question in factories.QuestionFactory.create_batch(3):
-        vote = factories.VoteFactory(entry_id=question.id, user=user)
-        expected[question.id] = vote.value
-
-        factories.VoteFactory.create_batch(2, entry_id=question.id)
-
-    for answer in factories.AnswerFactory.create_batch(3):
-        vote = factories.VoteFactory(entry_id=answer.id, user=user)
-        expected[answer.id] = vote.value
-
-        factories.VoteFactory.create_batch(2, entry_id=answer.id)
-
-    for comment in factories.CommentFactory.create_batch(3, entry_id=question.id):
-        vote = factories.VoteFactory(entry_id=comment.id, user=user)
-        expected[comment.id] = vote.value
-
-        factories.VoteFactory.create_batch(2, entry_id=comment.id)
-
-    result = crud.vote.get_dict_for_user(db, user_id=user.id)
-    assert result == expected
 
 
 @pytest.fixture(
@@ -43,16 +19,83 @@ def instance(request):
     return request.param.evaluate(request)
 
 
-def test_delete(db, instance, user):
-    factories.VoteFactory(user=user, entry_id=instance.id, value=5)
-
-    assert db.query(Entry.score).filter(Entry.id == instance.id).scalar() == 5
-
-    crud.vote.delete(db, user_id=user.id, entry_id=instance.id)
-
-    assert not bool(
-        db.query(Vote)
-        .filter(Vote.user_id == user.id, Vote.entry_id == instance.id)
-        .first()
+class TestRegister:
+    @pytest.mark.parametrize(
+        ("input_val", "value"),
+        [
+            (1, 1),
+            (2, -1),
+        ],
     )
-    assert db.query(Entry.score).filter(Entry.id == instance.id).scalar() == 0
+    def test_new(self, db: Session, instance, user, input_val, value):
+        vote = crud.vote.record(
+            db, user_id=user.id, entry_id=instance.id, value=input_val
+        )
+
+        from_db = (
+            db.query(Vote)
+            .filter(Vote.entry_id == instance.id, Vote.user_id == user.id)
+            .one()
+        )
+
+        assert from_db == vote
+        assert from_db.value == value
+
+    @pytest.mark.parametrize("input_val", [-1, 3, 4, 99])
+    def test_invalid_value(self, db: Session, instance, user, input_val):
+        with pytest.raises(ValueError) as exc:
+            crud.vote.record(db, user_id=user.id, entry_id=instance.id, value=input_val)
+            assert str(exc) == "Invalid vote value"
+
+        assert not bool(
+            db.query(Vote.id)
+            .filter(Vote.entry_id == instance.id, Vote.user_id == user.id)
+            .first()
+        )
+
+    @pytest.mark.parametrize(
+        ("input_val", "value"),
+        [
+            (1, 1),
+            (2, -1),
+        ],
+    )
+    def test_existing_same_value(self, db: Session, instance, user, input_val, value):
+        factories.VoteFactory(entry_id=instance.id, user=user, value=value)
+
+        with pytest.raises(ValueError) as exc:
+            crud.vote.record(db, user_id=user.id, entry_id=instance.id, value=input_val)
+            assert str(exc) == "Vote already exists"
+
+    @pytest.mark.parametrize(
+        ("input_val", "value"),
+        [
+            (1, 1),
+            (2, -1),
+        ],
+    )
+    def test_existing_different_value(
+        self, db: Session, instance, user, input_val, value
+    ):
+        vote = factories.VoteFactory(entry_id=instance.id, user=user, value=-value)
+
+        crud.vote.record(db, user_id=user.id, entry_id=instance.id, value=input_val)
+
+        db.refresh(vote)
+        assert vote.value == value
+
+    def test_delete(self, db: Session, instance, user):
+        factories.VoteFactory(entry_id=instance.id, user=user, value=1)
+
+        crud.vote.record(db, user_id=user.id, entry_id=instance.id, value=0)
+
+        assert not bool(
+            db.query(Vote.id)
+            .filter(Vote.entry_id == instance.id, Vote.user_id == user.id)
+            .first()
+        )
+
+    def test_delete_not_existing(self, db: Session, instance, user):
+        with pytest.raises(ValueError) as exc:
+            crud.vote.record(db, user_id=user.id, entry_id=instance.id, value=0)
+            assert str(exc) == "Vote does not exist"
