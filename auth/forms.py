@@ -47,7 +47,7 @@ class SignupForm(FlaskForm):
     )
 
     def validate_email(form, field):
-        if crud.user.email_exists(db, field.data):
+        if crud.user.email_exists(db, email=field.data):
             raise ValidationError("User with this email is already registered")
 
 

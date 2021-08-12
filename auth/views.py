@@ -18,7 +18,7 @@ def login():
 
     form = forms.LoginForm()
     if form.validate_on_submit():
-        user = crud.user.get_by_email(db, form.email.data)
+        user = crud.user.get_by_email(db, email=form.email.data)
         if user and check_password(form.password.data, user.password):
             login_user(user)
             redirect_url = request.args.get("next", url_for("home.index"))
