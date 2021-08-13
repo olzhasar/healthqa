@@ -1,4 +1,4 @@
-<div class="bg-white shadow p-12 mt-4 rounded">
+<div id="answer_{{ answer.id }}" class="bg-white shadow p-12 mt-4 rounded">
   <div class="flex">
     {% with entry=answer %}
       {% include "_vote_large.html" %}
@@ -15,7 +15,7 @@
 	    Answered {{ answer.created_at.strftime('%Y-%m-%d at %H:%M') }}
 	  </span>
 	  <span class="block">
-	    <a href="{{ answer.user.get_absolute_url() }}" class="text-green-500 hover:text-green-400 mr-2">{{ answer.user.name }}</a>
+	    <a href="{{ answer.user.url }}" class="text-green-500 hover:text-green-400 mr-2">{{ answer.user.name }}</a>
 	    <span class="font-bold text-gray-600">400</span>
 	  </span>
 	</div>
@@ -34,4 +34,5 @@
 
       </div>
     </div>
-  </div> </div>
+  </div> 
+</div>

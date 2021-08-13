@@ -43,7 +43,8 @@ class User(Base):
     def get_id(self) -> str:
         return str(self.id)
 
-    def get_absolute_url(self) -> Optional[str]:
+    @property
+    def url(self) -> Optional[str]:
         if not self.is_authenticated:
             return None
         return url_for("users.profile", id=self.id)

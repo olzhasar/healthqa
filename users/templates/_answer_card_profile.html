@@ -1,0 +1,24 @@
+<div class="mb-4 bg-white border-gray-200 rounded flex shadow">
+  <div class="p-8 flex text-gray-600">
+    <span class="mr-8 text-center">
+      <p class="text-xl">{{ answer.score }}</p>
+      <p>votes</p>
+    </span>
+    <span class="mr-8 text-center">
+      <p class="text-xl">{{ answer.answer_count }}</p>
+      <p>answers</p>
+    </span>
+    <span class="text-center">
+      <p class="text-xl">{{ answer.view_count }}</p>
+      <p>views</p>
+    </span>
+  </div>
+  <div class="p-4 w-full">
+    <a href="{{ answer.url }}" class="text-lg text-gray-900 hover:text-green-500 mb-2">
+      {{ answer.question.title }}
+    </a>
+    <p class="mt-4">
+      {{ answer.user.username }}
+    </p>
+  </div>
+</div>

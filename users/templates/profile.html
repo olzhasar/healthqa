@@ -21,14 +21,24 @@ block content %}
 	Questions: {{ user.question_count }}
       </a>
       <a href="{{ url_for('users.profile', id=user.id) }}?tab=answers" class="flex py-4 px-8 hover:bg-gray-50 {% if tab=='answers' %}bg-gray-100 border-r-8 border-green-700{% endif %}">
-	Answers: {{ user.question_count }}
+	Answers: {{ user.answer_count }}
       </a>
     </div>
   </div>
 </div>
 <div class="w-full lg:w-2/3 px-4">
-  {% for question in questions %}
-    {% include "_question_card.html" %}
-  {% endfor %}
+  {% if tab == 'questions' %}
+    {% for question in questions %}
+      {% include "_question_card_profile.html" %}
+    {% else %}
+      User has no questions yet
+    {% endfor %}
+  {% elif tab == 'answers' %}
+    {% for answer in answers %}
+      {% include "_answer_card_profile.html" %}
+    {% else %}
+      User has no answers yet
+    {% endfor %}
+  {% endif %}
 </div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from flask.helpers import url_for
 from sqlalchemy.orm import column_property, relationship
 from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import func
@@ -27,6 +28,10 @@ class Answer(Entry):
     __mapper_args__ = {
         "polymorphic_identity": 2,
     }
+
+    @property
+    def url(self):
+        return url_for("questions.details", id=self.question_id) + f"#answer_{self.id}"
 
 
 Question.answer_count = column_property(  # type:ignore
