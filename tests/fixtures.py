@@ -106,7 +106,7 @@ def max_num_queries(db):
     def _max_num_queries(num_queries: int):
         queries_counter = QueriesCounter(db)
         with queries_counter as c:
-            yield
+            yield c
             if len(c) > num_queries:
                 logger.error("Captured queries:\n")
                 for query in c.queries:
