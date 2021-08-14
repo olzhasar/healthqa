@@ -3,7 +3,17 @@ from sqlalchemy.orm import Session
 from models import Answer, User
 
 
-def create(db: Session, *, user: User, question_id: int, content: str):
+def get(db: Session, *, id: int) -> Answer:
+    return db.query(Answer).filter(Answer.id == id).one()
+
+
+def update(db: Session, *, answer: Answer, new_content: str) -> None:
+    answer.content = new_content
+    db.add(answer)
+    db.commit()
+
+
+def create(db: Session, *, user: User, question_id: int, content: str) -> Answer:
     answer = Answer(
         user=user,
         question_id=question_id,
