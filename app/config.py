@@ -20,5 +20,7 @@ class Settings(BaseSettings):
 
     PAGINATION: int = 20
 
+    REDIS_URL: str = "redis://127.0.0.1:6379"
+
 
 settings = Settings()
