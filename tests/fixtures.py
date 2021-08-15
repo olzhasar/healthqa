@@ -88,8 +88,9 @@ class QueriesCounter:
 
     def callback(self, conn, cursor, statement, parameters, context, executemany):
         if self._do_count:
-            self._count += 1
-            self.queries.append((statement, parameters, context))
+            if not statement.startswith(("SAVEPOINT", "RELEASE")):
+                self._count += 1
+                self.queries.append((statement, parameters, context))
 
     def __len__(self) -> int:
         return self._count
