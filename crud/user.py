@@ -80,3 +80,8 @@ def change_password(db: Session, *, user_id: int, new_password: str):
 
     db.query(User).filter(User.id == user_id).update({"password": hashed})
     db.commit()
+
+
+def update(db: Session, *, user_id: int, name: str):
+    db.query(User).filter(User.id == user_id).update({"name": name})
+    db.commit()

@@ -1,10 +1,12 @@
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, abort, redirect, render_template, url_for
 from flask.globals import request
+from flask_login import current_user, login_required
 from sqlalchemy.exc import NoResultFound
 
 import crud
 from common.pagination import Paginator
 from db.database import db
+from users import forms
 
 bp = Blueprint("users", __name__, template_folder="templates", url_prefix="/users")
 
@@ -41,3 +43,17 @@ def profile(id: int):
     return render_template(
         "profile.html", user=user, questions=questions, answers=answers, tab=tab
     )
+
+
+@bp.route("<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_profile(id: int):
+    if current_user.id != id:
+        abort(404)
+
+    form = forms.ProfileForm(obj=current_user)
+    if form.validate_on_submit():
+        crud.user.update(db, user_id=current_user.id, name=form.name.data)
+        return redirect(url_for("users.profile", id=current_user.id))
+
+    return render_template("edit_profile.html", form=form)

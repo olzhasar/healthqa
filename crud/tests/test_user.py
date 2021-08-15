@@ -105,3 +105,11 @@ def test_change_password(db: Session, user):
     db.refresh(user, ["password"])
 
     assert check_password(new_password, user.password)
+
+
+def test_update(db: Session, user):
+    crud.user.update(db, user_id=user.id, name="Vincent Vega")
+
+    from_db = db.query(User).filter(User.id == user.id).one()
+
+    assert from_db.name == "Vincent Vega"
