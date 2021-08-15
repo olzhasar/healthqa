@@ -97,6 +97,16 @@ class TestAskQuestion:
         )
 
 
+class TestAllQuestions:
+    url = "/questions/"
+
+    def test_ok(self, client, max_num_queries):
+        with max_num_queries(3):
+            response = client.get(self.url)
+
+        assert response.status_code == 200
+
+
 class TestDetails:
     url = "/questions/{id}"
 

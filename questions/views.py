@@ -43,7 +43,7 @@ def all():
         db, limit=paginator.limit, offset=paginator.offset
     )
 
-    tags = crud.tag.get_all(db)
+    tags = crud.tag.get_list(db)
 
     return render_template(
         "question_list.html",
