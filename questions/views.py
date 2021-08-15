@@ -110,7 +110,7 @@ def edit_question(id: int):
     if question.user != current_user:
         abort(403)
 
-    form = forms.AskQuestionForm()
+    form = forms.AskQuestionForm(obj=question)
     form.tags.choices = crud.tag.get_choices(db)
 
     if form.validate_on_submit():
@@ -163,7 +163,7 @@ def edit_answer(id: int):
     if answer.user != current_user:
         abort(403)
 
-    form = forms.AnswerForm()
+    form = forms.AnswerForm(obj=answer)
     if form.validate_on_submit():
         crud.answer.update(db, answer=answer, new_content=form.content.data)
         return redirect(answer.url)
