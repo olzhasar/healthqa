@@ -1,7 +1,6 @@
 import factory
 import factory.fuzzy
 
-from app.security import hash_password
 from models import Answer, Comment, Question, Tag, User, Vote
 from models.view import View
 from tests.common import TestSession
@@ -18,11 +17,6 @@ class UserFactory(BaseFactory):
     email = factory.Faker("email")
     password = factory.Faker("password")
     name = factory.Faker("name")
-
-    @classmethod
-    def _save(cls, model_class, session, *args, **kwargs):
-        kwargs["password"] = hash_password(kwargs["password"])
-        return super()._save(model_class, session, *args, **kwargs)
 
     class Meta:
         model = User

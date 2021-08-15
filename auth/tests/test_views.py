@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
-from app.security import check_password
+from app.security import check_password, hash_password
 from models.user import User
 from tests.utils import full_url_for
 
@@ -121,7 +121,7 @@ class TestLogin:
 
     @pytest.fixture
     def user__password(self):
-        return "123qweasd"
+        return hash_password("123qweasd")
 
     def test_get(self, client):
         response = client.get(self.url)
@@ -192,7 +192,7 @@ class TestChangePassword:
 
     @pytest.fixture
     def user__password(self):
-        return "old_password"
+        return hash_password("old_password")
 
     @pytest.fixture
     def data(self):
