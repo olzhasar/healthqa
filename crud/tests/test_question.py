@@ -32,20 +32,20 @@ def test_create(db: Session, user, tag, other_tag):
         user=user,
         title=title,
         content=content,
-        tags=[tag, other_tag],
+        tags=[tag.id, other_tag.id],
     )
 
-    assert isinstance(question, Question)
-    assert question.id
-    assert question.user == user
-    assert question.title == title
-    assert question.content == content
-    assert question.tags == [tag, other_tag]
+    from_db = db.query(Question).filter(Question.id == question.id).one()
 
-    assert db.query(Question).filter(Question.user_id == user.id).first() == question
+    assert question == from_db
+
+    assert from_db.user == user
+    assert from_db.title == title
+    assert from_db.content == content
+    assert set(from_db.tags) == set([tag, other_tag])
 
 
-def test_update(db: Session, question):
+def test_update(db: Session, question, tag):
     tags = factories.TagFactory.create_batch(3)
 
     crud.question.update(
@@ -53,14 +53,14 @@ def test_update(db: Session, question):
         question=question,
         new_title="New title",
         new_content="New content",
-        tags=tags,
+        tags=[tag.id for tag in tags],
     )
 
-    db.refresh(question)
+    from_db = db.query(Question).filter(Question.id == question.id).first()
 
-    assert question.title == "New title"
-    assert question.content == "New content"
-    assert question.tags == tags
+    assert from_db.title == "New title"
+    assert from_db.content == "New content"
+    assert from_db.tags == tags
 
 
 @pytest.fixture

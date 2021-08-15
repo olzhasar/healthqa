@@ -3,7 +3,8 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql.functions import func
 
-from models import Answer, Comment, Question, Tag, User, Vote
+from models import Answer, Comment, Question, User, Vote
+from models.question import question_tags_table
 
 
 def get(db: Session, *, id: int) -> Question:
@@ -107,29 +108,40 @@ def get_popular_list(db: Session, *, limit: int = 20, offset: int = 0) -> list[Q
 
 
 def create(
-    db: Session, *, user: User, title: str, content: str, tags: list[Tag]
+    db: Session, *, user: User, title: str, content: str, tags: list[int]
 ) -> Question:
-    question = Question(
-        user=user,
-        title=title,
-        content=content,
-        tags=tags,
-    )
+    question = Question(user=user, title=title, content=content)
 
     db.add(question)
+    db.flush()
+
+    if tags:
+        tag_values = [(question.id, tag_id) for tag_id in tags]
+        db.execute(question_tags_table.insert().values(tag_values))
+
     db.commit()
 
     return question
 
 
 def update(
-    db: Session, *, question: Question, new_title: str, new_content: str, tags: list[Tag]
+    db: Session, *, question: Question, new_title: str, new_content: str, tags: list[int]
 ) -> None:
     question.title = new_title
     question.content = new_content
-    question.tags = tags
 
     db.add(question)
+
+    db.execute(
+        question_tags_table.delete().where(
+            question_tags_table.c.question_id == question.id
+        )
+    )
+
+    if tags:
+        tag_values = [(question.id, tag_id) for tag_id in tags]
+        db.execute(question_tags_table.insert().values(tag_values))
+
     db.commit()
 
 

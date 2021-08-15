@@ -3,5 +3,9 @@ from sqlalchemy.orm.session import Session
 from models.tag import Tag
 
 
-def get_all(db: Session, limit: int = 100):
-    return db.query(Tag).limit(limit).all()
+def get_list(db: Session):
+    return db.query(Tag).all()
+
+
+def get_choices(db: Session):
+    return db.query(Tag.id, Tag.name).all()

@@ -15,27 +15,33 @@ class TestAskQuestion:
     url = "/questions/ask"
 
     @pytest.fixture
-    def data(self):
+    def tags(self):
+        return factories.TagFactory.create_batch(3)
+
+    @pytest.fixture
+    def data(self, tags):
         return {
             "title": "Test title corresponding to requirements",
             "content": fake.paragraph(),
+            "tags": [t.id for t in tags],
         }
 
-    def test_ok(self, as_user, user, data, db):
+    def test_ok(self, as_user, user, data, db, tags):
         response = as_user.post(
             self.url,
             data=data,
             follow_redirects=False,
         )
 
-        assert response.status_code == 302
-        assert response.location == full_url_for("home.index")
-
         question = db.query(Question).filter(Question.user_id == user.id).first()
+
+        assert response.status_code == 302
+        assert response.location == full_url(question.url)
 
         assert question
         assert question.title == data["title"]
         assert question.content == data["content"]
+        assert question.tags == tags
 
     @pytest.mark.parametrize("missing_field", ["title", "content"])
     def test_missing_fields(self, as_user, user, data, missing_field, db):

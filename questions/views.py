@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, jsonify, redirect, render_template, request
 from flask.globals import current_app
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -15,15 +15,18 @@ bp = Blueprint("questions", __name__, template_folder="templates")
 @login_required
 def ask():
     form = forms.AskQuestionForm()
+    form.tags.choices = crud.tag.get_choices(db)
+
     if form.validate_on_submit():
-        crud.question.create(
+        question = crud.question.create(
             db,
             user=current_user,
             title=form.title.data,
             content=form.content.data,
-            tags=[],
+            tags=form.tags.data,
         )
-        return redirect(url_for("home.index"))
+        return redirect(question.url)
+
     return render_template("ask_question.html", form=form)
 
 
@@ -108,6 +111,7 @@ def edit_question(id: int):
         abort(403)
 
     form = forms.AskQuestionForm()
+    form.tags.choices = crud.tag.get_choices(db)
 
     if form.validate_on_submit():
         crud.question.update(

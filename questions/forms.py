@@ -30,7 +30,9 @@ class AskQuestionForm(FlaskForm):
         render_kw={"rows": 16},
     )
 
-    tags = SelectMultipleField("Tags", coerce=int, description="Tags")
+    tags = SelectMultipleField(
+        "Tags", description="Tags", coerce=int, validate_choice=False
+    )
 
 
 class AnswerForm(FlaskForm):
