@@ -1,5 +1,6 @@
 import pytest
 from faker import Faker
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 
 import crud
@@ -10,7 +11,19 @@ from tests import factories
 fake = Faker()
 
 
-def test_create_question(db: Session, user, tag, other_tag):
+def test_get(db: Session, question, max_num_queries):
+    with max_num_queries(1):
+        from_db = crud.question.get(db, id=question.id)
+
+    assert from_db
+    assert isinstance(from_db, Question)
+    assert from_db == question
+
+    with pytest.raises(NoResultFound):
+        crud.question.get(db, id=999)
+
+
+def test_create(db: Session, user, tag, other_tag):
     title = fake.sentence()
     content = fake.paragraph()
 
@@ -30,6 +43,24 @@ def test_create_question(db: Session, user, tag, other_tag):
     assert question.tags == [tag, other_tag]
 
     assert db.query(Question).filter(Question.user_id == user.id).first() == question
+
+
+def test_update(db: Session, question):
+    tags = factories.TagFactory.create_batch(3)
+
+    crud.question.update(
+        db,
+        question=question,
+        new_title="New title",
+        new_content="New content",
+        tags=tags,
+    )
+
+    db.refresh(question)
+
+    assert question.title == "New title"
+    assert question.content == "New content"
+    assert question.tags == tags
 
 
 @pytest.fixture

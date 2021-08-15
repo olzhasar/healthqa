@@ -6,7 +6,7 @@ from sqlalchemy.sql.functions import func
 from models import Answer, Comment, Question, Tag, User, Vote
 
 
-def get_by_id(db: Session, id: int) -> Question:
+def get(db: Session, *, id: int) -> Question:
     return db.query(Question).filter(Question.id == id).one()
 
 
@@ -120,6 +120,17 @@ def create(
     db.commit()
 
     return question
+
+
+def update(
+    db: Session, *, question: Question, new_title: str, new_content: str, tags: list[Tag]
+) -> None:
+    question.title = new_title
+    question.content = new_content
+    question.tags = tags
+
+    db.add(question)
+    db.commit()
 
 
 def total(db: Session) -> int:

@@ -1,11 +1,12 @@
 import pytest
 from faker import Faker
+from pytest_factoryboy import LazyFixture
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
 from models import Answer, Comment, Question, Vote
 from tests import factories
-from tests.utils import full_url_for
+from tests.utils import full_url, full_url_for
 
 fake = Faker()
 
@@ -105,6 +106,88 @@ class TestDetails:
         assert response.status_code == 404
 
 
+class TestEditQuestion:
+    url = "/questions/{id}/edit"
+
+    @pytest.fixture
+    def tags(self):
+        return factories.TagFactory.create_batch(3)
+
+    @pytest.fixture
+    def data(self, tags):
+        return {
+            "title": fake.sentence(),
+            "content": fake.paragraph(),
+            "tags": [],
+        }
+
+    def test_get(self, db: Session, as_user, question):
+        response = as_user.get(
+            self.url.format(id=question.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+
+    def test_not_found(self, db: Session, as_user):
+        response = as_user.get(
+            self.url.format(id=999),
+            follow_redirects=False,
+        )
+        assert response.status_code == 404
+
+    def test_get_unauthorized(self, db: Session, client, question):
+        response = client.get(
+            self.url.format(id=question.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location.startswith(full_url_for("auth.login"))
+
+    @pytest.mark.parametrize("question__user", [LazyFixture("other_user")])
+    def test_get_wrong_user(self, as_user, other_user, question):
+        response = as_user.get(
+            self.url.format(id=question.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
+
+    def test_post_ok(self, db: Session, as_user, question, data):
+        response = as_user.post(
+            self.url.format(id=question.id),
+            data=data,
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location == full_url(question.url)
+
+        db.refresh(question)
+        assert question.title == data["title"]
+        assert question.content == data["content"]
+
+    def test_post_unauthorized(self, db: Session, client, question, data):
+        response = client.post(
+            self.url.format(id=question.id),
+            data=data,
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location.startswith(full_url_for("auth.login"))
+
+    def test_post_error(self, db: Session, as_user, question, data):
+        data["content"] = "short"
+
+        response = as_user.post(
+            self.url.format(id=question.id),
+            data=data,
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+
+        db.refresh(question)
+        assert question.title != data["title"]
+        assert question.content != data["content"]
+
+
 class TestAnswer:
     url = "/questions/{id}/answer"
 
@@ -147,6 +230,76 @@ class TestAnswer:
         assert response.json == {"error": "invalid question_id"}
 
         assert db.query(func.count(Answer.id)).scalar() == 0
+
+
+class TestEditAnswer:
+    url = "/answers/{id}/edit"
+
+    @pytest.fixture
+    def new_content(self):
+        return fake.paragraph()
+
+    def test_get(self, db: Session, as_user, answer):
+        response = as_user.get(
+            self.url.format(id=answer.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+
+    def test_not_found(self, db: Session, as_user):
+        response = as_user.get(
+            self.url.format(id=999),
+            follow_redirects=False,
+        )
+        assert response.status_code == 404
+
+    def test_get_unauthorized(self, db: Session, client, answer):
+        response = client.get(
+            self.url.format(id=answer.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location.startswith(full_url_for("auth.login"))
+
+    @pytest.mark.parametrize("answer__user", [LazyFixture("other_user")])
+    def test_get_wrong_user(self, as_user, other_user, answer):
+        response = as_user.get(
+            self.url.format(id=answer.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
+
+    def test_post_ok(self, db: Session, as_user, answer, new_content):
+        response = as_user.post(
+            self.url.format(id=answer.id),
+            data={"content": new_content},
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location == full_url(answer.url)
+
+        db.refresh(answer)
+        assert answer.content == new_content
+
+    def test_post_unauthorized(self, db: Session, client, answer, new_content):
+        response = client.post(
+            self.url.format(id=answer.id),
+            data={"content": new_content},
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location.startswith(full_url_for("auth.login"))
+
+    def test_post_error(self, db: Session, as_user, answer, new_content):
+        response = as_user.post(
+            self.url.format(id=answer.id),
+            data={"content": "short"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+
+        db.refresh(answer)
+        assert answer.content != new_content
 
 
 class TestAnswerComment:

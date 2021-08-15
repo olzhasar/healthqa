@@ -96,6 +96,32 @@ def details(id: int):
     )
 
 
+@bp.route("/questions/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_question(id: int):
+    try:
+        question = crud.question.get(db, id=id)
+    except NoResultFound:
+        abort(404)
+
+    if question.user != current_user:
+        abort(403)
+
+    form = forms.AskQuestionForm()
+
+    if form.validate_on_submit():
+        crud.question.update(
+            db,
+            question=question,
+            new_title=form.title.data,
+            new_content=form.content.data,
+            tags=form.tags.data,
+        )
+        return redirect(question.url)
+
+    return render_template("question_edit.html", form=form)
+
+
 @bp.route("/questions/<int:id>/answer", methods=["POST"])
 @login_required
 def answer(id: int):
@@ -120,6 +146,25 @@ def answer(id: int):
             )
 
     return render_template("_answer_form.html", answer_form=form, url=request.url)
+
+
+@bp.route("/answers/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_answer(id: int):
+    try:
+        answer = crud.answer.get(db, id=id)
+    except NoResultFound:
+        abort(404)
+
+    if answer.user != current_user:
+        abort(403)
+
+    form = forms.AnswerForm()
+    if form.validate_on_submit():
+        crud.answer.update(db, answer=answer, new_content=form.content.data)
+        return redirect(answer.url)
+
+    return render_template("answer_edit.html", form=form)
 
 
 @bp.route("/entries/<int:id>/comment", methods=["POST"])
