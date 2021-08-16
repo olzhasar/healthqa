@@ -58,7 +58,6 @@ def get_list_for_question(
         .join(User, Answer.user_id == User.id)
         .outerjoin(Vote, and_(Vote.entry_id == Answer.id, Vote.user_id == user_id))
         .outerjoin(Comment, Comment.entry_id == Answer.id)
-        .order_by(Comment.id)
         .outerjoin(CommentUser, CommentUser.id == Comment.user_id)
         .outerjoin(
             CommentVote,
@@ -75,6 +74,6 @@ def get_list_for_question(
             ),
         )
         .filter(Answer.question_id == question_id, Answer.deleted_at.is_(None))
-        .order_by(Answer.score.desc(), Answer.id.desc())
+        .order_by(Answer.score.desc(), Answer.id.desc(), Comment.id)
         .all()
     )
