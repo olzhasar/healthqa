@@ -320,16 +320,16 @@ class TestEditAnswer:
         assert answer.content != new_content
 
 
-class TestAnswerComment:
+class TestComment:
     url = "/entries/{id}/comment"
 
     @pytest.fixture
     def data(self):
         return {"content": fake.paragraph()}
 
-    def test_unauthorized(self, client, db, answer, data):
+    def test_unauthorized(self, client, db, question_or_answer, data):
         response = client.post(
-            self.url.format(id=answer.id),
+            self.url.format(id=question_or_answer.id),
             data=data,
             follow_redirects=False,
         )
@@ -338,21 +338,23 @@ class TestAnswerComment:
 
         assert db.query(func.count(Comment.id)).scalar() == 0
 
-    def test_ok(self, as_user, user, db, answer, data):
+    def test_ok(self, as_user, user, db, question_or_answer, data):
         response = as_user.post(
-            self.url.format(id=answer.id),
+            self.url.format(id=question_or_answer.id),
             data=data,
             follow_redirects=False,
         )
         assert response.status_code == 200
 
-        comment = db.query(Comment).filter(Comment.entry_id == answer.id).first()
+        comment = (
+            db.query(Comment).filter(Comment.entry_id == question_or_answer.id).first()
+        )
 
         assert comment
         assert comment.user == user
         assert comment.content == data["content"]
 
-    def test_unexisting_answer_id(self, as_user, db, data):
+    def test_unexisting_entry(self, as_user, db, data):
         response = as_user.post(
             self.url.format(id=999),
             data=data,
@@ -364,48 +366,89 @@ class TestAnswerComment:
         assert db.query(func.count(Comment.id)).scalar() == 0
 
 
-class TestQuestionComment:
-    url = "/entries/{id}/comment"
+class TestEditComment:
+    url = "/comments/{id}/edit"
+
+    @pytest.fixture(
+        params=[
+            LazyFixture("question_comment"),
+            LazyFixture("answer_comment"),
+        ]
+    )
+    def comment(self, request):
+        return request.param.evaluate(request)
 
     @pytest.fixture
     def data(self):
         return {"content": fake.paragraph()}
 
-    def test_unauthorized(self, client, db, question, data):
-        response = client.post(
-            self.url.format(id=question.id),
-            data=data,
+    def test_get(self, db: Session, as_user, comment):
+        response = as_user.get(
+            self.url.format(id=comment.id),
             follow_redirects=False,
         )
+
+        assert response.status_code == 200
+
+    def test_get_unexisting(self, db: Session, as_user):
+        response = as_user.get(
+            self.url.format(id=999),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 404
+
+    def test_get_unauthorized(self, db: Session, client, comment):
+        response = client.get(
+            self.url.format(id=comment.id),
+            follow_redirects=False,
+        )
+
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-        assert db.query(func.count(Comment.id)).scalar() == 0
-
-    def test_ok(self, as_user, user, db, question, data):
+    def test_post_ok(self, db: Session, as_user, comment, data):
         response = as_user.post(
-            self.url.format(id=question.id),
+            self.url.format(id=comment.id),
             data=data,
             follow_redirects=False,
         )
+
         assert response.status_code == 200
 
-        comment = db.query(Comment).filter(Comment.entry_id == question.id).first()
-
-        assert comment
-        assert comment.user == user
+        db.refresh(comment)
         assert comment.content == data["content"]
 
-    def test_unexisting_question(self, as_user, db, data):
+    def test_post_invalid_data(self, db: Session, as_user, comment):
+        response = as_user.post(
+            self.url.format(id=comment.id),
+            data={"content": "short"},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+        db.refresh(comment)
+        assert comment.content != "short"
+
+    def test_post_unexisting(self, db: Session, as_user, data):
         response = as_user.post(
             self.url.format(id=999),
             data=data,
             follow_redirects=False,
         )
-        assert response.status_code == 400
-        assert response.json == {"error": "invalid entry_id"}
 
-        assert db.query(func.count(Comment.id)).scalar() == 0
+        assert response.status_code == 404
+
+    def test_post_unauthorized(self, db: Session, client, comment, data):
+        response = client.post(
+            self.url.format(id=comment.id),
+            data=data,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location.startswith(full_url_for("auth.login"))
 
 
 class TestVote:

@@ -1,4 +1,5 @@
 import pytest
+from pytest_factoryboy import LazyFixture
 
 from tests import factories
 
@@ -23,3 +24,35 @@ def question_with_related(user):
             factories.VoteFactory(entry_id=comment.id, user=user)
 
     return question
+
+
+@pytest.fixture(
+    params=[
+        LazyFixture("question"),
+        LazyFixture("answer"),
+        LazyFixture("question_comment"),
+        LazyFixture("answer_comment"),
+    ]
+)
+def entry(request):
+    return request.param.evaluate(request)
+
+
+@pytest.fixture(
+    params=[
+        LazyFixture("question"),
+        LazyFixture("answer"),
+    ]
+)
+def question_or_answer(request):
+    return request.param.evaluate(request)
+
+
+@pytest.fixture(
+    params=[
+        LazyFixture("question_comment"),
+        LazyFixture("answer_comment"),
+    ]
+)
+def question_or_answer_comment(request):
+    return request.param.evaluate(request)

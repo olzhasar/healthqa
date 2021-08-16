@@ -202,6 +202,22 @@ def comment(id: int):
     )
 
 
+@bp.route("/comments/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_comment(id: int):
+    try:
+        comment = crud.comment.get_for_user(db, id=id, user_id=current_user.id)
+    except NoResultFound:
+        abort(404)
+
+    form = forms.CommentForm(obj=comment)
+    if form.validate_on_submit():
+        crud.comment.update(db, instance=comment, content=form.content.data)
+        return render_template("_comment.html", comment=comment)
+
+    return render_template("_comment_edit.html", form=form, comment=comment)
+
+
 @bp.route("/entries/<int:id>/vote/<int:value>", methods=["POST"])
 @login_required
 def vote(id: int, value: int):
