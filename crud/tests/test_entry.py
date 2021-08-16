@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
@@ -27,17 +29,21 @@ def test_get_with_user_votes_no_vote(db: Session, entry, user, max_num_queries):
     assert not entry.user_vote
 
 
-def test_delete(db: Session, entry, user):
-    crud.entry.delete(db, id=entry.id, user_id=user.id)
+@pytest.mark.freeze_time("2030-01-01")
+def test_mark_as_deleted(db: Session, entry, user):
+    assert not entry.deleted_at
 
-    assert not bool(db.query(Entry.id).filter(Entry.id == entry.id).first())
+    crud.entry.mark_as_deleted(db, id=entry.id, user_id=user.id)
+
+    db.refresh(entry)
+    assert entry.deleted_at == datetime(2030, 1, 1)
 
 
-def test_delete_not_found(db: Session, user):
+def test_mark_as_deleted_not_found(db: Session, user):
     with pytest.raises(NoResultFound):
-        crud.entry.delete(db, id=999, user_id=user.id)
+        crud.entry.mark_as_deleted(db, id=999, user_id=user.id)
 
 
-def test_delete_wrong_user(db: Session, entry, other_user):
+def test_mark_as_deleted_wrong_user(db: Session, entry, other_user):
     with pytest.raises(NoResultFound):
-        crud.entry.delete(db, id=entry.id, user_id=other_user.id)
+        crud.entry.mark_as_deleted(db, id=entry.id, user_id=other_user.id)

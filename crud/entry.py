@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql.expression import and_
 
@@ -26,8 +28,9 @@ def get_score(db: Session, *, id: int) -> int:
     return db.query(Entry.score).filter(Entry.id == id).scalar()
 
 
-def delete(db: Session, *, id: int, user_id: int):
+def mark_as_deleted(db: Session, *, id: int, user_id: int):
     entry = db.query(Entry).filter(Entry.id == id, Entry.user_id == user_id).one()
+    entry.deleted_at = datetime.utcnow()
 
-    db.delete(entry)
+    db.add(entry)
     db.commit()

@@ -1,10 +1,12 @@
+from datetime import datetime
+
 import pytest
 from faker import Faker
 from pytest_factoryboy import LazyFixture
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
-from models import Answer, Comment, Entry, Question, Vote
+from models import Answer, Comment, Question, Vote
 from tests import factories
 from tests.utils import full_url, full_url_for
 
@@ -467,11 +469,14 @@ class TestVote:
 class TestDeleteEntry:
     url = "/entries/{id}"
 
+    @pytest.mark.freeze_time("2030-01-01")
     def test_ok(self, db: Session, as_user, entry):
         response = as_user.delete(self.url.format(id=entry.id))
 
         assert response.status_code == 204
-        assert not bool(db.query(Entry.id).filter(Entry.id == entry.id).first())
+
+        db.refresh(entry)
+        assert entry.deleted_at == datetime(2030, 1, 1)
 
     def test_unexisting_question(self, as_user):
         response = as_user.delete(self.url.format(id=999))

@@ -231,7 +231,7 @@ def vote(id: int, value: int):
 @login_required
 def delete_entry(id: int):
     try:
-        crud.entry.delete(db, id=id, user_id=current_user.id)
+        crud.entry.mark_as_deleted(db, id=id, user_id=current_user.id)
     except NoResultFound:
         abort(404)
 
