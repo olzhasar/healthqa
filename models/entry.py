@@ -25,7 +25,7 @@ class Entry(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     user: User = relationship("User", backref="entries")
 
-    score = Column(Integer, nullable=False, default=0)
+    score = Column(Integer, nullable=False, default=0, index=True)
     view_count = Column(Integer, nullable=False, default=0)
 
     votes: list["Vote"] = relationship("Vote", lazy="noload")
