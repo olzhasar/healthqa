@@ -21,6 +21,7 @@ class Entry(Base):
     type = Column(Integer, nullable=False)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    deleted_at = Column(DateTime, index=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     user: User = relationship("User", backref="entries")
