@@ -68,6 +68,6 @@ def get_list_for_question(
             ),
         )
         .filter(Answer.question_id == question_id)
-        .order_by(Answer.created_at.desc())
+        .order_by(Answer.score.desc(), Answer.id.desc())
         .all()
     )

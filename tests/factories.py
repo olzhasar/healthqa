@@ -47,6 +47,8 @@ class AnswerFactory(BaseFactory):
 
     content = factory.Faker("paragraph")
 
+    score = 0
+
     class Meta:
         model = Answer
 

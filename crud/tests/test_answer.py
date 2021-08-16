@@ -121,3 +121,14 @@ def test_get_list_for_question_no_user(db: Session, question_with_related, user)
 
         for comment in answer.comments:
             assert not comment.user_vote
+
+
+def test_get_list_for_answer_sorting(db: Session, question):
+    factories.AnswerFactory(question=question, content="first", score=5)
+    factories.AnswerFactory(question=question, content="second", score=5)
+    factories.AnswerFactory(question=question, content="third", score=0)
+    factories.AnswerFactory(question=question, content="fourth", score=7)
+
+    answers = crud.answer.get_list_for_question(db, question_id=question.id)
+
+    assert [a.content for a in answers] == ["fourth", "second", "first", "third"]
