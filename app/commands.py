@@ -43,7 +43,9 @@ def init_app(app: Flask):
                     for comment in CommentFactory.create_batch(
                         random.randint(1, 4), entry_id=answer.id
                     ):
-                        VoteFactory.create_batch(3, entry_id=comment.id, value=1)
+                        VoteFactory.create_batch(
+                            random.randint(1, 7), entry_id=comment.id, value=1
+                        )
 
                 for comment in CommentFactory.create_batch(
                     random.randint(1, 4), entry_id=question.id
