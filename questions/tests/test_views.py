@@ -4,7 +4,7 @@ from pytest_factoryboy import LazyFixture
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
-from models import Answer, Comment, Question, Vote
+from models import Answer, Comment, Entry, Question, Vote
 from tests import factories
 from tests.utils import full_url, full_url_for
 
@@ -462,3 +462,24 @@ class TestVote:
             .filter(Vote.user_id == user.id, Vote.entry_id == question.id)
             .first()
         )
+
+
+class TestDeleteEntry:
+    url = "/entries/{id}"
+
+    def test_ok(self, db: Session, as_user, entry):
+        response = as_user.delete(self.url.format(id=entry.id))
+
+        assert response.status_code == 204
+        assert not bool(db.query(Entry.id).filter(Entry.id == entry.id).first())
+
+    def test_unexisting_question(self, as_user):
+        response = as_user.delete(self.url.format(id=999))
+
+        assert response.status_code == 404
+
+    def test_unauthorized(self, client, entry):
+        response = client.delete(self.url.format(id=entry.id), follow_redirects=False)
+
+        assert response.status_code == 302
+        assert response.location.startswith(full_url_for("auth.login"))

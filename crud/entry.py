@@ -24,3 +24,10 @@ def get_with_user_vote(db: Session, *, id: int, user_id: int) -> Entry:
 
 def get_score(db: Session, *, id: int) -> int:
     return db.query(Entry.score).filter(Entry.id == id).scalar()
+
+
+def delete(db: Session, *, id: int, user_id: int):
+    entry = db.query(Entry).filter(Entry.id == id, Entry.user_id == user_id).one()
+
+    db.delete(entry)
+    db.commit()

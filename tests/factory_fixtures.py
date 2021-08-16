@@ -1,3 +1,4 @@
+import pytest
 from pytest_factoryboy import LazyFixture, register
 
 from tests import factories
@@ -21,3 +22,15 @@ register(
 
 register(factories.TagFactory)
 register(factories.TagFactory, "other_tag")
+
+
+@pytest.fixture(
+    params=[
+        LazyFixture("question"),
+        LazyFixture("answer"),
+        LazyFixture("question_comment"),
+        LazyFixture("answer_comment"),
+    ]
+)
+def entry(request):
+    return request.param.evaluate(request)

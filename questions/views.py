@@ -220,3 +220,14 @@ def vote(id: int, value: int):
         template_name = "_vote_large.html"
 
     return render_template(template_name, entry=entry)
+
+
+@bp.route("/entries/<int:id>", methods=["DELETE"])
+@login_required
+def delete_entry(id: int):
+    try:
+        crud.entry.delete(db, id=id, user_id=current_user.id)
+    except NoResultFound:
+        abort(404)
+
+    return "", 204
