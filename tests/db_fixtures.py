@@ -4,7 +4,7 @@ from tests import factories
 
 
 @pytest.fixture
-def question_full(user):
+def question_with_related(user):
     question = factories.QuestionFactory()
 
     factories.VoteFactory.create_batch(2, entry_id=question.id)

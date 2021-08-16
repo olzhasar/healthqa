@@ -110,9 +110,9 @@ class TestAllQuestions:
 class TestDetails:
     url = "/questions/{id}"
 
-    def test_ok(self, client, db, question_full, max_num_queries):
+    def test_ok(self, client, db, question_with_related, max_num_queries):
         with max_num_queries(1):
-            response = client.get(self.url.format(id=question_full.id))
+            response = client.get(self.url.format(id=question_with_related.id))
 
         assert response.status_code == 200
 

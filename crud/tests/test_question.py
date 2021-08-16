@@ -132,13 +132,15 @@ class TestGetForView:
             for comment in factories.CommentFactory.create_batch(2, entry_id=answer.id):
                 factories.VoteFactory(entry_id=comment.id)
 
-    def test_single_query(self, db: Session, question_full, user, max_num_queries):
+    def test_single_query(
+        self, db: Session, question_with_related, user, max_num_queries
+    ):
         with max_num_queries(1):
             question = crud.question.get_for_view(
-                db, id=question_full.id, user_id=user.id
+                db, id=question_with_related.id, user_id=user.id
             )
 
-            assert question == question_full
+            assert question == question_with_related
             assert question.user_vote
 
             for comment in question.comments:
@@ -153,8 +155,10 @@ class TestGetForView:
                     comment.id
                     assert comment.user_vote
 
-    def test_correct_data(self, db: Session, question_full, user):
-        question = crud.question.get_for_view(db, id=question_full.id, user_id=user.id)
+    def test_correct_data(self, db: Session, question_with_related, user):
+        question = crud.question.get_for_view(
+            db, id=question_with_related.id, user_id=user.id
+        )
 
         assert (
             db.query(Vote.user_id).filter(Vote.id == question.user_vote.id).scalar()
@@ -181,8 +185,8 @@ class TestGetForView:
                     == user.id
                 )
 
-    def test_no_user(self, db: Session, question_full):
-        question = crud.question.get_for_view(db, id=question_full.id)
+    def test_no_user(self, db: Session, question_with_related):
+        question = crud.question.get_for_view(db, id=question_with_related.id)
 
         assert not question.user_vote
 
