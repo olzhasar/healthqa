@@ -10,11 +10,18 @@ class TrixWidget:
         id = uuid.uuid4()
         if "required" not in kwargs and "required" in getattr(field, "flags", []):
             kwargs["required"] = True
-        markup = (
-            f'<input type="hidden" name="{field.name}" id="{id}" value="{escape(field._value())}">'
-            + f'<trix-editor input="{id}" {html_params(name=field.name, **kwargs)}></trix-editor>'
+        html = [
+            "<input %s>"
+            % html_params(
+                type="hidden", name=field.name, id=id, value=escape(field._value())
+            ),
+        ]
+
+        html.append(
+            "<trix-editor %s></trix-editor>"
+            % html_params(input=id, name=field.name, **kwargs)
         )
-        return Markup(markup)
+        return Markup("".join(html))
 
 
 class RichField(StringField):
