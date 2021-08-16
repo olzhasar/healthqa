@@ -5,7 +5,14 @@ from models import Answer, Comment, User, Vote
 
 
 def get(db: Session, *, id: int) -> Answer:
-    return db.query(Answer).filter(Answer.id == id).one()
+    return (
+        db.query(Answer)
+        .filter(
+            Answer.id == id,
+            Answer.deleted_at.is_(None),
+        )
+        .one()
+    )
 
 
 def update(db: Session, *, answer: Answer, new_content: str) -> None:
@@ -67,7 +74,7 @@ def get_list_for_question(
                 Comment.user_vote.of_type(CommentVote)
             ),
         )
-        .filter(Answer.question_id == question_id)
+        .filter(Answer.question_id == question_id, Answer.deleted_at.is_(None))
         .order_by(Answer.score.desc(), Answer.id.desc())
         .all()
     )
