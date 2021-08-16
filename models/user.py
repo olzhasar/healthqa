@@ -25,6 +25,8 @@ class User(Base):
     password = deferred(Column(String(100)))
     name = Column(String(100), nullable=False)
 
+    score = Column(Integer, nullable=False, default=0, index=True)
+
     question_count: int = query_expression()
     answer_count: int = query_expression()
 
