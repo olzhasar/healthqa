@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased, contains_eager
+from sqlalchemy.sql.expression import and_
 
-from models import Answer, User
+from models import Answer, Comment, User, Vote
 
 
 def get(db: Session, *, id: int) -> Answer:
@@ -35,5 +36,38 @@ def get_list_for_user(
         .order_by(Answer.created_at.desc())
         .limit(limit)
         .offset(offset)
+        .all()
+    )
+
+
+def get_list_for_question(
+    db: Session, *, question_id: int, user_id: int = 0
+) -> list[Answer]:
+    CommentVote = aliased(Vote)
+    CommentUser = aliased(User)
+
+    return (
+        db.query(Answer)
+        .join(User, Answer.user_id == User.id)
+        .outerjoin(Vote, and_(Vote.entry_id == Answer.id, Vote.user_id == user_id))
+        .outerjoin(Comment, Comment.entry_id == Answer.id)
+        .order_by(Comment.id)
+        .outerjoin(CommentUser, CommentUser.id == Comment.user_id)
+        .outerjoin(
+            CommentVote,
+            and_(CommentVote.entry_id == Comment.id, CommentVote.user_id == user_id),
+        )
+        .options(
+            contains_eager(Answer.user),
+            contains_eager(Answer.user_vote),
+            contains_eager(Answer.comments).contains_eager(
+                Comment.user.of_type(CommentUser)
+            ),
+            contains_eager(Answer.comments).contains_eager(
+                Comment.user_vote.of_type(CommentVote)
+            ),
+        )
+        .filter(Answer.question_id == question_id)
+        .order_by(Answer.created_at.desc())
         .all()
     )
