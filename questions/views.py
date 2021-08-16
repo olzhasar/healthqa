@@ -78,15 +78,19 @@ def search():
 
 @bp.route("/questions/<int:id>")
 def details(id: int):
-    params = {"id": id}
+    additional_params = {}
     if current_user.is_authenticated:
-        params["user_id"] = current_user.id
+        additional_params["user_id"] = current_user.id
         crud.view.create(db, entry_id=id, user_id=current_user.id)
 
     try:
-        question = crud.question.get_for_view(db, **params)
+        question = crud.question.get_with_related(db, id=id, **additional_params)
     except NoResultFound:
         abort(404)
+
+    answers = crud.answer.get_list_for_question(
+        db, question_id=question.id, **additional_params
+    )
 
     answer_form = forms.AnswerForm()
     comment_form = forms.CommentForm()
@@ -94,6 +98,7 @@ def details(id: int):
     return render_template(
         "details.html",
         question=question,
+        answers=answers,
         answer_form=answer_form,
         comment_form=comment_form,
     )

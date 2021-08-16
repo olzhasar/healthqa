@@ -3,7 +3,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql.functions import func
 
-from models import Answer, Comment, Question, User, Vote
+from models import Comment, Question, User, Vote
 from models.question import question_tags_table
 
 
@@ -11,29 +11,16 @@ def get(db: Session, *, id: int) -> Question:
     return db.query(Question).filter(Question.id == id).one()
 
 
-def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
-    AnswerComment = aliased(Comment)
-    AnswerUser = aliased(User)
+def get_with_related(db: Session, *, id: int, user_id: int = 0) -> Question:
     CommentUser = aliased(User)
-    AnswerCommentUser = aliased(User)
-    QuestionVote = aliased(Vote)
-    AnswerVote = aliased(Vote)
     CommentVote = aliased(Vote)
-    AnswerCommentVote = aliased(Vote)
 
     return (
         db.query(Question)
         .join(User, Question.user_id == User.id)
         .outerjoin(
-            QuestionVote,
-            and_(Question.id == QuestionVote.entry_id, QuestionVote.user_id == user_id),
-        )
-        .outerjoin(Answer, Question.id == Answer.question_id)
-        .order_by(Answer.score.desc())
-        .outerjoin(AnswerUser, Answer.user_id == AnswerUser.id)
-        .outerjoin(
-            AnswerVote,
-            and_(Answer.id == AnswerVote.entry_id, AnswerVote.user_id == user_id),
+            Vote,
+            and_(Vote.entry_id == Question.id, Vote.user_id == user_id),
         )
         .outerjoin(Comment, Question.id == Comment.entry_id)
         .order_by(Comment.id)
@@ -41,37 +28,15 @@ def get_for_view(db: Session, *, id: int, user_id: int = 0) -> Question:
             CommentVote,
             and_(Comment.id == CommentVote.entry_id, CommentVote.user_id == user_id),
         )
-        .outerjoin(AnswerComment, Answer.id == AnswerComment.entry_id)
-        .order_by(AnswerComment.id)
-        .outerjoin(
-            AnswerCommentVote,
-            and_(
-                AnswerComment.id == AnswerCommentVote.entry_id,
-                AnswerCommentVote.user_id == user_id,
-            ),
-        )
         .outerjoin(CommentUser, Comment.user_id == CommentUser.id)
-        .outerjoin(AnswerCommentUser, AnswerComment.user_id == AnswerCommentUser.id)
         .options(
             contains_eager(Question.user),
-            contains_eager(Question.user_vote.of_type(QuestionVote)),
+            contains_eager(Question.user_vote),
             contains_eager(Question.comments).contains_eager(
                 Comment.user.of_type(CommentUser)
             ),
             contains_eager(Question.comments).contains_eager(
                 Comment.user_vote.of_type(CommentVote)
-            ),
-            contains_eager(Question.answers)
-            .contains_eager(Answer.comments.of_type(AnswerComment))
-            .contains_eager(AnswerComment.user.of_type(AnswerCommentUser)),
-            contains_eager(Question.answers)
-            .contains_eager(Answer.comments.of_type(AnswerComment))
-            .contains_eager(AnswerComment.user_vote.of_type(AnswerCommentVote)),
-            contains_eager(Question.answers).contains_eager(
-                Answer.user.of_type(AnswerUser)
-            ),
-            contains_eager(Question.answers).contains_eager(
-                Answer.user_vote.of_type(AnswerVote)
             ),
         )
         .filter(Question.id == id)
