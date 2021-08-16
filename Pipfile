@@ -27,6 +27,7 @@ pytest-mock = "*"
 psycopg2-binary = "*"
 sqlalchemy-utils = "*"
 sqlalchemy2-stubs = "*"
+pytest-freezegun = "*"
 
 [requires]
 python_version = "3.9"
