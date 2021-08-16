@@ -26,7 +26,7 @@ def create(db: Session, *, user: User, question_id: int, content: str) -> Answer
     return answer
 
 
-def list_for_user(
+def get_list_for_user(
     db: Session, *, user_id: int, limit: int = 10, offset: int = 0
 ) -> list[Answer]:
     return (

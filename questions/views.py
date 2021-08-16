@@ -32,7 +32,7 @@ def ask():
 
 @bp.route("/questions/")
 def all():
-    total = crud.question.total(db)
+    total = crud.question.count(db)
     paginator = Paginator(
         total=total,
         current=request.args.get("page", 1),
@@ -57,7 +57,7 @@ def all():
 def search():
     query = request.args.get("q", "")
 
-    total = crud.question.search_total(db, query=query)
+    total = crud.question.search_count(db, query=query)
     paginator = Paginator(
         total=total,
         current=request.args.get("page", 1),

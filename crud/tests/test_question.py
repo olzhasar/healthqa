@@ -196,14 +196,14 @@ class TestGetForView:
                 assert not comment.user_vote
 
 
-def test_total(db: Session):
-    assert crud.question.total(db) == 0
+def test_count(db: Session):
+    assert crud.question.count(db) == 0
 
     factories.QuestionFactory.create_batch(3)
-    assert crud.question.total(db) == 3
+    assert crud.question.count(db) == 3
 
     factories.QuestionFactory.create_batch(2)
-    assert crud.question.total(db) == 5
+    assert crud.question.count(db) == 5
 
 
 class TestSearch:
@@ -237,11 +237,11 @@ class TestSearch:
         results = crud.question.search(db, query=query)
 
         assert {r.title for r in results} == expected
-        assert crud.question.search_total(db, query=query) == len(expected)
+        assert crud.question.search_count(db, query=query) == len(expected)
 
 
-def test_list_for_user(db: Session, user, other_user):
+def test_get_list_for_user(db: Session, user, other_user):
     questions = factories.QuestionFactory.create_batch(3, user=user)
 
-    assert set(crud.question.list_for_user(db, user_id=user.id)) == set(questions)
-    assert crud.question.list_for_user(db, user_id=other_user.id) == []
+    assert set(crud.question.get_list_for_user(db, user_id=user.id)) == set(questions)
+    assert crud.question.get_list_for_user(db, user_id=other_user.id) == []

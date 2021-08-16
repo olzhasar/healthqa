@@ -145,7 +145,7 @@ def update(
     db.commit()
 
 
-def total(db: Session) -> int:
+def count(db: Session) -> int:
     return db.query(func.count(Question.id)).scalar()
 
 
@@ -166,7 +166,7 @@ def search(
     )
 
 
-def search_total(db: Session, *, query: str) -> int:
+def search_count(db: Session, *, query: str) -> int:
     return (
         db.query(func.count(Question.id))
         .filter(or_(Question.title.match(query), Question.content.match(query)))
@@ -174,7 +174,7 @@ def search_total(db: Session, *, query: str) -> int:
     )
 
 
-def list_for_user(
+def get_list_for_user(
     db: Session, *, user_id: int, limit: int = 10, offset: int = 0
 ) -> list[Question]:
     return (

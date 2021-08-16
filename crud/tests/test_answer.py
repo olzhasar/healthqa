@@ -39,18 +39,18 @@ def test_create_answer(db: Session, user, question):
         content=content,
     )
 
-    assert isinstance(answer, Answer)
-    assert answer.id
-    assert answer.user == user
-    assert answer.question == question
-    assert answer.content == content
+    from_db = db.query(Answer).filter(Answer.user_id == user.id).one()
 
-    assert db.query(Answer).filter(Answer.user_id == user.id).first() == answer
+    assert from_db == answer
+    assert from_db.id
+    assert from_db.user == user
+    assert from_db.question == question
+    assert from_db.content == content
 
 
 def test_list_for_user(db: Session, user, other_user):
     answers = factories.AnswerFactory.create_batch(3, user=user)
     factories.AnswerFactory.create_batch(3)
 
-    assert set(crud.answer.list_for_user(db, user_id=user.id)) == set(answers)
-    assert crud.question.list_for_user(db, user_id=other_user.id) == []
+    assert set(crud.answer.get_list_for_user(db, user_id=user.id)) == set(answers)
+    assert crud.answer.get_list_for_user(db, user_id=other_user.id) == []

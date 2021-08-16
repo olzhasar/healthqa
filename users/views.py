@@ -34,11 +34,11 @@ def profile(id: int):
     tab = request.args.get("tab", "questions")
 
     if tab == "questions":
-        questions = crud.question.list_for_user(db, user_id=user.id)
+        questions = crud.question.get_list_for_user(db, user_id=user.id)
         answers = []
     else:
         questions = []
-        answers = crud.answer.list_for_user(db, user_id=user.id)
+        answers = crud.answer.get_list_for_user(db, user_id=user.id)
 
     return render_template(
         "profile.html", user=user, questions=questions, answers=answers, tab=tab
