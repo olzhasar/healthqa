@@ -65,10 +65,10 @@ def test_update(db: Session, question, tag):
 @pytest.fixture
 def question_list_params():
     return [
-        ("first", 3, 2),
-        ("second", 2, 5),
-        ("third", 5, 5),
-        ("fourth", 5, 3),
+        ("first", 3, 2, "tag_1"),
+        ("second", 2, 5, "tag_2"),
+        ("third", 5, 5, "tag_2"),
+        ("fourth", 5, 3, "tag_1"),
     ]
 
 
@@ -76,36 +76,54 @@ def question_list_params():
 def question_list(question_list_params):
     questions = []
 
-    for title, answer_count, score in question_list_params:
-        question = factories.QuestionFactory(title=title, score=score)
+    for title, answer_count, score, tag_name in question_list_params:
+        tag = factories.TagFactory(name=tag_name)
+        question = factories.QuestionFactory(title=title, score=score, tags=[tag])
         factories.AnswerFactory.create_batch(answer_count, question=question)
         questions.append(question)
 
     return questions
 
 
-class TestGetList:
-    def test_ok(self, db: Session, question_list, question_list_params):
+def test_get_list(db: Session, question_list, question_list_params, max_num_queries):
+    with max_num_queries(1):
         questions = crud.question.get_list(db)
 
-        assert len(questions) == 4
+    assert len(questions) == 4
 
-        question_list_params.reverse()
+    question_list_params.reverse()
 
-        for i, question in enumerate(questions):
-            assert question.answer_count == question_list_params[i][1]
+    for i, question in enumerate(questions):
+        assert question.answer_count == question_list_params[i][1]
 
-    @pytest.mark.parametrize(
-        ("limit", "offset", "order"),
-        [
-            (2, 0, ["fourth", "third"]),
-            (2, 2, ["second", "first"]),
-        ],
-    )
-    def test_limit_offset(self, db: Session, question_list, limit, offset, order):
-        questions = crud.question.get_list(db, limit=limit, offset=offset)
 
-        assert [q.title for q in questions] == order
+@pytest.mark.parametrize(
+    ("limit", "offset", "order"),
+    [
+        (2, 0, ["fourth", "third"]),
+        (2, 2, ["second", "first"]),
+    ],
+)
+def test_get_list_limit_offset(db: Session, question_list, limit, offset, order):
+    questions = crud.question.get_list(db, limit=limit, offset=offset)
+
+    assert [q.title for q in questions] == order
+
+
+@pytest.mark.parametrize(
+    ("tag_slug", "result"),
+    [
+        ("tag_1", ["first", "fourth"]),
+        ("tag_2", ["second", "third"]),
+    ],
+)
+def test_get_list_filter_by_tag(
+    db: Session, question_list, tag_slug, result, max_num_queries
+):
+    with max_num_queries(1):
+        questions = crud.question.get_list(db, tag_slug=tag_slug)
+
+    assert {q.title for q in questions} == set(result)
 
 
 def test_get_popular_list(db: Session, question_list, question_list_params):
@@ -195,38 +213,40 @@ def test_count(db: Session):
     assert crud.question.count(db) == 5
 
 
-class TestSearch:
-    @pytest.fixture(autouse=True)
-    def question_1(self):
-        return factories.QuestionFactory(
+def test_count_by_tag(db: Session, tag, other_tag):
+    factories.QuestionFactory.create_batch(2, tags=[tag])
+    factories.QuestionFactory.create_batch(2, tags=[tag, other_tag])
+
+    assert crud.question.count(db, tag_slug=tag.slug) == 4
+    assert crud.question.count(db, tag_slug=other_tag.slug) == 2
+
+
+@pytest.fixture
+def questions_for_search():
+    return [
+        factories.QuestionFactory(
             title="Upper back", content="Upper back pain after workout. Spine"
-        )
+        ),
+        factories.QuestionFactory(title="Spine", content="Lower back hurts sitting"),
+        factories.QuestionFactory(title="Sciatica", content="Sciatica hurts back"),
+    ]
 
-    @pytest.fixture(autouse=True)
-    def question_2(self):
-        return factories.QuestionFactory(
-            title="Spine", content="Lower back hurts sitting"
-        )
 
-    @pytest.fixture(autouse=True)
-    def question_3(self):
-        return factories.QuestionFactory(title="Sciatica", content="Sciatica hurts back")
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        ("back", {"Upper back", "Spine", "Sciatica"}),
+        ("spine", {"Upper back", "Spine"}),
+        ("upper", {"Upper back"}),
+        ("sitting", {"Spine"}),
+        ("hurts", {"Spine", "Sciatica"}),
+    ],
+)
+def test_search(db: Session, questions_for_search, query, expected):
+    results = crud.question.search(db, query=query)
 
-    @pytest.mark.parametrize(
-        ("query", "expected"),
-        [
-            ("back", {"Upper back", "Spine", "Sciatica"}),
-            ("spine", {"Upper back", "Spine"}),
-            ("upper", {"Upper back"}),
-            ("sitting", {"Spine"}),
-            ("hurts", {"Spine", "Sciatica"}),
-        ],
-    )
-    def test_ok(self, db: Session, query, expected):
-        results = crud.question.search(db, query=query)
-
-        assert {r.title for r in results} == expected
-        assert crud.question.search_count(db, query=query) == len(expected)
+    assert {r.title for r in results} == expected
+    assert crud.question.search_count(db, query=query) == len(expected)
 
 
 def test_get_list_for_user(db: Session, user, other_user):

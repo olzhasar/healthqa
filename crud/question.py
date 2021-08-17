@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_, or_
@@ -56,14 +58,23 @@ def get_with_related(db: Session, *, id: int, user_id: int = 0) -> Question:
     )
 
 
-def get_list(db: Session, *, limit: int = 20, offset: int = 0) -> list[Question]:
+def get_list(
+    db: Session, *, tag_slug: Optional[str] = None, limit: int = 20, offset: int = 0
+) -> list[Question]:
+
+    filter_params = [Question.deleted_at.is_(None)]
+    if tag_slug:
+        filter_params.append(
+            Question.tags.any(slug=tag_slug),
+        )
+
     return (
         db.query(Question)
         .options(
             joinedload(Question.user),
             joinedload(Question.tags),
         )
-        .filter(Question.deleted_at.is_(None))
+        .filter(*filter_params)
         .order_by(Question.id.desc())
         .limit(limit)
         .offset(offset)
@@ -124,8 +135,14 @@ def update(
     db.commit()
 
 
-def count(db: Session) -> int:
-    return db.query(func.count(Question.id)).scalar()
+def count(db: Session, tag_slug: Optional[str] = None) -> int:
+    filter_params = [Question.deleted_at.is_(None)]
+    if tag_slug:
+        filter_params.append(
+            Question.tags.any(slug=tag_slug),
+        )
+
+    return db.query(func.count(Question.id)).filter(*filter_params).scalar()
 
 
 def search(
@@ -151,7 +168,10 @@ def search(
 def search_count(db: Session, *, query: str) -> int:
     return (
         db.query(func.count(Question.id))
-        .filter(or_(Question.title.match(query), Question.content.match(query)))
+        .filter(
+            Question.deleted_at.is_(None),
+            or_(Question.title.match(query), Question.content.match(query)),
+        )
         .scalar()
     )
 

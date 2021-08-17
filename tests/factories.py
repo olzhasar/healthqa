@@ -36,6 +36,7 @@ class TagFactory(BaseFactory):
 
     class Meta:
         model = Tag
+        sqlalchemy_get_or_create = ("name",)
 
 
 class QuestionFactory(BaseFactory):

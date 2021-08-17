@@ -5,7 +5,7 @@
       <h3 class="text-gray-700 font-bold text-md">{{ category.name }}</h3>
       <div>
 	{% for tag in category.tags %}
-	  <a href="" class="mr-2 text-green-600 text-sm shadow-sm rounded">
+	  <a href="{{ tag.url }}" class="mr-2 text-green-600 text-sm shadow-sm rounded">
 	    {{ tag.name }}
 	  </a>
 	{% endfor %}

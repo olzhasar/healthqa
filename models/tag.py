@@ -1,3 +1,4 @@
+from flask.helpers import url_for
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, String
@@ -21,3 +22,7 @@ class Tag(Base):
     slug = Column(String, nullable=False, unique=True)
     category_id = Column(Integer, ForeignKey("tag_categories.id"), index=True)
     category: TagCategory = relationship("TagCategory", back_populates="tags")
+
+    @property
+    def url(self):
+        return url_for("questions.by_tag", slug=self.slug)
