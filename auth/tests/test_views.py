@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
-from app.security import check_password, hash_password
+from auth.security import check_password, hash_password
 from models.user import User
 from tests.utils import full_url_for
 

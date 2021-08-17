@@ -3,8 +3,8 @@ from flask_login import current_user, login_user, logout_user
 from flask_login.utils import login_required
 
 import crud
-from app.security import check_password
 from auth import forms
+from auth.security import check_password
 from db.database import db
 
 bp = Blueprint("auth", __name__, template_folder="templates")

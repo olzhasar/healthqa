@@ -5,7 +5,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
 import crud
-from app.security import check_password
+from auth.security import check_password
 from models import Entry, User
 from tests import factories
 

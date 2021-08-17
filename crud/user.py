@@ -5,7 +5,7 @@ from sqlalchemy.sql.elements import and_
 from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import func
 
-from app.security import hash_password
+from auth.security import hash_password
 from models.entry import Entry
 from models.user import User
 

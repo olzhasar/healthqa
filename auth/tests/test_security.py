@@ -1,4 +1,4 @@
-from app.security import check_password, hash_password
+from auth.security import check_password, hash_password
 
 
 def test_hash_password():
