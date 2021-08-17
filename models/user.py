@@ -4,7 +4,7 @@ from typing import Optional
 from flask.helpers import url_for
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import deferred, query_expression
-from sqlalchemy.sql.sqltypes import DateTime
+from sqlalchemy.sql.sqltypes import Boolean, DateTime
 
 from db.base import Base
 
@@ -22,6 +22,8 @@ class User(Base):
     )
 
     email = Column(String(255), nullable=False, unique=True, index=True)
+    email_verified = Column(Boolean, nullable=False, default=False, index=True)
+
     password = deferred(Column(String(100)))
     name = Column(String(100), nullable=False)
 
