@@ -24,13 +24,15 @@ class AskQuestionForm(FlaskForm):
         render_kw={"rows": 16},
     )
 
-    tags = TagsField("Tags", description="Tags", coerce=int, validate_choice=False)
-
-    def validate_tags(self, field):
-        if not field.data:
-            raise validators.ValidationError(
-                "Please, select at least one tag for your question"
-            )
+    tags = TagsField(
+        "Tags",
+        description="Tags",
+        coerce=int,
+        validate_choice=False,
+        validators=[
+            validators.InputRequired("Please, select at least one tag for your question")
+        ],
+    )
 
 
 class AnswerForm(FlaskForm):
