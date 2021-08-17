@@ -112,8 +112,9 @@ class TestAllQuestions:
 class TestByTag:
     url = "/tags/{slug}/"
 
-    def test_ok(self, client, tag):
-        response = client.get(self.url.format(slug=tag.slug))
+    def test_ok(self, client, tag, max_num_queries):
+        with max_num_queries(4):
+            response = client.get(self.url.format(slug=tag.slug))
 
         assert response.status_code == 200
 

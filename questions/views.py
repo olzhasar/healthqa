@@ -43,12 +43,9 @@ def all():
         db, limit=paginator.limit, offset=paginator.offset
     )
 
-    tags = crud.tag.get_list(db)
-
     return render_template(
         "question_list.html",
         questions=questions,
-        tags=tags,
         paginator=paginator,
     )
 
@@ -71,12 +68,9 @@ def by_tag(slug: str):
         db, tag=tag, limit=paginator.limit, offset=paginator.offset
     )
 
-    tags = crud.tag.get_list(db)
-
     return render_template(
         "question_list.html",
         questions=questions,
-        tags=tags,
         paginator=paginator,
     )
 
