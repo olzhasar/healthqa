@@ -1,13 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import (
-    IntegerField,
-    SelectMultipleField,
-    StringField,
-    TextAreaField,
-    validators,
-)
+from wtforms import IntegerField, StringField, TextAreaField, validators
 
-from common.forms import RichField
+from common.forms import RichField, TagsField
 
 
 class AskQuestionForm(FlaskForm):
@@ -30,9 +24,7 @@ class AskQuestionForm(FlaskForm):
         render_kw={"rows": 16},
     )
 
-    tags = SelectMultipleField(
-        "Tags", description="Tags", coerce=int, validate_choice=False
-    )
+    tags = TagsField("Tags", description="Tags", coerce=int, validate_choice=False)
 
 
 class AnswerForm(FlaskForm):

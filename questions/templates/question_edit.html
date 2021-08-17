@@ -5,7 +5,7 @@
 <div class="w-full lg:w-3/5 px-4">
   <div class="bg-white rounded shadow">
     <div class="p-8 border-b">
-      <h1 class="text-xl font-bold">Ask new question</h1>
+      <h1 class="text-xl font-bold">Edit question</h1>
     </div>
     <div class="p-8">
       <form action="" method="POST">
@@ -17,6 +17,11 @@
 	</div>
 	<div class="mb-4">
 	  {% with field=form.content %}
+	    {% include "form/field_with_label.html" %}
+	  {% endwith %}
+	</div>
+	<div class="mb-4">
+	  {% with field=form.tags %}
 	    {% include "form/field_with_label.html" %}
 	  {% endwith %}
 	</div>

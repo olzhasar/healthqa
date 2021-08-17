@@ -9,6 +9,11 @@
       <div class="flex mb-4 text-gray-400 text-sm">
 	<span>Viewed {{ question.view_count }} times</span>
       </div>
+      <div class="flex flex-wrap mb-4">
+	{% for tag in question.tags %}
+	  <a href="" class="px-2 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
+	{% endfor %}
+      </div>
     </div>
     <div class="flex">
       {% with entry=question %}
