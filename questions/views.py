@@ -55,7 +55,12 @@ def all():
 
 @bp.route("/tags/<string:slug>/")
 def by_tag(slug: str):
-    total = crud.question.count(db, tag_slug=slug)
+    try:
+        tag = crud.tag.get_by_slug(db, slug=slug)
+    except NoResultFound:
+        abort(404)
+
+    total = crud.question.count(db, tag=tag)
     paginator = Paginator(
         total=total,
         current=request.args.get("page", 1),
@@ -63,7 +68,7 @@ def by_tag(slug: str):
     )
 
     questions = crud.question.get_list(
-        db, tag_slug=slug, limit=paginator.limit, offset=paginator.offset
+        db, tag=tag, limit=paginator.limit, offset=paginator.offset
     )
 
     tags = crud.tag.get_list(db)

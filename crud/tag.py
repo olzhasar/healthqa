@@ -4,6 +4,10 @@ from sqlalchemy.orm.session import Session
 from models.tag import Tag, TagCategory
 
 
+def get_by_slug(db: Session, slug: str) -> Tag:
+    return db.query(Tag).filter(Tag.slug == slug).one()
+
+
 def get_list(db: Session) -> list[Tag]:
     return db.query(Tag).all()
 

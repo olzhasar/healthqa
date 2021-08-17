@@ -111,17 +111,19 @@ def test_get_list_limit_offset(db: Session, question_list, limit, offset, order)
 
 
 @pytest.mark.parametrize(
-    ("tag_slug", "result"),
+    ("tag_name", "result"),
     [
         ("tag_1", ["first", "fourth"]),
         ("tag_2", ["second", "third"]),
     ],
 )
 def test_get_list_filter_by_tag(
-    db: Session, question_list, tag_slug, result, max_num_queries
+    db: Session, question_list, tag_name, result, max_num_queries
 ):
+    tag = factories.TagFactory(name=tag_name)
+
     with max_num_queries(1):
-        questions = crud.question.get_list(db, tag_slug=tag_slug)
+        questions = crud.question.get_list(db, tag=tag)
 
     assert {q.title for q in questions} == set(result)
 
@@ -217,8 +219,8 @@ def test_count_by_tag(db: Session, tag, other_tag):
     factories.QuestionFactory.create_batch(2, tags=[tag])
     factories.QuestionFactory.create_batch(2, tags=[tag, other_tag])
 
-    assert crud.question.count(db, tag_slug=tag.slug) == 4
-    assert crud.question.count(db, tag_slug=other_tag.slug) == 2
+    assert crud.question.count(db, tag=tag) == 4
+    assert crud.question.count(db, tag=other_tag) == 2
 
 
 @pytest.fixture

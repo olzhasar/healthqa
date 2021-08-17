@@ -27,6 +27,7 @@ class TagCategoryFactory(BaseFactory):
 
     class Meta:
         model = TagCategory
+        sqlalchemy_get_or_create = ("name",)
 
 
 class TagFactory(BaseFactory):

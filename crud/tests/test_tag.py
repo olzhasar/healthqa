@@ -19,6 +19,11 @@ def categories():
     return categories
 
 
+def test_get_by_slug(db: Session, tag, other_tag):
+    assert crud.tag.get_by_slug(db, slug=tag.slug) == tag
+    assert crud.tag.get_by_slug(db, slug=other_tag.slug) == other_tag
+
+
 def test_get_list(db: Session, tags, max_num_queries):
     with max_num_queries(1):
         result = crud.tag.get_list(db)

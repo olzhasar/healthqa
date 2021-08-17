@@ -117,6 +117,11 @@ class TestByTag:
 
         assert response.status_code == 200
 
+    def test_unexisting_tag(self, client):
+        response = client.get(self.url.format(slug="unexisting"))
+
+        assert response.status_code == 404
+
 
 class TestDetails:
     url = "/questions/{id}"

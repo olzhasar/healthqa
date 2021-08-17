@@ -5,7 +5,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.sql.functions import func
 
-from models import Comment, Question, User, Vote
+from models import Comment, Question, Tag, User, Vote
 from models.question import question_tags_table
 
 
@@ -59,13 +59,13 @@ def get_with_related(db: Session, *, id: int, user_id: int = 0) -> Question:
 
 
 def get_list(
-    db: Session, *, tag_slug: Optional[str] = None, limit: int = 20, offset: int = 0
+    db: Session, *, tag: Optional[Tag] = None, limit: int = 20, offset: int = 0
 ) -> list[Question]:
 
     filter_params = [Question.deleted_at.is_(None)]
-    if tag_slug:
+    if tag:
         filter_params.append(
-            Question.tags.any(slug=tag_slug),
+            Question.tags.any(id=tag.id),
         )
 
     return (
@@ -135,11 +135,11 @@ def update(
     db.commit()
 
 
-def count(db: Session, tag_slug: Optional[str] = None) -> int:
+def count(db: Session, tag: Optional[Tag] = None) -> int:
     filter_params = [Question.deleted_at.is_(None)]
-    if tag_slug:
+    if tag:
         filter_params.append(
-            Question.tags.any(slug=tag_slug),
+            Question.tags.any(id=tag.id),
         )
 
     return db.query(func.count(Question.id)).filter(*filter_params).scalar()
