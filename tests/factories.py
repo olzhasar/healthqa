@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 
-from models import Answer, Comment, Question, Tag, User, Vote
+from models import Answer, Comment, Question, Tag, TagCategory, User, Vote
 from models.view import View
 from tests.common import TestSession
 
@@ -14,7 +14,7 @@ class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
 
 
 class UserFactory(BaseFactory):
-    email = factory.Faker("email")
+    email = factory.Sequence(lambda n: f"user_{n}@example.com")
     password = factory.Faker("password")
     name = factory.Faker("name")
 
@@ -22,8 +22,16 @@ class UserFactory(BaseFactory):
         model = User
 
 
+class TagCategoryFactory(BaseFactory):
+    name = factory.Faker("word")
+
+    class Meta:
+        model = TagCategory
+
+
 class TagFactory(BaseFactory):
     name = factory.Faker("word")
+    category = factory.SubFactory(TagCategoryFactory)
 
     class Meta:
         model = Tag

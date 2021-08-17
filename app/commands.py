@@ -7,6 +7,7 @@ from tests.factories import (
     AnswerFactory,
     CommentFactory,
     QuestionFactory,
+    TagCategoryFactory,
     TagFactory,
     UserFactory,
     VoteFactory,
@@ -23,6 +24,7 @@ def init_app(app: Flask):
             AnswerFactory,
             CommentFactory,
             QuestionFactory,
+            TagCategoryFactory,
             TagFactory,
             UserFactory,
             VoteFactory,
@@ -31,10 +33,16 @@ def init_app(app: Flask):
         for f in factories:
             f._meta.sqlalchemy_session = db
 
-        for _ in range(10):
-            tags = TagFactory.create_batch(3)
+        categories = TagCategoryFactory.create_batch(5)
+        tags = []
 
-            questions = QuestionFactory.create_batch(3, tags=tags)
+        for category in categories:
+            tags.extend(TagFactory.create_batch(random.randint(3, 7), category=category))
+
+        for _ in range(10):
+            questions = QuestionFactory.create_batch(
+                3, tags=random.choices(tags, k=random.randint(2, 4))
+            )
 
             for question in questions:
                 for answer in AnswerFactory.create_batch(3, question=question):
