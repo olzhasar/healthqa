@@ -15,7 +15,7 @@ bp = Blueprint("questions", __name__, template_folder="templates")
 @login_required
 def ask():
     form = forms.AskQuestionForm()
-    form.tags.choices = crud.tag.get_choices(db)
+    form.tags.choices = crud.tag.get_categories_list(db)
 
     if form.validate_on_submit():
         question = crud.question.create(
@@ -116,7 +116,7 @@ def edit_question(id: int):
         abort(403)
 
     form = forms.AskQuestionForm(obj=question)
-    form.tags.choices = crud.tag.get_choices(db)
+    form.tags.choices = crud.tag.get_categories_list(db)
 
     if form.validate_on_submit():
         crud.question.update(
