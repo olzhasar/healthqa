@@ -31,7 +31,7 @@ class RichField(StringField):
 class TagsWidget:
     def __call__(self, field: Field, **kwargs):
         field_id = kwargs.pop("id", field.id)
-        html = []
+        html = ['<div class="grid grid-cols-3 gap-4">']
         for value, label, checked in field.iter_choices():
             choice_id = f"{field_id}-{value}"
 
@@ -45,6 +45,7 @@ class TagsWidget:
             html.append(f'<span class="ml-2">{label}</span>')
             html.append("</label>")
             html.append("</div>")
+        html.append("</div>")
         return Markup("".join(html))
 
 
