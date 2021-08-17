@@ -45,7 +45,7 @@ class TestAskQuestion:
         assert question.content == data["content"]
         assert question.tags == tags
 
-    @pytest.mark.parametrize("missing_field", ["title", "content"])
+    @pytest.mark.parametrize("missing_field", ["title", "content", "tags"])
     def test_missing_fields(self, as_user, user, data, missing_field, db):
         data.pop(missing_field)
 
