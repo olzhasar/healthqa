@@ -18,5 +18,6 @@ class Tag(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, unique=True)
+    slug = Column(String, nullable=False, unique=True)
     category_id = Column(Integer, ForeignKey("tag_categories.id"), index=True)
     category: TagCategory = relationship("TagCategory", back_populates="tags")

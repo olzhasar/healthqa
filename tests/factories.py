@@ -31,6 +31,7 @@ class TagCategoryFactory(BaseFactory):
 
 class TagFactory(BaseFactory):
     name = factory.Faker("word")
+    slug = factory.SelfAttribute("name")
     category = factory.SubFactory(TagCategoryFactory)
 
     class Meta:
