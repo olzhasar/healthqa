@@ -9,5 +9,7 @@ bp = Blueprint("home", __name__, template_folder="templates")
 @bp.route("/")
 def index():
     questions = crud.question.get_popular_list(db, limit=20)
-    tags = crud.tag.get_list(db)
-    return render_template("index.html", questions=questions, tags=tags)
+    tag_categories = crud.tag.get_categories_list(db)
+    return render_template(
+        "index.html", questions=questions, tag_categories=tag_categories
+    )
