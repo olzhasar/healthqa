@@ -136,7 +136,7 @@ class TestEditQuestion:
         return {
             "title": fake.sentence(),
             "content": fake.paragraph(),
-            "tags": [],
+            "tags": [t.id for t in tags],
         }
 
     def test_get(self, db: Session, as_user, question):
@@ -169,7 +169,7 @@ class TestEditQuestion:
         )
         assert response.status_code == 403
 
-    def test_post_ok(self, db: Session, as_user, question, data):
+    def test_post_ok(self, db: Session, as_user, question, data, tags):
         response = as_user.post(
             self.url.format(id=question.id),
             data=data,
@@ -181,6 +181,7 @@ class TestEditQuestion:
         db.refresh(question)
         assert question.title == data["title"]
         assert question.content == data["content"]
+        assert question.tags == tags
 
     def test_post_unauthorized(self, db: Session, client, question, data):
         response = client.post(
