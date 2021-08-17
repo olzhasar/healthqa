@@ -19,5 +19,7 @@ register(
     entry_id=LazyFixture(lambda answer: answer.id),
 )
 
+register(factories.TagCategoryFactory)
+
 register(factories.TagFactory)
 register(factories.TagFactory, "other_tag")
