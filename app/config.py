@@ -22,5 +22,13 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = "redis://127.0.0.1:6379"
 
+    EMAIL_HOST: str = "smtp.yandex.com"
+    EMAIL_PORT: int = 465
+    EMAIL_USER: str
+    EMAIL_PASSWORD: str
+
+    class Config:
+        env_file = ".env"
+
 
 settings = Settings()
