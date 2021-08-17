@@ -19,6 +19,8 @@ def get(db: Session, *, id: int) -> Question:
 
 
 def get_with_related(db: Session, *, id: int, user_id: int = 0) -> Question:
+    # TODO: load tags with question via join
+
     CommentUser = aliased(User)
     CommentVote = aliased(Vote)
 
