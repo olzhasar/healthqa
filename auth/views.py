@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
 from flask_login.utils import login_required
 
@@ -53,6 +53,8 @@ def logout():
         abort(401)
 
     logout_user()
+    flash("You have been logged out successfully")
+
     return redirect(url_for("home.index"))
 
 
@@ -65,6 +67,8 @@ def change_password():
             crud.user.change_password(
                 db, user_id=current_user.id, new_password=form.password.data
             )
+            flash("Your password has been changed successfully")
+
             return redirect(url_for("users.profile", id=current_user.id))
 
         form.current_password.errors.append("Invalid old password")

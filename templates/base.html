@@ -13,7 +13,8 @@
   <body class="tracking-wider tracking-normal bg-gray-200">
     <div class="flex flex-col h-screen justify-between">
       {% include 'partials/nav.html' %}
-      <main class="mb-auto container w-full flex flex-wrap mx-auto px-2 pt-8 pb-8 lg:pt-16 mt-8">
+      <main class="mb-auto container w-full flex flex-wrap mx-auto px-2 py-8 lg:pt-16 mt-8">
+	{% include 'partials/alerts.html' %}
 	{% block content %} {% endblock %}
       </main>
       {% include 'partials/footer.html' %}
