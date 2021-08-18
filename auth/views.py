@@ -1,10 +1,19 @@
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_user, logout_user
 from flask_login.utils import login_required
+from sqlalchemy.exc import NoResultFound
 
 import crud
-from auth import forms
-from auth.security import check_password
+from auth import forms, security
 from db.database import db
 
 bp = Blueprint("auth", __name__, template_folder="templates")
@@ -20,7 +29,7 @@ def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
         user = crud.user.get_by_email(db, email=form.email.data)
-        if user and check_password(form.password.data, user.password):
+        if user and security.check_password(form.password.data, user.password):
             login_user(user)
             redirect_url = request.args.get("next", url_for("home.index"))
             return redirect(redirect_url)
@@ -63,7 +72,7 @@ def logout():
 def change_password():
     form = forms.ChangePasswordForm()
     if form.validate_on_submit():
-        if check_password(form.current_password.data, current_user.password):
+        if security.check_password(form.current_password.data, current_user.password):
             crud.user.change_password(
                 db, user_id=current_user.id, new_password=form.password.data
             )
@@ -74,3 +83,23 @@ def change_password():
         form.current_password.errors.append("Invalid old password")
 
     return render_template("change_password.html", form=form)
+
+
+@bp.route("/verify_email/<string:token>")
+def verify_email(token: str):
+    try:
+        user_id = security.get_user_id_from_token(
+            token, max_age=current_app.config["TOKEN_MAX_AGE_EMAIL_VERIFICATION"]
+        )
+    except ValueError:
+        return render_template("invalid_token.html")
+
+    try:
+        user = crud.user.get(db, id=user_id)
+    except NoResultFound:
+        return render_template("invalid_token.html")
+
+    crud.user.mark_email_verified(db, user=user)
+    login_user(user)
+    flash("Your account has been activated")
+    return redirect(url_for("home.index"))

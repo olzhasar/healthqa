@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     EMAIL_USER: str
     EMAIL_PASSWORD: str
 
+    TOKEN_MAX_AGE_EMAIL_VERIFICATION = 3600 * 24 * 7
+    TOKEN_MAX_AGE_PASSWORD_RESET = 3600 * 3
+
     class Config:
         env_file = ".env"
 

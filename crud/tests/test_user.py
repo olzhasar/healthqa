@@ -113,3 +113,13 @@ def test_update(db: Session, user):
     from_db = db.query(User).filter(User.id == user.id).one()
 
     assert from_db.name == "Vincent Vega"
+
+
+@pytest.mark.parametrize("user__email_verified", [False])
+def test_mark_email_verified(db: Session, user):
+    assert not user.email_verified
+
+    crud.user.mark_email_verified(db, user=user)
+
+    db.refresh(user)
+    assert user.email_verified

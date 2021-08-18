@@ -15,6 +15,7 @@ flask-wtf = "*"
 email-validator = "*"
 python-dotenv = "*"
 rq = "*"
+itsdangerous = "*"
 
 [dev-packages]
 flake8 = "*"

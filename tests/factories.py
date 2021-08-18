@@ -18,6 +18,8 @@ class UserFactory(BaseFactory):
     password = factory.Faker("password")
     name = factory.Faker("name")
 
+    email_verified = True
+
     class Meta:
         model = User
 

@@ -75,13 +75,20 @@ def create_user(db: Session, *, email: str, name: str, password: str) -> User:
     return user
 
 
-def change_password(db: Session, *, user_id: int, new_password: str):
+def change_password(db: Session, *, user_id: int, new_password: str) -> None:
     hashed = hash_password(new_password)
 
     db.query(User).filter(User.id == user_id).update({"password": hashed})
     db.commit()
 
 
-def update(db: Session, *, user_id: int, name: str):
+def update(db: Session, *, user_id: int, name: str) -> None:
     db.query(User).filter(User.id == user_id).update({"name": name})
+    db.commit()
+
+
+def mark_email_verified(db: Session, *, user: User) -> None:
+    user.email_verified = True
+
+    db.add(user)
     db.commit()

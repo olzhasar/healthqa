@@ -1,8 +1,11 @@
+import secrets
+
+import freezegun
 import pytest
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
-from auth.security import check_password, hash_password
+from auth import security
 from models.user import User
 from tests.utils import full_url_for
 
@@ -43,7 +46,7 @@ class TestSignup:
         created = db.query(User).filter(User.email == data["email"]).first()
         assert created
         assert created.id
-        assert check_password(data["password"], created.password)
+        assert security.check_password(data["password"], created.password)
 
     def test_email_exists(self, client, data, db, user):
         data["email"] = user.email
@@ -121,7 +124,7 @@ class TestLogin:
 
     @pytest.fixture
     def user__password(self):
-        return hash_password("123qweasd")
+        return security.hash_password("123qweasd")
 
     def test_get(self, client):
         response = client.get(self.url)
@@ -192,7 +195,7 @@ class TestChangePassword:
 
     @pytest.fixture
     def user__password(self):
-        return hash_password("old_password")
+        return security.hash_password("old_password")
 
     @pytest.fixture
     def data(self):
@@ -221,7 +224,7 @@ class TestChangePassword:
         assert response.location == full_url_for("users.profile", id=user.id)
 
         db.refresh(user)
-        assert check_password(data["password"], user.password)
+        assert security.check_password(data["password"], user.password)
 
     def test_wrong_old_password(self, db: Session, as_user, user, data):
         data["current_password"] = "wrong_password"
@@ -235,7 +238,7 @@ class TestChangePassword:
         assert response.status_code == 200
 
         db.refresh(user)
-        assert check_password("old_password", user.password)
+        assert security.check_password("old_password", user.password)
 
     def test_passwords_mismatch(self, db: Session, as_user, user, data):
         data["password_repeat"] = "wrong_password"
@@ -249,7 +252,7 @@ class TestChangePassword:
         assert response.status_code == 200
 
         db.refresh(user)
-        assert check_password("old_password", user.password)
+        assert security.check_password("old_password", user.password)
 
     def test_not_logged_in(self, client):
         response = client.post(
@@ -258,3 +261,64 @@ class TestChangePassword:
         )
 
         assert response.status_code == 302
+
+
+class TestVerifyEmail:
+    url = "/verify_email/{token}"
+
+    @pytest.fixture()
+    def user__email_verified(self):
+        return False
+
+    def test_ok(self, db: Session, client, user):
+        token = security.make_url_safe_token(user.id)
+
+        response = client.get(
+            self.url.format(token=token),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("home.index")
+
+        db.refresh(user)
+        assert user.email_verified is True
+
+    def test_invalid_token(self, db: Session, client, user):
+        token = secrets.token_urlsafe()
+
+        response = client.get(
+            self.url.format(token=token),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+        db.refresh(user)
+        assert user.email_verified is False
+
+    def test_invalid_user(self, db: Session, client):
+        token = security.make_url_safe_token(999)
+
+        response = client.get(
+            self.url.format(token=token),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+    def test_expired_token(self, db: Session, client, user):
+        with freezegun.freeze_time("2020-01-01 12:00:00") as frozen:
+            token = security.make_url_safe_token(user.id)
+
+            frozen.move_to("2021-01-01 12:00:00")
+
+            response = client.get(
+                self.url.format(token=token),
+                follow_redirects=False,
+            )
+
+            assert response.status_code == 200
+
+            db.refresh(user)
+            assert user.email_verified is False
