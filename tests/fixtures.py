@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from typing import Any, Generator
 
 import pytest
+from flask import Flask
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists, drop_database
@@ -46,6 +47,12 @@ def db() -> Generator:
 @pytest.fixture
 def app():
     return create_app()
+
+
+@pytest.fixture
+def with_app_context(app: Flask):
+    with app.app_context():
+        yield
 
 
 @pytest.fixture

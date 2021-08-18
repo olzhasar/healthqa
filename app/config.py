@@ -8,6 +8,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = "supersecretkey"
 
+    SERVER_NAME: str = "localhost:5000"
+
     DB_NAME: str = "healthqa"
     DB_USER: str = "healthqa"
     DB_PASSWORD: str = "healthqa"

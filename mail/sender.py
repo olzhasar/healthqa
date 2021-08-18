@@ -5,6 +5,7 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader
 
 from app.config import settings
+from mail.template import EmailTemplate
 
 
 def send_mail(*, to: str, subject: str, message: str) -> None:
@@ -21,12 +22,12 @@ def send_mail(*, to: str, subject: str, message: str) -> None:
 
 
 def send_templated_email(
-    *, to: str, subject: str, template_name: str, context: dict[str, Any]
+    *, to: str, subject: str, template: EmailTemplate, context: dict[str, Any]
 ):
     loader = FileSystemLoader(settings.EMAIL_TEMPLATES_DIR)
     env = Environment(loader=loader)
 
-    template = env.get_template(f"{template_name}.txt")
-    message = template.render(**context)
+    txt_template = env.get_template(f"{template}.txt")
+    message = txt_template.render(**context)
 
     return send_mail(to=to, subject=subject, message=message)

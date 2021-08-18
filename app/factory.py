@@ -10,7 +10,7 @@ from questions.views import bp as questions_bp
 from users.views import bp as users_bp
 
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(
         __name__,
         template_folder=settings.TEMPLATES_DIR,
