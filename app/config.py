@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import BaseSettings
 
 
@@ -29,6 +31,11 @@ class Settings(BaseSettings):
 
     TOKEN_MAX_AGE_EMAIL_VERIFICATION = 3600 * 24 * 7
     TOKEN_MAX_AGE_PASSWORD_RESET = 3600 * 3
+
+    BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+    TEMPLATES_DIR = BASE_DIR.joinpath("templates")
+    EMAIL_TEMPLATES_DIR = BASE_DIR.joinpath("email_templates")
+    STATIC_DIR = BASE_DIR.joinpath("static")
 
     class Config:
         env_file = ".env"

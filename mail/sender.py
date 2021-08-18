@@ -1,12 +1,15 @@
 import smtplib
 import ssl
+from typing import Any
+
+from jinja2 import Environment, FileSystemLoader
 
 from app.config import settings
 
 
-def send_mail(to_email: str, subject: str, message: str) -> None:
+def send_mail(*, to: str, subject: str, message: str) -> None:
     from_email = settings.EMAIL_USER
-    content = f"From: {from_email}\nTo: {to_email}\nSubject: {subject}\n\n{message}"
+    content = f"From: {from_email}\nTo: {to}\nSubject: {subject}\n\n{message}"
 
     context = ssl.create_default_context()
 
@@ -14,4 +17,16 @@ def send_mail(to_email: str, subject: str, message: str) -> None:
         host=settings.EMAIL_HOST, port=settings.EMAIL_PORT, context=context
     ) as server:
         server.login(settings.EMAIL_USER, settings.EMAIL_PASSWORD)
-        server.sendmail(settings.EMAIL_USER, to_email, content)
+        server.sendmail(settings.EMAIL_USER, to, content)
+
+
+def send_templated_email(
+    *, to: str, subject: str, template_name: str, context: dict[str, Any]
+):
+    loader = FileSystemLoader(settings.EMAIL_TEMPLATES_DIR)
+    env = Environment(loader=loader)
+
+    template = env.get_template(f"{template_name}.txt")
+    message = template.render(**context)
+
+    return send_mail(to=to, subject=subject, message=message)

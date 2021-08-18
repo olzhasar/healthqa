@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from flask import Flask, g
 from flask_wtf import CSRFProtect
 
@@ -11,16 +9,12 @@ from home.views import bp as home_bp
 from questions.views import bp as questions_bp
 from users.views import bp as users_bp
 
-BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
-TEMPLATES_DIR = BASE_DIR.joinpath("templates")
-STATIC_DIR = BASE_DIR.joinpath("static")
-
 
 def create_app():
     app = Flask(
         __name__,
-        template_folder=TEMPLATES_DIR,
-        static_folder=STATIC_DIR,
+        template_folder=settings.TEMPLATES_DIR,
+        static_folder=settings.STATIC_DIR,
         static_url_path="/static",
     )
     app.config.from_object(settings)
