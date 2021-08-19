@@ -32,7 +32,7 @@ def test_send_templated_email(mock_send_mail: MagicMock, template_file):
     send_templated_email(
         to=to_email,
         subject=subject,
-        template_name="test_template",
+        template="test_template",  # type: ignore
         context={"name": "User", "email": to_email},
     )
 
