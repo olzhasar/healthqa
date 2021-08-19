@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import Session
 
 from models import Answer, Comment, Question, Vote
 from tests import factories
-from tests.utils import full_url, full_url_for
+from tests.utils import full_url_for
 
 fake = Faker()
 
@@ -38,7 +38,7 @@ class TestAskQuestion:
         question = db.query(Question).filter(Question.user_id == user.id).first()
 
         assert response.status_code == 302
-        assert response.location == full_url(question.url)
+        assert response.location == full_url_for("questions.details", id=question.id)
 
         assert question
         assert question.title == data["title"]
@@ -191,7 +191,7 @@ class TestEditQuestion:
             follow_redirects=False,
         )
         assert response.status_code == 302
-        assert response.location == full_url(question.url)
+        assert response.location == full_url_for("questions.details", id=question.id)
 
         db.refresh(question)
         assert question.title == data["title"]
@@ -310,7 +310,11 @@ class TestEditAnswer:
             follow_redirects=False,
         )
         assert response.status_code == 302
-        assert response.location == full_url(answer.url)
+        assert (
+            response.location
+            == full_url_for("questions.details", id=answer.question.id)
+            + f"#answer_{answer.id}"
+        )
 
         db.refresh(answer)
         assert answer.content == new_content
