@@ -1,0 +1,9 @@
+{% extends "centered.html" %}
+
+{% block content %}
+  <div class="text-center">
+    <h1 class="text-8xl text-gray-800 font-bold mb-8">404</h1>
+    <p class="text-2xl text-gray-600 mb-16">The page you requested cannot be found</p>
+    <a href="{{ url_for("home.index") }}" class="bg-green-600 hover:bg-green-500 text-white font-bold rounded shadow px-8 py-4">Go to main page</a>
+  </div>
+{% endblock %}
