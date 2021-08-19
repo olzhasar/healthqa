@@ -15,10 +15,13 @@ def hash_password(raw_password: str) -> str:
 
 
 def check_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(
-        password.encode("utf-8"),
-        hashed.encode("utf-8"),
-    )
+    try:
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            hashed.encode("utf-8"),
+        )
+    except ValueError:
+        return False
 
 
 def make_url_safe_token(user_id: int) -> str:

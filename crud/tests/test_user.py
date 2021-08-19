@@ -1,6 +1,7 @@
 import random
 
 import pytest
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
@@ -13,7 +14,9 @@ from tests import factories
 def test_get_by_email(db: Session, user, other_user):
     assert crud.user.get_by_email(db, email=user.email) == user
     assert crud.user.get_by_email(db, email=other_user.email) == other_user != user
-    assert crud.user.get_by_email(db, email="unexisting@person.com") is None
+
+    with pytest.raises(NoResultFound):
+        assert crud.user.get_by_email(db, email="unexisting@person.com") is None
 
 
 def test_email_exists(db: Session, user):
@@ -105,6 +108,15 @@ def test_change_password(db: Session, user):
     db.refresh(user, ["password"])
 
     assert check_password(new_password, user.password)
+
+
+def test_reset_password(db: Session, user):
+    assert user.password
+
+    crud.user.reset_password(db, user=user)
+
+    db.refresh(user)
+    assert not user.password
 
 
 def test_update(db: Session, user):

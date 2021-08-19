@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Session, with_expression
 from sqlalchemy.sql.elements import and_
 from sqlalchemy.sql.expression import select
@@ -37,8 +35,8 @@ def get_with_counts(db: Session, *, id: int) -> User:
     )
 
 
-def get_by_email(db: Session, *, email: str) -> Optional[User]:
-    return db.query(User).filter(User.email == email).first()
+def get_by_email(db: Session, *, email: str) -> User:
+    return db.query(User).filter(User.email == email).one()
 
 
 def email_exists(db: Session, *, email: str) -> bool:
@@ -79,6 +77,13 @@ def change_password(db: Session, *, user_id: int, new_password: str) -> None:
     hashed = hash_password(new_password)
 
     db.query(User).filter(User.id == user_id).update({"password": hashed})
+    db.commit()
+
+
+def reset_password(db: Session, *, user: User) -> None:
+    user.password = None
+
+    db.add(user)
     db.commit()
 
 

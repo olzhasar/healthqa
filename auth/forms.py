@@ -60,13 +60,7 @@ class LoginForm(FlaskForm):
     )
 
 
-class ChangePasswordForm(FlaskForm):
-    current_password = StringField(
-        "Current password",
-        [validators.InputRequired()],
-        widget=PasswordInput(),
-        description="************",
-    )
+class SetPasswordForm(FlaskForm):
     password = StringField(
         "Password",
         [
@@ -89,3 +83,16 @@ class ChangePasswordForm(FlaskForm):
         widget=PasswordInput(),
         description="************",
     )
+
+
+class ChangePasswordForm(SetPasswordForm):
+    current_password = StringField(
+        "Current password",
+        [validators.InputRequired()],
+        widget=PasswordInput(),
+        description="************",
+    )
+
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField("Email", [validators.InputRequired()])

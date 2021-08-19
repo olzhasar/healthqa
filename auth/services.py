@@ -19,3 +19,17 @@ def generate_and_send_verification_link(user: User):
         template=EmailTemplate.VERIFY_EMAIL,
         context=email_context,
     )
+
+
+def generate_and_send_password_reset_link(user: User):
+    token = security.make_url_safe_token(user.id)
+    url = url_for("auth.reset_password", token=token, _external=True)
+    email_context = dict(name=user.name, url=url)
+
+    queue.enqueue(
+        send_templated_email,
+        to=user.email,
+        subject="Password reset",
+        template=EmailTemplate.RESET_PASSWORD,
+        context=email_context,
+    )

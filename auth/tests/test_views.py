@@ -17,6 +17,11 @@ def mock_generate_and_send_verification_link(mocker: MockerFixture):
     return mocker.patch("auth.views.generate_and_send_verification_link")
 
 
+@pytest.fixture
+def mock_generate_and_send_password_reset_link(mocker: MockerFixture):
+    return mocker.patch("auth.views.generate_and_send_password_reset_link")
+
+
 class TestSignup:
     url = "/signup"
 
@@ -202,6 +207,15 @@ class TestLogin:
         assert response.status_code == 200
 
 
+class TestVerificationRequired:
+    url = "/verification_required"
+
+    def test_ok(self, client):
+        response = client.get(self.url)
+
+        assert response.status_code == 200
+
+
 class TestLogout:
     url = "/logout"
 
@@ -296,6 +310,194 @@ class TestChangePassword:
         assert response.status_code == 302
 
 
+class TestForgotPassword:
+    url = "/forgot_password"
+
+    def test_get(self, client):
+        response = client.get(self.url, follow_redirects=False)
+        assert response.status_code == 200
+
+    def test_post_ok(
+        self, client, user, mock_generate_and_send_password_reset_link: MagicMock
+    ):
+        response = client.post(
+            self.url,
+            data={"email": user.email},
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location == full_url_for("auth.forgot_password_sent")
+
+        mock_generate_and_send_password_reset_link.assert_called_once_with(user)
+
+    def test_post_unexisting(
+        self, client, mock_generate_and_send_password_reset_link: MagicMock
+    ):
+        response = client.post(
+            self.url,
+            data={"email": "unexisting@example.com"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert response.location == full_url_for("auth.forgot_password_sent")
+
+        mock_generate_and_send_password_reset_link.assert_not_called()
+
+
+class TestForgotPasswordSent:
+    url = "/forgot_password_sent"
+
+    def test_ok(self, client):
+        response = client.get(self.url, follow_redirects=False)
+        assert response.status_code == 200
+
+
+class TestResetPassword:
+    url = "/reset_password/{token}"
+
+    def test_ok(self, db: Session, client, user):
+        token = security.make_url_safe_token(user.id)
+
+        response = client.get(
+            self.url.format(token=token),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("auth.set_password")
+
+        db.refresh(user)
+        assert user.password is None
+
+    def test_invalid_token(self, db: Session, client, user):
+        token = secrets.token_urlsafe()
+
+        response = client.get(
+            self.url.format(token=token),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+        db.refresh(user)
+        assert user.password is not None
+
+    def test_invalid_user(self, db: Session, client):
+        token = security.make_url_safe_token(999)
+
+        response = client.get(
+            self.url.format(token=token),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+    def test_expired_token(self, db: Session, client, user):
+        with freezegun.freeze_time("2020-01-01 12:00:00") as frozen:
+            token = security.make_url_safe_token(user.id)
+
+            frozen.move_to("2021-01-01 12:00:00")
+
+            response = client.get(
+                self.url.format(token=token),
+                follow_redirects=False,
+            )
+
+            assert response.status_code == 200
+
+            db.refresh(user)
+            assert user.password is not None
+
+
+class TestSetPassword:
+    url = "/set_password"
+
+    @pytest.fixture
+    def user__password(self):
+        return None
+
+    @pytest.fixture
+    def data(self):
+        return {
+            "password": "123qweasd",
+            "password_repeat": "123qweasd",
+        }
+
+    def test_get(self, as_user, user):
+        response = as_user.get(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+    @pytest.mark.parametrize("user__password", ["not_empty"])
+    def test_get_password_not_empty(self, as_user, user):
+        response = as_user.get(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 403
+
+    def test_get_unauthorized(self, client):
+        response = client.get(
+            self.url,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 403
+
+    def test_post_ok(self, db: Session, as_user, user, data):
+        response = as_user.post(
+            self.url,
+            data=data,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("users.profile", id=user.id)
+
+        db.refresh(user)
+        assert security.check_password("123qweasd", user.password)
+
+    def test_post_error(self, db: Session, as_user, user, data):
+        data["password_repeat"] = "wrong_password"
+
+        response = as_user.post(
+            self.url,
+            data=data,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+
+        db.refresh(user)
+        assert not user.password
+
+    @pytest.mark.parametrize("user__password", ["not_empty"])
+    def test_post_password_not_empty(self, db: Session, as_user, user, data):
+        response = as_user.post(
+            self.url,
+            data=data,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 403
+
+        db.refresh(user)
+        assert not security.check_password("123qweasd", user.password)
+
+    def test_post_unauthorized(self, client, data):
+        response = client.post(
+            self.url,
+            data=data,
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 403
+
+
 class TestVerifyEmail:
     url = "/verify_email/{token}"
 
@@ -355,12 +557,3 @@ class TestVerifyEmail:
 
             db.refresh(user)
             assert user.email_verified is False
-
-
-class TestVerificationRequired:
-    url = "/verification_required"
-
-    def test_ok(self, client):
-        response = client.get(self.url)
-
-        assert response.status_code == 200

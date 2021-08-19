@@ -14,7 +14,10 @@ from sqlalchemy.exc import NoResultFound
 
 import crud
 from auth import forms, security
-from auth.services import generate_and_send_verification_link
+from auth.services import (
+    generate_and_send_password_reset_link,
+    generate_and_send_verification_link,
+)
 from db.database import db
 
 bp = Blueprint("auth", __name__, template_folder="templates")
@@ -29,15 +32,19 @@ def login():
 
     form = forms.LoginForm()
     if form.validate_on_submit():
-        user = crud.user.get_by_email(db, email=form.email.data)
-        if user and security.check_password(form.password.data, user.password):
-            if not user.email_verified:
-                generate_and_send_verification_link(user)
-                return redirect(url_for("auth.verification_required"))
+        try:
+            user = crud.user.get_by_email(db, email=form.email.data)
+        except NoResultFound:
+            pass
+        else:
+            if security.check_password(form.password.data, user.password):
+                if not user.email_verified:
+                    generate_and_send_verification_link(user)
+                    return redirect(url_for("auth.verification_required"))
 
-            login_user(user)
-            redirect_url = request.args.get("next", url_for("home.index"))
-            return redirect(redirect_url)
+                login_user(user)
+                redirect_url = request.args.get("next", url_for("home.index"))
+                return redirect(redirect_url)
         error = "Invalid credentials"
 
     return render_template("login.html", form=form, error=error)
@@ -93,6 +100,62 @@ def change_password():
         form.current_password.errors.append("Invalid old password")
 
     return render_template("change_password.html", form=form)
+
+
+@bp.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    form = forms.ForgotPasswordForm()
+    if form.validate_on_submit():
+        try:
+            user = crud.user.get_by_email(db, email=form.email.data)
+        except NoResultFound:
+            pass
+        else:
+            generate_and_send_password_reset_link(user)
+
+        flash(f"Password reset link has been sent to your email: {form.email.data}")
+        return redirect(url_for("auth.forgot_password_sent"))
+
+    return render_template("forgot_password.html", form=form)
+
+
+@bp.route("/forgot_password_sent")
+def forgot_password_sent():
+    return render_template("forgot_password_sent.html")
+
+
+@bp.route("/reset_password/<string:token>", methods=["GET", "POST"])
+def reset_password(token: str):
+    try:
+        user_id = security.get_user_id_from_token(
+            token, max_age=current_app.config["TOKEN_MAX_AGE_PASSWORD_RESET"]
+        )
+    except ValueError:
+        return render_template("invalid_token.html")
+
+    try:
+        user = crud.user.get(db, id=user_id)
+    except NoResultFound:
+        return render_template("invalid_token.html")
+
+    crud.user.reset_password(db, user=user)
+    return redirect(url_for("auth.set_password"))
+
+
+@bp.route("/set_password", methods=["GET", "POST"])
+def set_password():
+    if not current_user.is_authenticated or current_user.password:
+        abort(403)
+
+    form = forms.SetPasswordForm()
+    if form.validate_on_submit():
+        crud.user.change_password(
+            db, user_id=current_user.id, new_password=form.password.data
+        )
+        flash("Your password has been changed successfully")
+        return redirect(url_for("users.profile", id=current_user.id))
+
+    return render_template("set_password.html")
 
 
 @bp.route("/verify_email/<string:token>")
