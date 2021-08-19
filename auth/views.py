@@ -14,6 +14,7 @@ from sqlalchemy.exc import NoResultFound
 
 import crud
 from auth import forms, security
+from auth.services import generate_and_send_verification_link
 from db.database import db
 
 bp = Blueprint("auth", __name__, template_folder="templates")
@@ -30,6 +31,10 @@ def login():
     if form.validate_on_submit():
         user = crud.user.get_by_email(db, email=form.email.data)
         if user and security.check_password(form.password.data, user.password):
+            if not user.email_verified:
+                generate_and_send_verification_link(user)
+                return redirect(url_for("auth.verification_required"))
+
             login_user(user)
             redirect_url = request.args.get("next", url_for("home.index"))
             return redirect(redirect_url)
@@ -51,9 +56,14 @@ def signup():
             name=form.name.data,
             password=form.password.data,
         )
-        login_user(user)
-        return redirect(url_for("home.index"))
+        generate_and_send_verification_link(user)
+        return redirect(url_for("auth.verification_required"))
     return render_template("signup.html", form=form)
+
+
+@bp.route("/verification_required")
+def verification_required():
+    return render_template("verification_required.html")
 
 
 @bp.route("/logout", methods=["POST"])

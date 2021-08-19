@@ -1,13 +1,20 @@
 import secrets
+from unittest.mock import MagicMock
 
 import freezegun
 import pytest
+from pytest_mock.plugin import MockerFixture
 from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
 from auth import security
 from models.user import User
 from tests.utils import full_url_for
+
+
+@pytest.fixture
+def mock_generate_and_send_verification_link(mocker: MockerFixture):
+    return mocker.patch("auth.views.generate_and_send_verification_link")
 
 
 class TestSignup:
@@ -33,7 +40,13 @@ class TestSignup:
         assert response.status_code == 302
         assert response.location == full_url_for("home.index")
 
-    def test_ok(self, client, data, db):
+    def test_ok(
+        self,
+        client,
+        db: Session,
+        mock_generate_and_send_verification_link: MagicMock,
+        data,
+    ):
         response = client.post(
             self.url,
             data=data,
@@ -41,12 +54,13 @@ class TestSignup:
         )
 
         assert response.status_code == 302
-        assert response.location == full_url_for("home.index")
+        assert response.location == full_url_for("auth.verification_required")
 
-        created = db.query(User).filter(User.email == data["email"]).first()
-        assert created
-        assert created.id
-        assert security.check_password(data["password"], created.password)
+        user = db.query(User).filter(User.email == data["email"]).one()
+        assert user.id
+        assert security.check_password(data["password"], user.password)
+
+        mock_generate_and_send_verification_link.assert_called_once_with(user)
 
     def test_email_exists(self, client, data, db, user):
         data["email"] = user.email
@@ -149,6 +163,25 @@ class TestLogin:
 
         assert response.status_code == 302
         assert response.location == full_url_for("home.index")
+
+    @pytest.mark.parametrize("user__email_verified", [False])
+    def test_email_not_verified(
+        self,
+        client,
+        db: Session,
+        user,
+        mock_generate_and_send_verification_link: MagicMock,
+    ):
+        response = client.post(
+            self.url,
+            data=dict(email=user.email, password="123qweasd"),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert response.location == full_url_for("auth.verification_required")
+
+        mock_generate_and_send_verification_link.assert_called_once_with(user)
 
     def test_wrong_password(self, client, db, user):
         response = client.post(
@@ -322,3 +355,12 @@ class TestVerifyEmail:
 
             db.refresh(user)
             assert user.email_verified is False
+
+
+class TestVerificationRequired:
+    url = "/verification_required"
+
+    def test_ok(self, client):
+        response = client.get(self.url)
+
+        assert response.status_code == 200
