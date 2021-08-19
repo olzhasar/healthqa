@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask, g, render_template
 from flask_wtf import CSRFProtect
 
 from app import commands, context_processors
@@ -31,6 +31,14 @@ def create_app() -> Flask:
         db = getattr(g, "_database", None)
         if db is not None:
             db.close()
+
+    @app.errorhandler(404)
+    def error_404(e):
+        return render_template("404.html")
+
+    @app.errorhandler(500)
+    def error_500(e):
+        return render_template("500.html")
 
     login_manager.init_app(app)
     commands.init_app(app)
