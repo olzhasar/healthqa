@@ -1,10 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Health QA{% endblock %}
+{% block title %}All questions | Health QA{% endblock %}
 
 {% block content %}
   <div class="w-full lg:w-3/4 px-4">
     <div class="flex justify-between mb-4">
-      <h1 class="text-gray-500 text-2xl font-bold">All questions</h1>
+      <h1 class="text-gray-500 text-2xl font-bold">
+	{% block page_header %}
+	All questions
+	{% endblock %}
+      </h1>
       <a href="{{ url_for('questions.ask') }}" class="bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
 	Ask question
       </a>
@@ -13,9 +17,9 @@
       {% include "_question_card.html" %}
     {% endfor %}
 
-    {% with base_url=url_for('questions.all') + '?' %}
-      {% include "_pagination.html" %}
-    {% endwith %}
+    {% include "_pagination.html" %}
+
+    {% block bottom %}{% endblock %}
   </div>
 
   <div class="lg:w-1/4 px-4">

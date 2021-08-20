@@ -1,27 +1,13 @@
-{% extends "base.html" %}
+{% extends "question_list.html" %}
 {% block title %}Health QA{% endblock %}
 
-{% block content %}
-  <div class="w-full lg:w-3/4 px-4">
-    <div class="flex justify-between mb-4">
-      <h1 class="text-gray-500 text-2xl font-bold">Top questions</h1>
-      <a href="{{ url_for('questions.ask') }}" class="bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
-	Ask question
-      </a>
-    </div>
-    {% for question in questions %}
-      {% include "_question_card.html" %}
-    {% endfor %}
+{% block page_header %}Top questions{% endblock %}
 
-    <div class="flex justify-between mb-4">
-      <div></div>
-      <a href="{{ url_for('questions.all') }}" class="text-green-500 hover:text-green-400">
-	View all questions >
-      </a>
-    </div>
-  </div>
-
-  <div class="lg:w-1/4 px-4">
-    {% include "_tags.html" %}
+{% block bottom %}
+  <div class="flex justify-between mb-4">
+    <div></div>
+    <a href="{{ url_for('questions.all') }}" class="text-green-500 hover:text-green-400">
+      View all questions >
+    </a>
   </div>
 {% endblock %}

@@ -8,8 +8,6 @@
 	{% include "_user_card.html" %}
       {% endfor %}
     </div>
-    {% with base_url=url_for("users.all") + '?' %}
-      {% include "_pagination.html" %}
-    {% endwith %}
+    {% include "_pagination.html" %}
   </div>
 {% endblock %}
