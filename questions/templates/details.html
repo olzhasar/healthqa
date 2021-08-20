@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 
-{% block content %}
-<div class="w-full lg:w-3/5 lg:pr-4">
+{% set active_page = 'questions' %}
+
+{% block main_col %}
   <div class="bg-white border border-gray-200 md:shadow lg:rounded p-8 lg:p-12">
-
     <div class="mb-8">
       <h1 class="text-2xl mb-2 text-gray-800 font-bold">{{ question.title }}</h1>
       <div class="flex mb-4 text-gray-400 text-sm">
@@ -68,9 +68,6 @@
       {% include "_answer_form.html" %}
     {% endwith %}
   {% endif %}
-
-
-</div>
 {% endblock %}
 
 {% block extra_js %}

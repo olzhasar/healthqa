@@ -1,28 +1,27 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
+
+{% if not active_page %}
+{% set active_page = 'questions' %}
+{% endif %}
+
 {% block title %}All questions | Health QA{% endblock %}
 
-{% block content %}
-  <div class="lg:w-3/4 lg:pr-4">
-    <div class="flex justify-between mb-4 px-4 md:px-0">
-      <h1 class="text-gray-500 text-2xl font-bold">
-	{% block page_header %}
+{% block main_col %}
+  <div class="flex justify-between mb-4 px-4 md:px-0">
+    <h1 class="text-gray-500 text-2xl font-bold">
+      {% block page_header %}
 	All questions
-	{% endblock %}
-      </h1>
-      <a href="{{ url_for('questions.ask') }}" class="bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
-	Ask question
-      </a>
-    </div>
-    {% for question in questions %}
-      {% include "_question_card.html" %}
-    {% endfor %}
-
-    {% include "_pagination.html" %}
-
-    {% block bottom %}{% endblock %}
+      {% endblock %}
+    </h1>
+    <a href="{{ url_for('questions.ask') }}" class="bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
+      Ask question
+    </a>
   </div>
+  {% for question in questions %}
+    {% include "_question_card.html" %}
+  {% endfor %}
 
-  <div class="lg:w-1/4 lg:pl-4">
-    {% include "_tags.html" %}
-  </div>
+  {% include "_pagination.html" %}
+
+  {% block bottom %}{% endblock %}
 {% endblock %}
