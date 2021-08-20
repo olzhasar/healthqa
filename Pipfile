@@ -30,6 +30,7 @@ sqlalchemy-utils = "*"
 sqlalchemy2-stubs = "*"
 pytest-freezegun = "*"
 pytest-socket = "*"
+blinker = "*"
 
 [requires]
 python_version = "3.9"
