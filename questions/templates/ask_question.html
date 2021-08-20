@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <div class="w-full lg:w-3/5">
-  <div class="bg-white rounded shadow">
+  <div class="bg-white border border-gray-200 lg:rounded md:shadow">
     <div class="p-8 border-b">
       <h1 class="text-2xl text-gray-700">Ask new question</h1>
     </div>
@@ -22,8 +22,8 @@
 	    {% include "form/field_with_label.html" %}
 	  {% endwith %}
 	</div>
-	<div>
-	  <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded shadow" type="submit">
+	<div class="pt-2 flex">
+	  <button class="flex-grow md:flex-none bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-8 rounded shadow" type="submit">
 	    Submit
 	  </button>
 	</div>

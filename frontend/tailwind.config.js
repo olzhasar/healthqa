@@ -9,9 +9,9 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     colors: {
-      gray: colors.coolGray,
+      gray: colors.blueGray,
       yellow: colors.amber,
-      green: colors.emerald,
+      green: colors.teal,
       red: colors.red,
       blue: colors.blue,
       black: colors.black,

@@ -1,11 +1,11 @@
-<div class="bg-white border-gray-200 rounded-lg shadow p-4 text-gray-800">
-  <a
-    href="{{ url_for('users.profile', id=user.id) }}"
-    class="text-lg text-green-600 hover:text-green-500 hover:underline mb-4"
-  >
-    {{ user.name }}
-  </a>
-  <p class="mb-4 text-gray-500">
+<div class="bg-white border border-gray-200 rounded shadow p-4 text-gray-800">
+  <div class="flex">
+    <a href="{{ url_for('users.profile', id=user.id) }}" class="flex-grow text-lg text-green-600 hover:text-green-500 hover:underline mb-4">
+      {{ user.name }}
+    </a>
+    <span class="text-xl text-gray-600">{{ user.score }}</span>
+  </div>
+  <p class="mb-4 text-sm text-gray-500">
     Joined {{ user.created_at.strftime('%Y-%m-%d') }}
   </p>
   <p>Questions: {{ user.question_count }}</p>

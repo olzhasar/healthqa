@@ -5,16 +5,16 @@
 
   <div class="ml-4">
     {{ comment.content|safe }} -
-    <a href="{{ comment.user.url }}" class="text-green-500 hover:text-green-400"
-      >{{ comment.user.name }}</a
-    >
-    <span class="text-gray-400"
-      >{{ comment.created_at.strftime('%Y-%m-%d at %H:%M') }}</span
-    >
+    <a href="{{ comment.user.url }}" class="text-green-600 hover:text-green-500">
+      {{ comment.user.name }}
+    </a>
+    <span class="text-gray-400">
+      {{ comment.created_at.strftime('%Y-%m-%d at %H:%M') }}
+    </span>
 
     {% if comment.user == current_user %}
     <div class="mt-4">
-      <button hx-get="{{ url_for('questions.edit_comment', id=comment.id) }}" hx-target="closest .comment" hx-swap="outerHTML" class="text-green-500">Edit</button>
+      <button hx-get="{{ url_for('questions.edit_comment', id=comment.id) }}" hx-target="closest .comment" hx-swap="outerHTML" class="text-green-600 hover:text-green-500">Edit</button>
     </div>
     {% endif %}
 

@@ -1,4 +1,4 @@
-<div class="mb-4 bg-white border-gray-200 rounded flex shadow">
+<div class="mb-4 bg-white md:border border-gray-200 md:rounded md:shadow flex">
   <div class="p-8 text-gray-600">
     <span class="mr-8 text-center">
       <p class="text-xl">{{ question.score }}</p>
@@ -15,7 +15,7 @@
       {% endfor %}
     </div>
   </div>
-  <div class="p-8 flex text-sm">
+  <div class="p-8 text-gray-500 whitespace-nowrap">
     {{ question.created_at.strftime('%Y-%m-%d at %H-%M') }}
   </div>
 </div>

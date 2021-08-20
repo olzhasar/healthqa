@@ -19,14 +19,14 @@
       {% include "form/field_with_label.html" %}
     {% endwith %}
 
-    <a href="{{ url_for('auth.forgot_password') }}" class="text-sm flex mt-4">
+    <a href="{{ url_for('auth.forgot_password') }}" class="text-sm flex mt-4 hover:underline">
       Forgot your password?
     </a>
   </div>
   <button class="w-full bg-green-500 hover:bg-green-400 text-white font-bold border py-2 px-4 shadow rounded" type="submit">
     Log In
   </button>
-  <p class="text-center py-2 text-sm">or</p>
+  <p class="text-center text-gray-500 py-2">or</p>
   <a href="{{ url_for('auth.signup') }}" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold border py-2 px-4 shadow rounded text-center" type="submit">
     Sign Up
   </a>
