@@ -20,8 +20,9 @@ class TestIndex:
                 factories.CommentFactory.create_batch(2, entry_id=answer.id)
                 factories.VoteFactory.create_batch(2, entry_id=answer.id)
 
-    def test_ok(self, client, max_num_queries):
+    def test_ok(self, client, max_num_queries, template_rendered):
         with max_num_queries(2):
             response = client.get(self.url)
 
         assert response.status_code == 200
+        assert template_rendered("index.html")

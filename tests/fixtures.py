@@ -5,6 +5,7 @@ from typing import Any, Generator
 
 import pytest
 from flask import Flask
+from flask import template_rendered as flask_template_rendered
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists, drop_database
@@ -125,3 +126,23 @@ def max_num_queries(db):
                 )
 
     return _max_num_queries
+
+
+@pytest.fixture
+def captured_templates(app):
+    recorded = set()
+
+    def record(sender, template, context, **extra):
+        recorded.add(template.name)
+
+    flask_template_rendered.connect(record, app)
+    yield recorded
+    flask_template_rendered.disconnect(record, app)
+
+
+@pytest.fixture
+def template_rendered(captured_templates):
+    def _template_rendered(template_name: str):
+        return template_name in captured_templates
+
+    return _template_rendered
