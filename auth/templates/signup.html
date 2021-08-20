@@ -1,22 +1,15 @@
-{% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% extends "centered_form.html" %}
+{% block title %}Sign Up{% endblock %}
 
-{% block content %}
-  <div class="w-full flex justify-center">
-    <div class="bg-white shadow-md px-8 pt-6 pb-8 mb-4 flex flex-col">
-      <form action="{{ url_for('auth.signup') }}" method="POST">
-	{{ form.csrf_token }}
-	{% for field in form if not field.id=='csrf_token' %}
-	<div class="mb-{% if field.errors %}6{% else %}4{% endif %}">
-	  {% include "form/field_with_label.html" %}
-	</div>
-      {% endfor %}
-      <div class="flex items-center justify-center">
-	<button class="bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4" type="submit">
-	  Sign Up
-	</button>
-      </div>
-      </form>
-    </div>
+{% block form_title %}Sign Up{% endblock %}
+
+{% block form_content %}
+  {% for field in form if not field.id=='csrf_token' %}
+  <div class="mb-{% if field.errors %}6{% else %}4{% endif %}">
+    {% include "form/field_with_label.html" %}
   </div>
+{% endfor %}
+<button class="w-full bg-green-500 hover:bg-green-400 text-white font-bold border py-2 px-4 shadow rounded" type="submit">
+  Sign Up
+</button>
 {% endblock %}

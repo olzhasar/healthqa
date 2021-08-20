@@ -119,7 +119,7 @@ def forgot_password():
     return render_template("forgot_password.html", form=form)
 
 
-@bp.route("/forgot_password_sent")
+@bp.route("/forgot_password/sent")
 def forgot_password_sent():
     return render_template("forgot_password_sent.html")
 
@@ -139,6 +139,7 @@ def reset_password(token: str):
         return render_template("invalid_token.html")
 
     crud.user.reset_password(db, user=user)
+    login_user(user)
     return redirect(url_for("auth.set_password"))
 
 
@@ -155,7 +156,7 @@ def set_password():
         flash("Your password has been changed successfully")
         return redirect(url_for("users.profile", id=current_user.id))
 
-    return render_template("set_password.html")
+    return render_template("set_password.html", form=form)
 
 
 @bp.route("/verify_email/<string:token>")
@@ -174,5 +175,5 @@ def verify_email(token: str):
 
     crud.user.mark_email_verified(db, user=user)
     login_user(user)
-    flash("Your account has been activated")
+    flash("Welcome on board! Your account has been activated")
     return redirect(url_for("home.index"))

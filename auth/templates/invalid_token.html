@@ -1,0 +1,9 @@
+{% extends "centered.html" %}
+
+{% block content %}
+  <div class="text-center">
+    <h1 class="text-4xl text-gray-800 font-bold mb-8">Invalid link</h1>
+    <p class="text-2xl text-gray-600 mb-16">This one-time link is no longer valid</p>
+    <a href="{{ url_for("home.index") }}" class="bg-green-600 hover:bg-green-500 text-white font-bold rounded shadow px-8 py-4">Go to main page</a>
+  </div>
+{% endblock %}

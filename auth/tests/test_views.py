@@ -345,7 +345,7 @@ class TestForgotPassword:
 
 
 class TestForgotPasswordSent:
-    url = "/forgot_password_sent"
+    url = "/forgot_password/sent"
 
     def test_ok(self, client):
         response = client.get(self.url, follow_redirects=False)

@@ -1,39 +1,33 @@
-{% extends "centered.html" %}
-{% block title %}Login{% endblock %}
+{% extends "centered_form.html" %}
+{% block title %}Log In{% endblock %}
 
-{% block body_class %}bg-gray-300{% endblock %}
+{% block form_title %}Log In{% endblock %}
 
-{% block content %}
-  <div class="bg-white shadow-lg p-8 rounded text-lg">
-    <h1 class="text-2xl text-center text-gray-700 mb-8">Log in</h1>
-    <form action="" method="POST">
-      {{ form.csrf_token }}
-      <div class="mb-4">
-	{% with field=form.email %}
-	  {% include "form/field_with_label.html" %}
-	{% endwith %}
-      </div>
-      <div class="mb-6">
-	{% with field=form.password %}
-	  {% include "form/field_with_label.html" %}
-	{% endwith %}
-	<a class="text-sm flex mt-4" href="#">
-	  Forgot your password?
-	</a>
-
-	{% if error %}
-	  <p class="mt-4 text-red-500 italic">{{ error }}</p>
-	{% endif %}
-
-      </div>
-      <button class="w-full bg-green-500 hover:bg-green-400 text-white font-bold border py-2 px-4 shadow rounded" type="submit">
-	Log In
-      </button>
-      <p class="text-center py-2 text-sm">or</p>
-      <a href="{{ url_for('auth.signup') }}" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold border py-2 px-4 shadow rounded text-center" type="submit">
-	Sign Up
-      </a>
-
-    </form>
+{% block form_content %}
+  {% if error %}
+    <div class="mb-4">
+      <p class="bg-red-100 text-red-800 py-2 px-4 text-center">{{ error }}</p>
+    </div>
+  {% endif %}
+  <div class="mb-4">
+    {% with field=form.email %}
+      {% include "form/field_with_label.html" %}
+    {% endwith %}
   </div>
+  <div class="mb-6">
+    {% with field=form.password %}
+      {% include "form/field_with_label.html" %}
+    {% endwith %}
+
+    <a href="{{ url_for('auth.forgot_password') }}" class="text-sm flex mt-4">
+      Forgot your password?
+    </a>
+  </div>
+  <button class="w-full bg-green-500 hover:bg-green-400 text-white font-bold border py-2 px-4 shadow rounded" type="submit">
+    Log In
+  </button>
+  <p class="text-center py-2 text-sm">or</p>
+  <a href="{{ url_for('auth.signup') }}" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold border py-2 px-4 shadow rounded text-center" type="submit">
+    Sign Up
+  </a>
 {% endblock %}
