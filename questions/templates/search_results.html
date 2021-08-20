@@ -3,11 +3,9 @@
 
 {% block page_header %} Search results {% endblock %}
 
-{% block bottom %}
-  {% if not questions %}
-    <div class="w-full p-8 bg-white shadow rounded text-gray-700 text-lg text-center">
-      <p class="mb-2 text-2xl">No results found for "{{ query }}"</p>
-      <p class="text-gray-500">Try to broaden your search query</p>
-    </div>
-  {% endif %}
+{% block empty %}
+  <div class="w-full p-8 bg-white shadow rounded text-gray-700 text-lg text-center">
+    <p class="mb-2 text-2xl">No results found for "{{ query }}"</p>
+    <p class="text-gray-500">Try to broaden your search query</p>
+  </div>
 {% endblock %}

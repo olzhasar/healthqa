@@ -70,6 +70,7 @@ def by_tag(slug: str):
 
     return render_template(
         "question_list.html",
+        page_title=f'Results for "{tag.name}"',
         questions=questions,
         paginator=paginator,
     )
