@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="w-full lg:w-3/5 px-4">
-  <div class="bg-white shadow rounded p-12">
+<div class="w-full lg:w-3/5 lg:pr-4">
+  <div class="bg-white lg:shadow rounded p-8 lg:p-12">
 
     <div class="mb-8">
       <h1 class="text-2xl mb-2 text-gray-800 font-bold">{{ question.title }}</h1>
@@ -11,7 +11,7 @@
       </div>
       <div class="flex flex-wrap mb-4">
 	{% for tag in question.tags %}
-	  <a href="{{ tag.url }}" class="px-2 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
+	  <a href="{{ tag.url }}" class="px-4 py-1 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
 	{% endfor %}
       </div>
     </div>

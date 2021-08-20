@@ -1,15 +1,15 @@
-<div class="mb-4 bg-white border-gray-200 rounded flex shadow">
-  <div class="p-8 flex text-gray-500">
-    <span class="mr-8 text-center">
-      <p class="text-xl">{{ question.score }}</p>
+<div class="mb-4 bg-white border-gray-200 lg:rounded flex md:shadow">
+  <div class="p-8 flex flex-col lg:flex-row text-gray-500">
+    <span class="mb-4 lg:mb-0 lg:mr-8 text-center">
+      <p class="text-xl text-gray-600">{{ question.score }}</p>
       <p>votes</p>
     </span>
-    <span class="mr-8 text-center">
-      <p class="text-xl">{{ question.answer_count }}</p>
+    <span class="mb-4 lg:mb-0 lg:mr-8 text-center">
+      <p class="text-xl text-gray-600">{{ question.answer_count }}</p>
       <p>answers</p>
     </span>
     <span class="text-center">
-      <p class="text-xl">{{ question.view_count }}</p>
+      <p class="text-xl text-gray-600">{{ question.view_count }}</p>
       <p>views</p>
     </span>
   </div>
@@ -20,10 +20,10 @@
     <p class="mt-4">
       {{ question.user.username }}
     </p>
-    <div class="flex justify-between">
+    <div class="flex flex-col lg:flex-row justify-between">
       <div class="flex flex-wrap">
 	{% for tag in question.tags %}
-	  <a href="{{ tag.url }}" class="px-2 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
+	  <a href="{{ tag.url }}" class="px-4 py-1 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
 	{% endfor %}
       </div>
 

@@ -2,8 +2,8 @@
 {% block title %}All questions | Health QA{% endblock %}
 
 {% block content %}
-  <div class="w-full lg:w-3/4 px-4">
-    <div class="flex justify-between mb-4">
+  <div class="lg:w-3/4 lg:pr-4">
+    <div class="flex justify-between mb-4 px-4 md:px-0">
       <h1 class="text-gray-500 text-2xl font-bold">
 	{% block page_header %}
 	All questions
@@ -22,7 +22,7 @@
     {% block bottom %}{% endblock %}
   </div>
 
-  <div class="lg:w-1/4 px-4">
+  <div class="lg:w-1/4 lg:pl-4">
     {% include "_tags.html" %}
   </div>
 {% endblock %}
