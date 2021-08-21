@@ -1,20 +1,20 @@
 <div class="mb-4 bg-white border border-gray-200 lg:rounded flex md:shadow">
-  <div class="p-8 flex flex-col lg:flex-row text-gray-500">
-    <span class="mb-4 lg:mb-0 lg:mr-8 text-center">
-      <p class="text-xl text-gray-600">{{ question.score }}</p>
+  <div class="py-8 px-2 md:px-8 flex flex-col lg:flex-row text-gray-500 text-sm md:text-base">
+    <span class="mb-2 md:mb-4 lg:mb-0 lg:mr-8 text-center">
+      <p class="md:text-xl text-gray-600">{{ question.score }}</p>
       <p>votes</p>
     </span>
-    <span class="mb-4 lg:mb-0 lg:mr-8 text-center">
-      <p class="text-xl text-gray-600">{{ question.answer_count }}</p>
+    <span class="mb-2 md:mb-4 lg:mb-0 lg:mr-8 text-center">
+      <p class="md:text-xl text-gray-600">{{ question.answer_count }}</p>
       <p>answers</p>
     </span>
     <span class="text-center">
-      <p class="text-xl text-gray-600">{{ question.view_count }}</p>
+      <p class="md:text-xl text-gray-600">{{ question.view_count }}</p>
       <p>views</p>
     </span>
   </div>
   <div class="p-4 w-full">
-    <a href="{{ question.url }}" class="text-lg text-gray-800 hover:text-green-500 mb-2">
+    <a href="{{ question.url }}" class="md:text-lg text-gray-800 hover:text-green-500 mb-2">
       {{ question.title }}
     </a>
     <p class="mt-4">

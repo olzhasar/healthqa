@@ -8,12 +8,12 @@
 
 {% block main_col %}
   <div class="flex justify-between mb-4 px-4 md:px-0">
-    <h1 class="text-gray-500 text-2xl font-bold">
+    <h1 class="w-full text-center md:text-left text-gray-500 text-2xl font-bold">
       {% block page_header %}
 	{{ page_title|default('All questions') }}
       {% endblock %}
     </h1>
-    <a href="{{ url_for('questions.ask') }}" class="bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
+    <a href="{{ url_for('questions.ask') }}" class="hidden md:inline-block whitespace-nowrap bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
       Ask question
     </a>
   </div>
