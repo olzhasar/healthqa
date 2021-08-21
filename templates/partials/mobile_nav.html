@@ -1,0 +1,32 @@
+<div class="p-4 shadow" x-show="showMobileNav == true">
+  <form action="{{ url_for('questions.search') }}" method="GET">
+    <div class="relative pull-right md:pr-0">
+      <input type="search" id="q" name="q" placeholder="Search" class="w-full text-sm text-gray-800 transition border border-gray-400 focus:outline-none focus:border-green-400 py-1 pr-2 pl-10 appearance-none leading-loose rounded">
+      <div class="absolute search-icon" style="top: 0.75rem;left:.75rem;">
+	<svg class="fill-current pointer-events-none text-gray-800 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+	  <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
+	</svg>
+      </div>
+    </div>
+  </form>
+
+  <ul class="my-4">
+    <li class="py-2"><a href="{{ url_for('questions.all') }}">Questions</a></li>
+    <li class="py-2"><a href="{{ url_for('questions.all') }}">Tags</a></li>
+    <li class="py-2"><a href="{{ url_for('users.all') }}">Users</a></li>
+    <li class="py-2"><a href="{{ url_for('home.index') }}">About</a></li>
+  </ul>
+
+  {% if current_user.is_authenticated %}
+    <ul class="my-4">
+      <li class="py-2"><a href="{{ url_for('home.index') }}">Profile</a></li>
+    </ul>
+    <form action="{{ url_for('auth.logout') }}" method="POST" class="mt-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="block w-full bg-gray-800 text-white text-center px-4 py-2">Logout</button>
+    </form>
+  {% else %}
+    <a href="{{ url_for('auth.login') }}" class="block bg-green-600 text-white text-center px-4 py-2 my-2">Log In</a>
+    <a href="{{ url_for('auth.signup') }}" class="block bg-blue-500 text-white text-center px-4 py-2 my-2">Sign Up</a>
+  {% endif %}
+</div>
