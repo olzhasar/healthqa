@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Health QA | Tags{% endblock %}
+
+{% block content %}
+  <div class="w-full">
+    <h1 class="text-gray-500 text-2xl text-center font-bold mb-4">Tags</h1>
+
+    <div class="grid gap-4">
+      {% for category in tag_categories %}
+	<div class="bg-white p-8 border border-gray-200 md:shadow md:rounded">
+	  <h3 class="text-gray-500 mb-4 text-2xl">{{ category.name }}</h3>
+	  <div class="flex flex-wrap gap-4">
+	    {% for tag in category.tags %}
+	      <a href="{{ tag.url }}" class="px-4 py-1 bg-gray-200 hover:bg-green-400 text-gray-700 rounded">
+		{{ tag.name }}
+	      </a>
+	    {% endfor %}
+	  </div>
+	</div>
+      {% endfor %}
+    </div>
+
+  </div>
+{% endblock %}

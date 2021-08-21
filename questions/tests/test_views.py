@@ -109,6 +109,16 @@ class TestAllQuestions:
         assert response.status_code == 200
 
 
+class TestTags:
+    url = "/tags/"
+
+    def test_ok(self, client, max_num_queries):
+        with max_num_queries(1):
+            response = client.get(self.url)
+
+        assert response.status_code == 200
+
+
 class TestByTag:
     url = "/tags/{slug}/"
 

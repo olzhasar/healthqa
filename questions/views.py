@@ -50,6 +50,11 @@ def all():
     )
 
 
+@bp.route("/tags/")
+def tags():
+    return render_template("tag_list.html")
+
+
 @bp.route("/tags/<string:slug>/")
 def by_tag(slug: str):
     try:

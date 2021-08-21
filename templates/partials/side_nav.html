@@ -1,6 +1,6 @@
 <div class="text-lg text-gray-600">
   <a href="{{ url_for('home.index') }}" class="block mb-4 p-4 hover:bg-gray-200 rounded-md {% if active_page == 'home' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Home</a>
   <a href="{{ url_for('questions.all') }}" class="block mb-4 p-4 hover:bg-gray-200 rounded-md {% if active_page == 'questions' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Questions</a>
-  <a href="{{ url_for('questions.all') }}" class="block mb-4 p-4 hover:bg-gray-200 rounded-md {% if active_page == 'tags' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Tags</a>
+  <a href="{{ url_for('questions.tags') }}" class="block mb-4 p-4 hover:bg-gray-200 rounded-md {% if active_page == 'tags' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Tags</a>
   <a href="{{ url_for('users.all') }}" class="block mb-4 p-4 hover:bg-gray-200 rounded-md {% if active_page == 'users' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Users</a>
 </div>
