@@ -21,7 +21,7 @@ class AskQuestionForm(FlaskForm):
             validators.Length(min=20),
         ],
         description="Question content",
-        render_kw={"rows": 16},
+        render_kw={"class": "h-64 overflow-y-scroll"},
     )
 
     tags = TagsField(
@@ -43,7 +43,7 @@ class AnswerForm(FlaskForm):
             validators.Length(min=20),
         ],
         description="Answer content",
-        render_kw={"rows": 16},
+        render_kw={"class": "h-64 overflow-y-scroll"},
     )
 
 
