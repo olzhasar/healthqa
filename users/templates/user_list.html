@@ -1,13 +1,15 @@
-{% extends "base.html" %}
+{% extends "layout_2.html" %}
 {% block title %}Health QA | Users{% endblock %}
 
-{% block content %}
-  <div class="w-full">
-    <div class="grid gap-4 md:gap-8 md:grid-cols-2 lg:grid-cols-4 mb-4">
-      {% for user in users %}
+{% set active_page = 'users' %}
+
+{% block main_col %}
+  <div class="flex flex-wrap">
+    {% for user in users %}
+      <div class="w-full md:w-1/2 lg:w-1/4 my-2 px-2">
 	{% include "_user_card.html" %}
-      {% endfor %}
-    </div>
-    {% include "_pagination.html" %}
+      </div>
+    {% endfor %}
   </div>
+  {% include "_pagination.html" %}
 {% endblock %}
