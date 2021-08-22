@@ -10,14 +10,6 @@ block content %}
       <p class="text-gray-500 mb-4">
 	Joined {{ user.created_at.strftime('%Y-%m-%d') }}
       </p>
-      {% if user == current_user %}
-	<a href="{{ url_for('users.edit_profile', id=user.id) }}?tab=answers" class="flex text-green-800 hover:text-green-600 hover:underline py-2">
-	  Edit profile
-	</a>
-	<a href="{{ url_for('auth.change_password') }}?tab=answers" class="flex text-green-800 hover:text-green-600 hover:underline py-2">
-	  Change password
-	</a>
-      {% endif %}
     </div>
     <div class="font-bold">
       <a href="{{ url_for('users.profile', id=user.id) }}?tab=questions" class="flex py-4 px-8 hover:bg-gray-50 {% if tab=='questions' %}bg-gray-100 border-r-8 border-green-700{% endif %}">

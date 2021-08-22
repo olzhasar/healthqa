@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Edit profile info{% endblock %}
 
 {% block content %}
-  <div class="mb-4">
-    {% with field=form.name %}
-      {% include "form/field_with_label.html" %}
-    {% endwith %}
+  <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8">
+    <nav class="px-4 md:px-0 text-lg text-gray-600 flex flex-col gap-4">
+      <a href="{{ url_for('account.edit_info') }}" class="px-4 py-2 md:py-4 hover:bg-gray-200 rounded-md {% if active_page == 'edit_info' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Profile info</a>
+      <a href="{{ url_for('account.change_password') }}" class="px-4 py-2 md:py-4 hover:bg-gray-200 rounded-md {% if active_page == 'change_password' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Change password</a>
+    </nav>
+    <div class="col-span-2 bg-white border border-gray-200 md:rounded md:shadow p-8">
+      {% block main_col %} {% endblock %}
+    </div>
   </div>
-  <button class="w-full bg-green-500 hover:bg-green-600 text-white font-bold border border-green-100 py-2 px-4" type="submit">
-    Save changes
-  </button>
 {% endblock %}
