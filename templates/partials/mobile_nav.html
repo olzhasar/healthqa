@@ -19,7 +19,7 @@
 
   {% if current_user.is_authenticated %}
     <ul class="my-4">
-      <li class="py-2"><a href="{{ url_for('home.index') }}">Profile</a></li>
+      <li class="py-2"><a href="{{ url_for('account.edit_info') }}">My account</a></li>
     </ul>
     <form action="{{ url_for('auth.logout') }}" method="POST" class="mt-4">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

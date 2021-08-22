@@ -1,8 +1,7 @@
-{% extends "centered_form.html" %}
+{% extends "base.html" %}
 {% block title %}Edit profile info{% endblock %}
-{% block form_title %}Edit profile info{% endblock %}
 
-{% block form_content %}
+{% block content %}
   <div class="mb-4">
     {% with field=form.name %}
       {% include "form/field_with_label.html" %}

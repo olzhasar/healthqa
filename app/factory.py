@@ -1,6 +1,7 @@
 from flask import Flask, g, render_template
 from flask_wtf import CSRFProtect
 
+from account.views import bp as account_bp
 from app import commands, context_processors, filters
 from app.config import settings
 from app.login import login_manager
@@ -23,6 +24,7 @@ def create_app() -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(questions_bp)
     app.register_blueprint(users_bp)
+    app.register_blueprint(account_bp)
 
     CSRFProtect(app)
 

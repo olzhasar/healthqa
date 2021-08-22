@@ -9,7 +9,6 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_user, logout_user
-from flask_login.utils import login_required
 from sqlalchemy.exc import NoResultFound
 
 import crud
@@ -82,24 +81,6 @@ def logout():
     flash("You have been logged out successfully")
 
     return redirect(url_for("home.index"))
-
-
-@bp.route("/change_password", methods=["GET", "POST"])
-@login_required
-def change_password():
-    form = forms.ChangePasswordForm()
-    if form.validate_on_submit():
-        if security.check_password(form.current_password.data, current_user.password):
-            crud.user.change_password(
-                db, user_id=current_user.id, new_password=form.password.data
-            )
-            flash("Your password has been changed successfully")
-
-            return redirect(url_for("users.profile", id=current_user.id))
-
-        form.current_password.errors.append("Invalid old password")
-
-    return render_template("change_password.html", form=form)
 
 
 @bp.route("/forgot_password", methods=["GET", "POST"])
