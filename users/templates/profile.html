@@ -1,27 +1,27 @@
-{% extends "base.html" %} {% block title %}Health QA | {{ user.name }}{% endblock %} {%
-block content %}
-<div class="w-full lg:w-1/3 lg:pr-4">
-  <div class="bg-white border border-gray-200 md:shadow md:rounded text-gray-700">
-    <div class="p-8">
-      <h1 class="text-2xl font-bold">{{ user.name }}</h1>
-      <p class="text-gray-600 my-4">
-	User Rating: <span class="font-bold">{{ user.score }}</span>
-      </p>
-      <p class="text-gray-500 mb-4">
-	Joined {{ user.created_at.strftime('%Y-%m-%d') }}
-      </p>
-    </div>
-    <div class="font-bold">
-      <a href="{{ url_for('users.profile', id=user.id) }}?tab=questions" class="flex py-4 px-8 hover:bg-gray-50 {% if tab=='questions' %}bg-gray-100 border-r-8 border-green-700{% endif %}">
-	Questions: {{ user.question_count }}
-      </a>
-      <a href="{{ url_for('users.profile', id=user.id) }}?tab=answers" class="flex py-4 px-8 hover:bg-gray-50 {% if tab=='answers' %}bg-gray-100 border-r-8 border-green-700{% endif %}">
-	Answers: {{ user.answer_count }}
-      </a>
-    </div>
+{% extends "base.html" %}
+{% block title %}Health QA | {{ user.name }}{% endblock %}
+
+{% block body_class %}md:bg-gray-100{% endblock %}
+
+{% block content %}
+<div class="w-full md:w-1/3 md:mr-4 px-4 md:mx-8">
+  <div class="p-4 md:p-8 text-gray-700 bg-white md:mb-8 md:border border-gray-200 md:rounded md:shadow">
+    <h1 class="text-2xl font-bold">{{ user.name }}</h1>
+    <p class="text-gray-600 my-4">
+      User Rating: <span class="font-bold">{{ user.score }}</span>
+    </p>
+    <p class="text-gray-500 mb-4">
+      Joined {{ user.created_at.strftime('%Y-%m-%d') }}
+    </p>
+  </div>
+
+  <div class="text-lg text-gray-600">
+    <a href="{{ user.url }}?tab=questions" class="block mb-2 md:mb-4 py-4 px-4 md:px-8 hover:bg-gray-200 rounded-md {% if tab == 'questions' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Questions ({{ user.question_count }})</a>
+    <a href="{{ user.url }}?tab=answers" class="block mb-2 py-4 px-4 md:px-8 hover:bg-gray-200 rounded-md {% if tab == 'answers' %}border-r-4 border-green-500 bg-gray-200{% endif %}">Answers ({{ user.answer_count }})</a>
   </div>
 </div>
-<div class="w-full lg:w-2/3 mt-4 lg:mt-0 lg:pl-4">
+
+<div class="w-full md:w-2/3 mt-4 md:mt-0 md:ml-4">
   {% if tab == 'questions' %}
     {% for question in questions %}
       {% include "_question_card_profile.html" %}

@@ -44,7 +44,8 @@
 	    </div>
 	    <div class="origin-top-right w-48 absolute right-0 pt-4 z-20 text-gray-600">
 	      <div class="bg-white shadow text-gray-600 pt-4" x-show="dropdownOpen">
-		<a href="{{ url_for('account.edit_info') }}" class="p-4">My account</a>
+		<a href="{{ url_for('users.profile', id=current_user.id) }}" class="block p-4">My activity</a>
+		<a href="{{ url_for('account.edit_info') }}" class="block p-4">Manage account</a>
 		<form action="{{ url_for('auth.logout') }}" method="POST">
 		  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 		  <button type="submit" class="p-4">Logout</button>

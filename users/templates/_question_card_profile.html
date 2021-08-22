@@ -1,21 +1,23 @@
-<div class="mb-4 bg-white md:border border-gray-200 md:rounded md:shadow flex">
+<div class="mb-4 bg-white md:border border-gray-200 rounded shadow flex flex-row">
   <div class="p-8 text-gray-600">
     <span class="mr-8 text-center">
       <p class="text-xl">{{ question.score }}</p>
       <p>votes</p>
     </span>
   </div>
-  <div class="p-8 w-full">
-    <a href="{{ question.url }}" class="text-lg text-gray-900 hover:text-green-500 mb-2">
-      {{ question.title }}
-    </a>
-    <div class="flex flex-wrap">
-      {% for tag in question.tags %}
-	<a href="{{ tag.url }}" class="px-2 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
-      {% endfor %}
+  <div class="md:flex flex-row w-full">
+    <div class="p-8 w-full">
+      <a href="{{ question.url }}" class="text-lg text-gray-900 hover:text-green-500 mb-2">
+	{{ question.title }}
+      </a>
+      <div class="flex flex-wrap">
+	{% for tag in question.tags %}
+	  <a href="{{ tag.url }}" class="px-2 mr-2 my-2 bg-gray-200 text-gray-600 text-sm rounded">{{ tag.name }}</a>
+	{% endfor %}
+      </div>
     </div>
-  </div>
-  <div class="p-8 text-gray-500 whitespace-nowrap">
-    {{ question.created_at.strftime('%Y-%m-%d at %H-%M') }}
+    <div class="p-8 text-gray-500 whitespace-nowrap">
+      {{ question.created_at.strftime('%Y-%m-%d at %H-%M') }}
+    </div>
   </div>
 </div>
