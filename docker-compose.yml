@@ -5,12 +5,12 @@ services:
     build: .
     working_dir: /app
     entrypoint: /docker-entrypoint.sh
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       - DB_HOST=db
       - REDIS_URL=redis://redis:6379
-      - SERVER_NAME=127.0.0.1:8000
+      - SERVER_NAME=127.0.0.1
     restart: always
     depends_on:
       - db
@@ -31,6 +31,13 @@ services:
       - db
       - redis
 
+  nginx:
+    build: ./nginx
+    ports:
+      - "8000:80"
+    depends_on:
+      - web
+
   redis:
     image: redis
     expose:
@@ -39,7 +46,7 @@ services:
 
   db:
     image: postgres:13
-    ports:
+    expose:
       - "5432"
     environment:
       - POSTGRES_DB=healthqa
