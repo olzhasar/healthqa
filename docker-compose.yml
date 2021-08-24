@@ -10,7 +10,7 @@ services:
     environment:
       - DB_HOST=db
       - REDIS_URL=redis://redis:6379
-      - SERVER_NAME=127.0.0.1
+      - SERVER_NAME=127.0.0.1:8000
     restart: always
     depends_on:
       - db
