@@ -27,7 +27,7 @@ def send_templated_email(
     loader = FileSystemLoader(settings.EMAIL_TEMPLATES_DIR)
     env = Environment(loader=loader)
 
-    txt_template = env.get_template(f"{template}.txt")
+    txt_template = env.get_template(f"{template.value}.txt")
     message = txt_template.render(**context)
 
     return send_mail(to=to, subject=subject, message=message)
