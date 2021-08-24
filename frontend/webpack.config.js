@@ -22,11 +22,11 @@ const config = {
   ],
   module: {
     rules: [
-      {
-        test: /\.css$/i,
-        include: path.resolve(__dirname, "src"),
-        use: ["style-loader", "css-loader", "postcss-loader"],
-      },
+      // {
+      //   test: /\.css$/i,
+      //   include: path.resolve(__dirname, "src"),
+      //   use: ["style-loader", "css-loader", "postcss-loader"],
+      // },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
         type: "asset",

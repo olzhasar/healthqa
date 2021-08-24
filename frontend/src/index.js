@@ -1,6 +1,5 @@
 import "htmx.org";
 import "trix";
-import "./styles.css";
 
 import Alpine from "alpinejs";
 

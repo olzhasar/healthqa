@@ -10,6 +10,7 @@ COPY ./frontend/*.js /frontend/
 COPY ./backend /backend
 
 RUN yarn run build:prod
+RUN yarn run build-tailwind:prod
 
 FROM nginx:1.21.1-alpine
 
