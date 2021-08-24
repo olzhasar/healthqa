@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from unittest.mock import MagicMock
 
 import pytest
@@ -14,6 +15,15 @@ def mock_send_mail(mocker: MockerFixture):
 
 
 @pytest.fixture
+def mock_email_template(mocker: MockerFixture):
+    class MockEmailTemplate(Enum):
+        TEST_TEMPLATE = "test_template"
+
+    mock = mocker.patch("mail.template.EmailTemplate", MockEmailTemplate)
+    return mock
+
+
+@pytest.fixture
 def template_file():
     file_path = os.path.join(settings.EMAIL_TEMPLATES_DIR, "test_template.txt")
     with open(file_path, "w") as f:
@@ -24,7 +34,9 @@ def template_file():
     os.remove(file_path)
 
 
-def test_send_templated_email(mock_send_mail: MagicMock, template_file):
+def test_send_templated_email(
+    mock_send_mail: MagicMock, mock_email_template, template_file
+):
     to_email = "info@example.com"
     subject = "Test subject"
     expected_message = "Hello, User. Your email is info@example.com"
@@ -32,7 +44,7 @@ def test_send_templated_email(mock_send_mail: MagicMock, template_file):
     send_templated_email(
         to=to_email,
         subject=subject,
-        template="test_template",  # type: ignore
+        template=mock_email_template.TEST_TEMPLATE,
         context={"name": "User", "email": to_email},
     )
 
