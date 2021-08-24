@@ -4,12 +4,16 @@ const path = require("path");
 
 const isProduction = process.env.NODE_ENV == "production";
 
+const outputPath = isProduction
+  ? path.resolve(__dirname, "dist")
+  : path.resolve(__dirname, "../backend", "static");
+
 const stylesHandler = "style-loader";
 
 const config = {
   entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: outputPath,
     filename: "bundle.js",
   },
   plugins: [
