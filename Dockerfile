@@ -2,7 +2,7 @@ FROM python:3.9-slim-buster
 
 RUN pip install pipenv
 
-COPY ./Pipfile ./Pipfile.lock /
+COPY ./backend/Pipfile ./backend/Pipfile.lock /
 
 RUN pipenv install --deploy
 RUN pipenv install psycopg2-binary --skip-lock
@@ -13,6 +13,6 @@ ENV PYTHONPATH "${PYTHONPATH}:/app"
 COPY /docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
 
-COPY . /app
+COPY ./backend /app
 
 CMD ["/docker-entrypoint.sh"]
