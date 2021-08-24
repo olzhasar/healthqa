@@ -9,7 +9,7 @@ const stylesHandler = "style-loader";
 const config = {
   entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, "..", "static"),
+    path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
   },
   plugins: [
@@ -21,7 +21,7 @@ const config = {
       {
         test: /\.css$/i,
         include: path.resolve(__dirname, "src"),
-        use: ["css-loader", "postcss-loader"],
+        use: ["style-loader", "css-loader", "postcss-loader"],
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
