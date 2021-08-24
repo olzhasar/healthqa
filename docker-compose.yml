@@ -1,8 +1,8 @@
-version: '3'
+version: "3"
 
 services:
   web:
-    build: .
+    build: ./backend
     working_dir: /app
     entrypoint: /docker-entrypoint.sh
     expose:
@@ -17,7 +17,7 @@ services:
       - redis
 
   worker:
-    build: .
+    build: ./backend
     working_dir: /app
     command: >
       sh -c "pipenv run python worker.py"
@@ -32,7 +32,7 @@ services:
       - redis
 
   nginx:
-    build: ./nginx
+    build: .
     ports:
       - "8000:80"
     depends_on:

@@ -1,18 +1,18 @@
-FROM python:3.9-slim-buster
+FROM node:latest as build
 
-RUN pip install pipenv
+WORKDIR /frontend
 
-COPY ./backend/Pipfile ./backend/Pipfile.lock /
+COPY ./frontend/yarn.lock ./frontend/package.json /frontend/
+RUN yarn
 
-RUN pipenv install --deploy
-RUN pipenv install psycopg2-binary --skip-lock
+COPY ./frontend/src /frontend/src
+COPY ./frontend/*.js /frontend/
+COPY ./backend /backend
 
-ENV PIPENV_PIPFILE=/Pipfile
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+RUN yarn run build:prod
 
-COPY /docker-entrypoint.sh /
-RUN chmod +x docker-entrypoint.sh
+FROM nginx:1.21.1-alpine
 
-COPY ./backend /app
-
-CMD ["/docker-entrypoint.sh"]
+RUN rm /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/conf.d
+COPY --from=build /frontend/dist ./usr/share/nginx/static
