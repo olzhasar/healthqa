@@ -16,6 +16,8 @@ email-validator = "*"
 python-dotenv = "*"
 rq = "*"
 itsdangerous = "*"
+gunicorn = "*"
+factory-boy = "*"
 
 [dev-packages]
 flake8 = "*"

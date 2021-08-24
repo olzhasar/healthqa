@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    working_dir: /app
+    entrypoint: /docker-entrypoint.sh
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379
+      - SERVER_NAME=127.0.0.1:8000
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: .
+    working_dir: /app
+    command: >
+      sh -c "pipenv run python worker.py"
+    environment:
+      - EMAIL_USER=o.arystanov@yandex.kz
+      - EMAIL_PASSWORD=something
+      - DB_HOST=db
+      - REDIS_URL=redis://redis:6379
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    image: redis
+    ports:
+      - "16379:6379"
+    restart: always
+
+  db:
+    image: postgres:13
+    ports:
+      - "15432:5432"
+    environment:
+      - POSTGRES_DB=healthqa
+      - POSTGRES_USER=healthqa
+      - POSTGRES_PASSWORD=healthqa

@@ -28,8 +28,8 @@ class Settings(BaseSettings):
 
     EMAIL_HOST: str = "smtp.yandex.com"
     EMAIL_PORT: int = 465
-    EMAIL_USER: str
-    EMAIL_PASSWORD: str
+    EMAIL_USER: str = ""
+    EMAIL_PASSWORD: str = ""
 
     TOKEN_MAX_AGE_EMAIL_VERIFICATION = 3600 * 24 * 7
     TOKEN_MAX_AGE_PASSWORD_RESET = 3600 * 3
