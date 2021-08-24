@@ -33,14 +33,14 @@ services:
 
   redis:
     image: redis
-    ports:
-      - "16379:6379"
+    expose:
+      - "6379"
     restart: always
 
   db:
     image: postgres:13
     ports:
-      - "15432:5432"
+      - "5432"
     environment:
       - POSTGRES_DB=healthqa
       - POSTGRES_USER=healthqa
