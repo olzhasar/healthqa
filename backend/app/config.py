@@ -6,7 +6,7 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     TESTING = False
 
-    SECRET_KEY: str = "supersecretkey"
+    SECRET_KEY: str
 
     SERVER_NAME: str = "localhost:5000"
 
