@@ -63,4 +63,5 @@ jobs:
           script: |
             cd /srv/healthqa
             git pull
+            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
             docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
