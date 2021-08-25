@@ -40,8 +40,8 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.REPO_NAME }}/app:latest
-          cache-from: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/app:buildcache
-          cache-to: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/app:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push nginx
         uses: docker/build-push-action@v2.7.0
@@ -49,8 +49,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.REPO_NAME }}/nginx:latest
-          cache-from: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/nginx:buildcache
-          cache-to: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/nginx:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Deploy
         uses: appleboy/ssh-action@master
