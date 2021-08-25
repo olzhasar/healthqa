@@ -29,9 +29,24 @@ services:
   nginx:
     build: .
     ports:
-      - "8000:80"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certbot-root:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
     depends_on:
       - web
+
+  certbot:
+    image: certbot/certbot
+    command: certonly --webroot --webroot-path=/var/www/html --email o.arystanov@gmail.com --agree-tos --no-eff-email -d backpainfree.org -d www.backpainfree.org
+    volumes:
+        - certbot-root:/var/www/html
+        - certbot-etc:/etc/letsencrypt
+        - certbot-var:/var/lib/letsencrypt
+    depends_on:
+      - nginx
 
   redis:
     image: redis
@@ -54,3 +69,6 @@ services:
 volumes:
   redis-data:
   pg-data:
+  certbot-root:
+  certbot-etc:
+  certbot-var:
