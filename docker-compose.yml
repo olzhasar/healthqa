@@ -5,12 +5,10 @@ services:
     build: ./backend
     working_dir: /app
     entrypoint: /docker-entrypoint.sh
+    env_file:
+      - ./backend/.env
     expose:
       - "8000"
-    environment:
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379
-      - SERVER_NAME=127.0.0.1:8000
     restart: always
     depends_on:
       - db
@@ -21,11 +19,8 @@ services:
     working_dir: /app
     command: >
       sh -c "pipenv run python worker.py"
-    environment:
-      - EMAIL_USER=o.arystanov@yandex.kz
-      - EMAIL_PASSWORD=something
-      - DB_HOST=db
-      - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./backend/.env
     restart: always
     depends_on:
       - db
@@ -40,15 +35,22 @@ services:
 
   redis:
     image: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
     expose:
       - "6379"
     restart: always
 
   db:
     image: postgres:13
+    volumes:
+      - pg-data:/var/lib/postgresql/data
     expose:
       - "5432"
-    environment:
-      - POSTGRES_DB=healthqa
-      - POSTGRES_USER=healthqa
-      - POSTGRES_PASSWORD=healthqa
+    env_file:
+      - ./.db.env
+
+volumes:
+  redis-data:
+  pg-data:
