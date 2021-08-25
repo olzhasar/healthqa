@@ -1,7 +1,8 @@
 name: Deploy with github packages
-on: push
-  branches:
-    - master
+on:
+  push:
+    branches:
+      - master
 
 env:
   REGISTRY: ghcr.io
