@@ -45,6 +45,8 @@ jobs:
           push: true
           tags: ${{ steps.meta_app.outputs.tags }}
           labels: ${{ steps.meta_app.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push nginx
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -53,6 +55,8 @@ jobs:
           push: true
           tags: ${{ steps.meta_nginx.outputs.tags }}
           labels: ${{ steps.meta_nginx.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Deploy
         uses: appleboy/ssh-action@master
@@ -64,4 +68,4 @@ jobs:
             cd /srv/healthqa
             git pull
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
