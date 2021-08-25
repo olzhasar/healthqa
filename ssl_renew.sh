@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPOSE="/usr/bin/docker-compose --no-ansi"
+COMPOSE="/usr/local/bin/docker-compose --no-ansi"
 DOCKER="/usr/bin/docker"
 
 cd /srv/healthqa/
