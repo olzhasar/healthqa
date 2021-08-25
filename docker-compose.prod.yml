@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  web:
+    image: ghcr.io/olzhasar/healthqa/app:master
+
+  worker:
+    image: ghcr.io/olzhasar/healthqa/app:master
+
+  nginx:
+    image: ghcr.io/olzhasar/healthqa/nginx:master
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certbot-root:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+
+  certbot:
+    image: certbot/certbot
+    command: certificates
+    # command: certonly --webroot --webroot-path=/var/www/html --email o.arystanov@gmail.com --agree-tos --no-eff-email -d backpainfree.org -d www.backpainfree.org
+    volumes:
+        - certbot-root:/var/www/html
+        - certbot-etc:/etc/letsencrypt
+        - certbot-var:/var/lib/letsencrypt
+    depends_on:
+      - nginx
+
+volumes:
+  certbot-root:
+  certbot-etc:
+  certbot-var:

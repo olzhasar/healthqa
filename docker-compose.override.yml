@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  web:
+    build: ./backend
+
+  worker:
+    build: ./backend
+
+  nginx:
+    build: .
+    ports:
+      - "8000:80"
