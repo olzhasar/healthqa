@@ -2,13 +2,13 @@ version: "3"
 
 services:
   web:
-    image: ghcr.io/olzhasar/healthqa/app:master
+    image: ghcr.io/olzhasar/healthqa/app:latest
 
   worker:
-    image: ghcr.io/olzhasar/healthqa/app:master
+    image: ghcr.io/olzhasar/healthqa/app:latest
 
   nginx:
-    image: ghcr.io/olzhasar/healthqa/nginx:master
+    image: ghcr.io/olzhasar/healthqa/nginx:latest
     ports:
       - "80:80"
       - "443:443"

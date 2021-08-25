@@ -26,37 +26,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta_app
-        uses: docker/metadata-action@v3.5.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/app
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta_nginx
-        uses: docker/metadata-action@v3.5.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx
-
       - name: Build and push app
         uses: docker/build-push-action@v2.7.0
         with:
           context: ./backend
           push: true
-          tags: ${{ steps.meta_app.outputs.tags }}
-          labels: ${{ steps.meta_app.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.REPO_NAME }}/app:latest
+          cache-from: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/app:buildcache
+          cache-to: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/app:buildcache,mode=max
 
       - name: Build and push nginx
         uses: docker/build-push-action@v2.7.0
         with:
           context: .
           push: true
-          tags: ${{ steps.meta_nginx.outputs.tags }}
-          labels: ${{ steps.meta_nginx.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.REPO_NAME }}/nginx:latest
+          cache-from: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/nginx:buildcache
+          cache-to: type=registry,ref=${{ github.actor }}/${{ env.REPO_NAME }}/nginx:buildcache,mode=max
 
       - name: Deploy
         uses: appleboy/ssh-action@master
