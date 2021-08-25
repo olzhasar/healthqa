@@ -13,6 +13,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
       - certbot-root:/var/www/html
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
