@@ -146,7 +146,7 @@ def count(db: Session, tag: Optional[Tag] = None) -> int:
 
 
 def _clean_query(query: str):
-    words = query.strip().split(" ")
+    words = query.replace("\\", "").strip().split(" ")
     return "&".join(words)
 
 

@@ -241,8 +241,9 @@ def questions_for_search():
         ("spine", {"Upper back", "Spine"}),
         ("upper", {"Upper back"}),
         ("upper back", {"Upper back"}),
-        ("sitting", {"Spine"}),
         ("hurts", {"Spine", "Sciatica"}),
+        ("sitting", {"Spine"}),
+        ("sitting\\", {"Spine"}),
     ],
 )
 def test_search(db: Session, questions_for_search, query, expected):
