@@ -10,18 +10,19 @@
     </div>
   </form>
 
-  <ul class="my-4">
-    <li class="py-2"><a href="{{ url_for('questions.all') }}">Questions</a></li>
-    <li class="py-2"><a href="{{ url_for('questions.tags') }}">Tags</a></li>
-    <li class="py-2"><a href="{{ url_for('users.all') }}">Users</a></li>
-    <li class="py-2"><a href="{{ url_for('home.about') }}">About</a></li>
-  </ul>
+  <div class="my-4">
+    <a href="{{ url_for('questions.all') }}" class="block py-2">Questions</a>
+    <a href="{{ url_for('questions.tags') }}" class="block py-2">Tags</a>
+    <a href="{{ url_for('users.all') }}" class="block py-2">Users</a>
+    <a href="{{ url_for('home.about') }}" class="block py-2">About</a>
+  </div>
 
   {% if current_user.is_authenticated %}
-    <ul class="my-4">
-      <li class="py-2"><a href="{{ url_for('users.profile', id=current_user.id) }}">My activity</a></li>
-      <li class="py-2"><a href="{{ url_for('account.edit_info') }}">Manage account</a></li>
-    </ul>
+    <div class="my-4">
+      <a href="{{ url_for('users.profile', id=current_user.id) }}" class="block py-2">My activity</a>
+      <a href="{{ url_for('account.edit_info') }}" class="block py-2">Manage account</a>
+    </div>
+
     <form action="{{ url_for('auth.logout') }}" method="POST" class="mt-4">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="block w-full bg-gray-800 text-white text-center px-4 py-2">Logout</button>
