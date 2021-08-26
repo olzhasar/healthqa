@@ -2,7 +2,12 @@ const colors = require("tailwindcss/colors");
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  purge: ["../backend/**/templates/**/*.html", "../backend/**/forms.py"],
+  purge: {
+    content: ["../backend/**/templates/**/*.html", "../backend/**/forms.py"],
+    options: {
+      safelist: ["/trix-*/"],
+    },
+  },
   darkMode: false, // or 'media' or 'class'
   theme: {
     colors: {
