@@ -27,13 +27,17 @@
 	{% for question in questions %}
 	  {% include "_question_card_profile.html" %}
 	{% else %}
-	  User has no questions yet
+	  <div class="p-6 text-gray-600">
+	    User did not ask any question yet
+	  </div>
 	{% endfor %}
       {% elif tab == 'answers' %}
 	{% for answer in answers %}
 	  {% include "_answer_card_profile.html" %}
 	{% else %}
-	  User has no answers yet
+	  <div class="p-6 text-gray-600">
+	    User did not answer any question yet
+	  </div>
 	{% endfor %}
       {% endif %}
     </div>
