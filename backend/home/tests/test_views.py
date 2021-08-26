@@ -26,3 +26,13 @@ class TestIndex:
 
         assert response.status_code == 200
         assert template_rendered("index.html")
+
+
+class TestAbout:
+    url = "/about"
+
+    def test_ok(self, client, template_rendered):
+        response = client.get(self.url)
+
+        assert response.status_code == 200
+        assert template_rendered("about.html")

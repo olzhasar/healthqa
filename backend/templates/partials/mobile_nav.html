@@ -14,7 +14,7 @@
     <li class="py-2"><a href="{{ url_for('questions.all') }}">Questions</a></li>
     <li class="py-2"><a href="{{ url_for('questions.tags') }}">Tags</a></li>
     <li class="py-2"><a href="{{ url_for('users.all') }}">Users</a></li>
-    <li class="py-2"><a href="{{ url_for('home.index') }}">About</a></li>
+    <li class="py-2"><a href="{{ url_for('home.about') }}">About</a></li>
   </ul>
 
   {% if current_user.is_authenticated %}
