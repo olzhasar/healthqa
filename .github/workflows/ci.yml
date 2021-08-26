@@ -12,6 +12,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: healthqa
+          POSTGRES_PASSWORD: healthqa
+          POSTGRES_DB: healthqa
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -36,7 +46,7 @@ jobs:
       - name: Run pytest
         working-directory: ./backend
         run: |
-          pipenv run pytest
+          pipenv run pytest -x
 
   build-and-deploy:
     runs-on: ubuntu-latest
