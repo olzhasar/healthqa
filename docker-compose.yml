@@ -25,9 +25,7 @@ services:
       - redis
 
   nginx:
-    ports:
-      - "80:80"
-      - "443:443"
+    restart: always
     depends_on:
       - web
 
@@ -46,6 +44,7 @@ services:
       - pg-data:/var/lib/postgresql/data
     expose:
       - "5432"
+    restart: always
     env_file:
       - ./.db.env
 
