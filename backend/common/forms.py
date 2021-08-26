@@ -19,6 +19,7 @@ class TrixWidget:
             ),
         ]
 
+        kwargs["class"] += " trix"
         html.append(
             "<trix-editor %s></trix-editor>"
             % html_params(input=id, name=field.name, **kwargs)
