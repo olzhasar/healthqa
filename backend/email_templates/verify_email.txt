@@ -1,0 +1,9 @@
+Dear, {{ name }}!
+
+Thank you for registering your account on backpainfree.org.
+
+To verify your email address and activate your account, please click the link below (or copy and paste it to your browser):
+{{ url }}
+
+
+If you did not register on a backpainfree.org website, you can safely ignore this message.
