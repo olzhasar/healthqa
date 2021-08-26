@@ -3,7 +3,7 @@
     {% if not comment_form.errors %}
       <button @click="showForm = true" x-show="!showForm" class="text-green-600 hover:text-green-500">Add comment</button>
     {% endif %}
-    <form {% if not comment_form.errors %}x-show="showForm"{% endif %} method="POST">
+    <form {% if not comment_form.errors %}x-show="showForm"{% endif %} method="POST" x-cloak>
       <div class="flex">
 	<div class="w-full mr-4">
 	  {% with field=comment_form.content %}
