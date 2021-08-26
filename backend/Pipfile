@@ -18,6 +18,7 @@ rq = "*"
 itsdangerous = "*"
 gunicorn = "*"
 factory-boy = "*"
+python-slugify = "*"
 
 [dev-packages]
 flake8 = "*"
