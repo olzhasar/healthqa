@@ -1,0 +1,6 @@
+/static
+*.pyc
+.pytest_cache
+tags
+Session.vim
+test_*.py
