@@ -240,6 +240,7 @@ def questions_for_search():
         ("back", {"Upper back", "Spine", "Sciatica"}),
         ("spine", {"Upper back", "Spine"}),
         ("upper", {"Upper back"}),
+        ("upper back", {"Upper back"}),
         ("sitting", {"Spine"}),
         ("hurts", {"Spine", "Sciatica"}),
     ],

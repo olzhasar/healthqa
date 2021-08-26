@@ -145,9 +145,16 @@ def count(db: Session, tag: Optional[Tag] = None) -> int:
     return db.query(func.count(Question.id)).filter(*filter_params).scalar()
 
 
+def _clean_query(query: str):
+    words = query.strip().split(" ")
+    return "&".join(words)
+
+
 def search(
     db: Session, *, query: str, limit: int = 20, offset: int = 0
 ) -> list[Question]:
+    query = _clean_query(query)
+
     return (
         db.query(Question)
         .options(
@@ -166,6 +173,8 @@ def search(
 
 
 def search_count(db: Session, *, query: str) -> int:
+    query = _clean_query(query)
+
     return (
         db.query(func.count(Question.id))
         .filter(
