@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{% block meta_description %}{% endblock %}" />
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename="bundle.js") }}" defer></script>
     <style>
@@ -12,7 +14,7 @@
     </style>
     {% block extra_head %}{% endblock %}
 
-    <title>{% block title %}Health QA{% endblock %}</title>
+    <title>{% block outer_title %}{% block title %}{% endblock %} - BackPainFree{% endblock %}</title>
   </head>
 
   <body class="{% block body_class %}bg-gray-100{% endblock %}">

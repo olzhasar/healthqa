@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 
+{% block title %}{{ question.title }}{% endblock %}
+{% block meta_description %}{{ question.content|striptags }}{% endblock %}
+
 {% set active_page = 'questions' %}
 
 {% block main_col %}

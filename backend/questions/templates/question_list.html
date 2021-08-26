@@ -4,7 +4,7 @@
 {% set active_page = 'questions' %}
 {% endif %}
 
-{% block title %}All questions | Health QA{% endblock %}
+{% block title %}{{ page_title|default('All questions') }}{% endblock %}
 
 {% block main_col %}
   <div class="flex justify-between mb-4 px-4 md:px-0">
