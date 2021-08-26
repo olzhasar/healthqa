@@ -7,7 +7,7 @@ services:
     env_file:
       - ./backend/.env
     expose:
-      - "8000"
+      - "5000"
     restart: always
     depends_on:
       - db
