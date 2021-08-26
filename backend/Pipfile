@@ -33,6 +33,8 @@ sqlalchemy2-stubs = "*"
 pytest-freezegun = "*"
 pytest-socket = "*"
 blinker = "*"
+types-freezegun = "*"
+types-redis = "*"
 
 [requires]
 python_version = "3.9"
