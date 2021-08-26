@@ -37,8 +37,8 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/app:latest
-          cache-from: type=registry,ref=${{ env.registry }}/${{ env.REPO_NAME }}/app:buildcache
-          cache-to: type=registry,ref=${{ env.registry }}/${{ env.REPO_NAME }}/app:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPO_NAME }}/app:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPO_NAME }}/app:buildcache,mode=max
 
       - name: Build and push nginx
         uses: docker/build-push-action@v2.7.0
@@ -46,8 +46,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx:latest
-          cache-from: type=registry,ref=${{ env.registry }}/${{ env.REPO_NAME }}/nginx:buildcache
-          cache-to: type=registry,ref=${{ env.registry }}/${{ env.REPO_NAME }}/nginx:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx:buildcache,mode=max
 
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.4
