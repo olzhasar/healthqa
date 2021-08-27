@@ -30,7 +30,7 @@ services:
       - web
 
   redis:
-    image: redis
+    image: redis:6
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis-data:/data
