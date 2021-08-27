@@ -53,7 +53,7 @@ class TagsWidget:
         for category in field.iter_categories():
             html.append('<div class="p-4 rounded border mb-4">')
             html.append(f'<p class="text-gray-500 font-bold mb-4">{category.name}</p>')
-            html.append('<div class="grid grid-cols-3 gap-2 text-sm">')
+            html.append('<div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">')
 
             for value, label, checked in category.iter_tags():
                 choice_id = f"{field_id}-{value}"
