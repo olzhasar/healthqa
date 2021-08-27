@@ -8,7 +8,7 @@
 
 {% block main_col %}
   <div class="flex justify-between mb-4 px-4 md:px-0">
-    <h1 class="w-full text-center md:text-left text-gray-500 text-2xl font-bold">
+    <h1 class="w-full text-center md:text-left text-gray-500 text-xl lg:text-2xl">
       {% block page_header %}
 	{{ page_title|default('All questions') }}
       {% endblock %}
@@ -17,15 +17,18 @@
       Ask question
     </a>
   </div>
-  {% for question in questions %}
-    {% include "_question_card.html" %}
-  {% else %}
-    {% block empty %}
-      <div class="w-full p-8 bg-white shadow rounded text-gray-700 text-lg text-center">
-	<p class="mb-2 text-gray-500">No questions here yet</p>
-      </div>
-    {% endblock %}
-  {% endfor %}
+
+  <div class="flex flex-col gap-2 md:gap-4">
+    {% for question in questions %}
+      {% include "_question_card.html" %}
+    {% else %}
+      {% block empty %}
+	<div class="w-full p-8 bg-white shadow rounded text-gray-700 text-lg text-center">
+	  <p class="text-gray-500">No questions here yet</p>
+	</div>
+      {% endblock %}
+    {% endfor %}
+  </div>
 
   {% include "_pagination.html" %}
 {% endblock %}
