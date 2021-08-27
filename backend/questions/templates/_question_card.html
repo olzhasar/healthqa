@@ -28,7 +28,7 @@
       </div>
 
       <div class="text-sm text-gray-500 py-2">
-	Asked 2 hours ago by <a href="{{ question.user.url }}" class="text-green-600 hover:text-green-500">{{ question.user.name }}</a>
+	Asked {{ question.created_at|time_ago }} by <a href="{{ question.user.url }}" class="text-green-600 hover:text-green-500">{{ question.user.name }}</a>
       </div>
 
     </div>

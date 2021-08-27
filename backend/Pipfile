@@ -19,6 +19,7 @@ itsdangerous = "*"
 gunicorn = "*"
 factory-boy = "*"
 python-slugify = "*"
+timeago = "*"
 
 [dev-packages]
 flake8 = "*"
