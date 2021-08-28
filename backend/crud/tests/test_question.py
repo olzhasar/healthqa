@@ -1,5 +1,6 @@
 import pytest
 from faker import Faker
+from redis import Redis
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 
@@ -85,9 +86,11 @@ def question_list(question_list_params):
     return questions
 
 
-def test_get_list(db: Session, question_list, question_list_params, max_num_queries):
+def test_get_list(
+    db: Session, redis_db: Redis, question_list, question_list_params, max_num_queries
+):
     with max_num_queries(1):
-        questions = crud.question.get_list(db)
+        questions = crud.question.get_list(db, redis_db)
 
     assert len(questions) == 4
 
@@ -104,8 +107,10 @@ def test_get_list(db: Session, question_list, question_list_params, max_num_quer
         (2, 2, ["second", "first"]),
     ],
 )
-def test_get_list_limit_offset(db: Session, question_list, limit, offset, order):
-    questions = crud.question.get_list(db, limit=limit, offset=offset)
+def test_get_list_limit_offset(
+    db: Session, redis_db: Redis, question_list, limit, offset, order
+):
+    questions = crud.question.get_list(db, redis_db, limit=limit, offset=offset)
 
     assert [q.title for q in questions] == order
 
@@ -258,3 +263,39 @@ def test_get_list_for_user(db: Session, user, other_user):
 
     assert set(crud.question.get_list_for_user(db, user_id=user.id)) == set(questions)
     assert crud.question.get_list_for_user(db, user_id=other_user.id) == []
+
+
+def test_register_view(redis_db: Redis):
+    assert redis_db.pfcount("question:1:views") == 0
+
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.1")
+    assert redis_db.pfcount("question:1:views") == 1
+
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.1")
+    assert redis_db.pfcount("question:1:views") == 1
+
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.2")
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.3")
+    assert redis_db.pfcount("question:1:views") == 3
+
+
+def test_get_view_count(redis_db: Redis):
+    assert crud.question.get_view_count(redis_db, question_id=1) == 0
+
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.1")
+    assert crud.question.get_view_count(redis_db, question_id=1) == 1
+
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.1")
+    assert crud.question.get_view_count(redis_db, question_id=1) == 1
+
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.2")
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.3")
+    assert crud.question.get_view_count(redis_db, question_id=1) == 3
+
+
+def test_get_view_count_list(redis_db: Redis):
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.1")
+    crud.question.register_view(redis_db, question_id=1, ip_address="192.168.1.2")
+    crud.question.register_view(redis_db, question_id=2, ip_address="192.168.1.1")
+
+    assert crud.question.get_view_count_list(redis_db, ids=[1, 2, 3]) == [2, 1, 0]

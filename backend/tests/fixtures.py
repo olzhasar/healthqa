@@ -6,12 +6,14 @@ from typing import Any, Generator
 import pytest
 from flask import Flask
 from flask import template_rendered as flask_template_rendered
+from redis import Redis
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from alembic.command import upgrade as alembic_upgrade
 from alembic.config import Config as AlembicConfig
+from app.config import settings
 from app.factory import create_app
 from app.login import login_manager
 from db.engine import engine
@@ -33,6 +35,17 @@ def _prepare_db():
     alembic_upgrade(alembic_cfg, "head")
 
     TestSession.configure(bind=engine)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _redis_db():
+    yield Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=15)
+
+
+@pytest.fixture
+def redis_db(_redis_db):
+    yield _redis_db
+    _redis_db.flushdb()
 
 
 @pytest.fixture

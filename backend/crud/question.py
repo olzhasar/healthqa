@@ -1,5 +1,6 @@
 from typing import Optional
 
+from redis import Redis
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_, or_
@@ -20,13 +21,15 @@ def get(db: Session, *, id: int) -> Question:
     )
 
 
-def get_with_related(db: Session, *, id: int, user_id: int = 0) -> Question:
+def get_with_related(
+    db: Session, redis_db: Redis, *, id: int, user_id: int = 0
+) -> Question:
     # TODO: load tags with question via join
 
     CommentUser = aliased(User)
     CommentVote = aliased(Vote)
 
-    return (
+    return with_count(
         db.query(Question)
         .join(User, Question.user_id == User.id)
         .outerjoin(
@@ -58,8 +61,28 @@ def get_with_related(db: Session, *, id: int, user_id: int = 0) -> Question:
     )
 
 
+def with_count(redis_db, question) -> list[Question]:
+    question.view_count = get_view_count(redis_db, question_id=question.id)
+
+    return question
+
+
+def with_counts(redis_db, questions: list[Question]) -> list[Question]:
+    ids = [q.id for q in questions]
+    counts = get_view_count_list(redis_db, ids=ids)
+
+    for i, question in enumerate(questions):
+        question.view_count = counts[i]
+
+    return questions
+
+
 def get_list(
-    db: Session, *, tag: Optional[Tag] = None, limit: int = 20, offset: int = 0
+    db: Session,
+    *,
+    tag: Optional[Tag] = None,
+    limit: int = 20,
+    offset: int = 0,
 ) -> list[Question]:
 
     filter_params = [Question.deleted_at.is_(None)]
@@ -82,8 +105,10 @@ def get_list(
     )
 
 
-def get_popular_list(db: Session, *, limit: int = 20, offset: int = 0) -> list[Question]:
-    return (
+def get_popular_list(
+    db: Session, redis_db: Redis, *, limit: int = 20, offset: int = 0
+) -> list[Question]:
+    return with_counts(
         db.query(Question)
         .options(
             joinedload(Question.user),
@@ -196,3 +221,18 @@ def get_list_for_user(
         .offset(offset)
         .all()
     )
+
+
+def register_view(redis_db: Redis, *, question_id: int, ip_address: str):
+    redis_db.pfadd(f"question:{question_id}:views", ip_address)
+
+
+def get_view_count(redis_db: Redis, *, question_id) -> int:
+    return redis_db.pfcount(f"question:{question_id}:views")
+
+
+def get_view_count_list(redis_db: Redis, *, ids: list[int]) -> list[int]:
+    pipe = redis_db.pipeline()
+    for question_id in ids:
+        pipe.pfcount(f"question:{question_id}:views")
+    return pipe.execute()
