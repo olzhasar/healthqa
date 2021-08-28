@@ -24,7 +24,10 @@ class Settings(BaseSettings):
 
     PAGINATION: int = 20
 
-    REDIS_URL: str = "redis://127.0.0.1:6379"
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_RQ_DB: int = 0
+    REDIS_MAIN_DB: int = 1
 
     EMAIL_HOST: str = "smtp.yandex.com"
     EMAIL_PORT: int = 465

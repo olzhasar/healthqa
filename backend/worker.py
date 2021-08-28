@@ -5,7 +5,7 @@ from app.config import settings
 
 listen = ["default"]
 
-conn = Redis.from_url(settings.REDIS_URL)
+conn = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_RQ_DB)
 queue = Queue(connection=conn)
 
 
