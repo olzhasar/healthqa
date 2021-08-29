@@ -18,7 +18,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from db.base import Base  # noqa: E402
-from db.dsn import POSTGRES_DSN  # noqa: E402
+from db.dsn import get_dsn  # noqa: E402
 from models import *  # noqa
 
 target_metadata = Base.metadata
@@ -42,7 +42,7 @@ def run_migrations_offline():
 
     """
     context.configure(
-        url=POSTGRES_DSN,
+        url=get_dsn(),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -60,7 +60,7 @@ def run_migrations_online():
 
     """
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = POSTGRES_DSN
+    configuration["sqlalchemy.url"] = get_dsn()
 
     connectable = engine_from_config(
         configuration,

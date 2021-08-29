@@ -1,7 +1,10 @@
-from app.main import app
-from db.dsn import POSTGRES_DSN
+from db.dsn import get_dsn
 
 
-def test_config():
+def test_config(app):
     assert app.config["TESTING"] is True
-    assert POSTGRES_DSN.endswith("_test")
+    assert app.config["SECRET_KEY"] == "test_secret_key"
+    assert app.config["BCRYPT_ROUNDS"] == 6
+
+    DSN = get_dsn()
+    assert DSN.endswith("_test")

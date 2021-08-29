@@ -4,7 +4,7 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    TESTING = False
+    TESTING: bool = False
 
     SECRET_KEY: str
 
