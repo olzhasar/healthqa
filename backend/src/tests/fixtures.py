@@ -156,6 +156,11 @@ def captured_templates(app):
 @pytest.fixture
 def template_rendered(captured_templates):
     def _template_rendered(template_name: str):
+        if template_name not in captured_templates:
+            logger.error("Captured templates:\n")
+            for template in captured_templates:
+                logger.error(f"{template}\n")
+            raise AssertionError(f"Template {template_name} not rendered")
         return template_name in captured_templates
 
     return _template_rendered
