@@ -47,7 +47,7 @@ jobs:
       - name: Run pytest
         working-directory: ./backend/src
         run: |
-          SECRET_KEY=dummy pipenv run pytest -x
+          pipenv run pytest -x
 
   build-and-deploy:
     runs-on: ubuntu-latest
