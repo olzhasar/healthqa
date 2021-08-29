@@ -1,6 +1,8 @@
-/static
-*.pyc
-.pytest_cache
-tags
-Session.vim
-test_*.py
+**/*.pyc
+**/__pycache__
+**/tags
+**/Session.vim
+**/.mypy_cache
+**/.pytest_cache
+
+/src/tests
