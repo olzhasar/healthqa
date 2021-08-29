@@ -25,7 +25,7 @@
     <div class="w-full md:w-2/3 mt-4 md:mt-0 md:ml-4">
       {% if tab == 'questions' %}
 	{% for question in questions %}
-	  {% include "_question_card_profile.html" %}
+	  {% include "users/_question_card_profile.html" %}
 	{% else %}
 	  <div class="p-6 text-gray-600">
 	    User did not ask any question yet
@@ -33,7 +33,7 @@
 	{% endfor %}
       {% elif tab == 'answers' %}
 	{% for answer in answers %}
-	  {% include "_answer_card_profile.html" %}
+	  {% include "users/_answer_card_profile.html" %}
 	{% else %}
 	  <div class="p-6 text-gray-600">
 	    User did not answer any question yet
