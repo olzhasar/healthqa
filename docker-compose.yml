@@ -9,8 +9,8 @@ services:
       - REDIS_HOST=redis
     env_file:
       - ./backend/.env
-    expose:
-      - "5000"
+    volumes:
+      - gunicorn-socket:/run/gunicorn
     restart: always
     depends_on:
       - db
@@ -34,6 +34,8 @@ services:
     restart: always
     depends_on:
       - web
+    volumes:
+      - gunicorn-socket:/run/gunicorn
 
   redis:
     image: redis:6
@@ -57,3 +59,4 @@ services:
 volumes:
   redis-data:
   pg-data:
+  gunicorn-socket:
