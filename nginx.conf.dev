@@ -1,8 +1,12 @@
+upstream backend {
+    server http://web:5000 fail_timeout=0;
+}
+
 server {
     listen 80;
 
     location / {
-        proxy_pass http://web:5000;
+        proxy_pass http://backend;
 
         proxy_redirect off;
 
