@@ -37,16 +37,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv install --dev
+          pipenv shell
 
       - name: Lint with flake8
-        working-directory: ./backend
+        working-directory: ./backend/src
         run: |
-          pipenv run flake8 . --count
+          flake8 . --count
 
       - name: Run pytest
-        working-directory: ./backend
+        working-directory: ./backend/src
         run: |
-          pipenv run pytest -x
+          pytest -x
 
   build-and-deploy:
     runs-on: ubuntu-latest
