@@ -31,6 +31,12 @@ jobs:
         with:
           python-version: '3.9'
 
+      - id: cache-pipenv
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/share/virtualenvs
+          key: pipenv-${{ hashFiles('./backend/Pipfile.lock') }}
+
       - name: Install dependencies
         working-directory: ./backend
         run: |
