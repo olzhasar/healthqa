@@ -3,7 +3,10 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
   purge: {
-    content: ["../backend/**/templates/**/*.html", "../backend/**/forms.py"],
+    content: [
+      "../backend/src/**/templates/**/*.html",
+      "../backend/src/**/forms.py",
+    ],
     options: {
       safelist: ["/trix-*/"],
     },

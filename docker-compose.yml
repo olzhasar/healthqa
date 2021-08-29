@@ -4,6 +4,9 @@ services:
   web:
     working_dir: /app
     entrypoint: /docker-entrypoint.sh
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
     env_file:
       - ./backend/.env
     expose:
@@ -17,6 +20,9 @@ services:
     working_dir: /app
     command: >
       sh -c "pipenv run python worker.py"
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis
     env_file:
       - ./backend/.env
     restart: always
