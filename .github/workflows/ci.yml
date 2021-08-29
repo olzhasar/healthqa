@@ -103,4 +103,4 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_KEY }}
           script: |
-            /bin/sh /srv/healthqa/deploy.sh
+            /bin/sh /srv/healthqa/deploy.sh ${{ env.REGISTRY }} ${{ github.actor }} ${{ secrets.GITHUB_TOKEN }}
