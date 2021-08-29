@@ -18,8 +18,8 @@ python-dotenv = "*"
 rq = "*"
 itsdangerous = "*"
 gunicorn = "*"
-python-slugify = "*"
 timeago = "*"
+python-slugify = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -36,6 +36,7 @@ pytest-socket = "*"
 blinker = "*"
 types-freezegun = "*"
 types-redis = "*"
+types-python-slugify = "*"
 
 [requires]
 python_version = "3.9"
