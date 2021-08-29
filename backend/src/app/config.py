@@ -40,7 +40,8 @@ class Settings(BaseSettings):
     BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
     TEMPLATES_DIR = BASE_DIR.joinpath("templates")
     EMAIL_TEMPLATES_DIR = BASE_DIR.joinpath("email_templates")
-    STATIC_DIR = BASE_DIR.joinpath("static")
+    FRONTEND_DIR = BASE_DIR.parent.parent.joinpath("frontend")
+    STATIC_DIR = FRONTEND_DIR.joinpath("dist")
 
     class Config:
         env_file = ".env"

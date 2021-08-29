@@ -134,6 +134,17 @@ class TestByTag:
         assert response.status_code == 404
 
 
+class TestSearch:
+    url = "/questions/search?q={query}"
+
+    def test_ok(self, client, question, max_num_queries, template_rendered):
+        with max_num_queries(3):
+            response = client.get(self.url.format(query="something"))
+
+        assert response.status_code == 200
+        assert template_rendered("questions/search_results.html")
+
+
 class TestDetails:
     url = "/questions/{id}"
 

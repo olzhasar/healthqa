@@ -18,6 +18,7 @@ def create_app() -> Flask:
         static_folder=settings.STATIC_DIR,
         static_url_path="/static",
     )
+
     app.config.from_object(settings)
 
     app.register_blueprint(home_bp)
