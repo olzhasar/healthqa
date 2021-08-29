@@ -9,6 +9,47 @@ env:
   REPO_NAME: ${{ github.repository }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: healthqa
+          POSTGRES_PASSWORD: healthqa
+          POSTGRES_DB: healthqa
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Cache pipenv
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/share/virtualenvs
+          key: pipenv-${{ hashFiles('./backend/Pipfile.lock') }}
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pipenv
+          pipenv install --dev
+          export PIPENV_PIPFILE=/Pipfile
+
+      - name: Run pytest
+        working-directory: ./backend/src
+        run: |
+          pipenv run pytest
+
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
