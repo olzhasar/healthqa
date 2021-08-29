@@ -13,7 +13,7 @@
     "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
-    "build-tailwind:dev": "yarn run postcss ./src/styles.css -o ./../backend/static/styles.css",
+    "build-tailwind:dev": "yarn run postcss ./src/styles.css -o ./dist/styles.css",
     "build-tailwind:prod": "NODE_ENV=production yarn run postcss ./src/styles.css -o ./dist/styles.css",
     "build-tailwind": "NODE_ENV=production yarn run postcss ./src/styles.css -o ./dist/styles.css",
     "watch": "webpack --watch"

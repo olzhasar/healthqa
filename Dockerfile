@@ -7,7 +7,7 @@ RUN yarn
 
 COPY ./frontend/src /frontend/src
 COPY ./frontend/*.js /frontend/
-COPY ./backend /backend
+COPY ./backend/src /backend/src
 
 RUN yarn run build:prod
 RUN yarn run build-tailwind:prod

@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% if not active_page %}
+{% set active_page = 'questions' %}
+{% endif %}
+
+{% block title %}{{ page_title|default('All questions') }}{% endblock %}
+
+{% block main_col %}
+  <div class="flex justify-between mb-4 px-4 md:px-0">
+    <h1 class="w-full text-center md:text-left text-gray-500 text-xl lg:text-2xl">
+      {% block page_header %}
+	{{ page_title|default('All questions') }}
+      {% endblock %}
+    </h1>
+    <a href="{{ url_for('questions.ask') }}" class="hidden md:inline-block whitespace-nowrap bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-2 px-4 rounded shadow">
+      Ask question
+    </a>
+  </div>
+
+  <div class="flex flex-col gap-2 md:gap-4">
+    {% for question in questions %}
+      {% include "questions/_question_card.html" %}
+    {% else %}
+      {% block empty %}
+	<div class="w-full p-8 bg-white shadow rounded text-gray-700 text-lg text-center">
+	  <p class="text-gray-500">No questions here yet</p>
+	</div>
+      {% endblock %}
+    {% endfor %}
+  </div>
+
+  {% include "partials/pagination.html" %}
+{% endblock %}

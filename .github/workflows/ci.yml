@@ -31,20 +31,27 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Cache pipenv
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/share/virtualenvs
+          key: pipenv-${{ hashFiles('./backend/Pipfile.lock') }}
+
       - name: Install dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv install --dev
+          export PIPENV_PIPFILE=/Pipfile
 
       - name: Lint with flake8
-        working-directory: ./backend
+        working-directory: ./backend/src
         run: |
           pipenv run flake8 . --count
 
       - name: Run pytest
-        working-directory: ./backend
+        working-directory: ./backend/src
         run: |
           pipenv run pytest -x
 
@@ -98,6 +105,4 @@ jobs:
           script: |
             cd /srv/healthqa
             git pull
-            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            /bin/sh deploy.sh ${{ env.REGISTRY }} ${{ github.actor }} ${{ secrets.GITHUB_TOKEN }}

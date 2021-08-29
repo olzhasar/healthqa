@@ -1,12 +1,23 @@
-upstream gunicorn {
-    server web:8000;
+upstream backend {
+    server unix:/run/gunicorn/socket fail_timeout=0;
 }
 
 server {
     listen 80;
 
+    gzip on;
+    gzip_types
+      text/plain
+      text/html
+      text/css
+      text/js
+      text/xml
+      text/javascript
+      application/javascript
+      application/x-javascript;
+
     location / {
-        proxy_pass http://gunicorn;
+        proxy_pass http://backend;
 
         proxy_redirect off;
 

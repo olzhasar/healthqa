@@ -1,0 +1,41 @@
+<div id="answer_{{ answer.id }}" class="bg-white border border-gray-200 md:shadow p-4 md:p-12 md:rounded">
+  <div class="flex">
+    {% with entry=answer %} {% include "questions/_vote_large.html" %} {% endwith %}
+
+    <div class="w-full text-gray-800">
+      <div class="rich">
+	{{ answer.content|safe }} 
+      </div>
+      {% if current_user == answer.user %}
+	<div class="mt-4">
+	  <a href="{{ url_for('questions.edit_answer', id=answer.id) }}" class="text-green-600 hover:text-green-500">Edit</a>
+	</div>
+      {% endif %}
+
+      <div class="flex justify-between mt-8">
+	<div></div>
+	<div>
+	  <span class="block text-gray-400">
+	    Answered {{ answer.created_at.strftime('%Y-%m-%d at %H:%M') }}
+	  </span>
+	  <span class="block">
+	    <a href="{{ answer.user.url }}" class="text-green-600 hover:text-green-500 mr-2">
+	      {{ answer.user.name }}
+	    </a>
+	    <span class="font-bold text-gray-600">{{ answer.user.score }}</span>
+	  </span>
+	</div>
+      </div>
+
+      <div class="mt-8 text-sm">
+	{% for comment in answer.comments %}
+	  {% include "questions/_comment.html" %}
+	{% endfor %}
+	{% with url=url_for("questions.comment", id=answer.id) %} 
+	  {% include "questions/_comment_form.html" %}
+	{% endwith %}
+      </div>
+
+    </div>
+  </div>
+</div>
