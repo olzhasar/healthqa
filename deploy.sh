@@ -5,5 +5,5 @@ DOCKER="/usr/bin/docker"
 
 $DOCKER login $1 -u $2 -p $3
 $COMPOSE pull
-$COMPOSE up -d app worker
-$COMPOSE up -d --force-recreate nginx
+$COMPOSE up -d --attach-dependencies web worker
+$COMPOSE up -d --force-recreate --no-deps nginx
