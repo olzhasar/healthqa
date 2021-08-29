@@ -5,6 +5,17 @@ upstream backend {
 server {
     listen 80;
 
+    gzip on;
+    gzip_types
+      text/plain
+      text/html
+      text/css
+      text/js
+      text/xml
+      text/javascript
+      application/javascript
+      application/x-javascript;
+
     location / {
         proxy_pass http://backend;
 
