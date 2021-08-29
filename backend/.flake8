@@ -3,4 +3,4 @@ max-line-length = 89
 ban-relative-imports = true
 exclude =
     .git,
-    alembic/versions,
+    src/alembic/versions,
