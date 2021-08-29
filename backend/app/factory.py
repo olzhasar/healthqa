@@ -2,7 +2,7 @@ from flask import Flask, g, render_template
 from flask_wtf import CSRFProtect
 
 from account.views import bp as account_bp
-from app import commands, context_processors, filters
+from app import context_processors, filters
 from app.config import settings
 from app.login import login_manager
 from auth.views import bp as auth_bp
@@ -43,7 +43,6 @@ def create_app() -> Flask:
         return render_template("500.html"), 500
 
     login_manager.init_app(app)
-    commands.init_app(app)
     context_processors.init_app(app)
     filters.init_app(app)
 

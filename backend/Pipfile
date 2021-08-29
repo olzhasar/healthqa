@@ -17,7 +17,6 @@ python-dotenv = "*"
 rq = "*"
 itsdangerous = "*"
 gunicorn = "*"
-factory-boy = "*"
 python-slugify = "*"
 timeago = "*"
 
