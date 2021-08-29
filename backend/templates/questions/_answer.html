@@ -1,6 +1,6 @@
 <div id="answer_{{ answer.id }}" class="bg-white border border-gray-200 md:shadow p-4 md:p-12 md:rounded">
   <div class="flex">
-    {% with entry=answer %} {% include "_vote_large.html" %} {% endwith %}
+    {% with entry=answer %} {% include "questions/_vote_large.html" %} {% endwith %}
 
     <div class="w-full text-gray-800">
       <div class="rich">
@@ -29,10 +29,10 @@
 
       <div class="mt-8 text-sm">
 	{% for comment in answer.comments %}
-	  {% include "_comment.html" %}
+	  {% include "questions/_comment.html" %}
 	{% endfor %}
 	{% with url=url_for("questions.comment", id=answer.id) %} 
-	  {% include "_comment_form.html" %}
+	  {% include "questions/_comment_form.html" %}
 	{% endwith %}
       </div>
 

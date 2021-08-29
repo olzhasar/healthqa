@@ -22,7 +22,7 @@ def edit_info():
         crud.user.update(db, user_id=current_user.id, name=form.name.data)
         flash("Account information has been updated")
 
-    return render_template("edit_info.html", form=form)
+    return render_template("account/edit_info.html", form=form)
 
 
 @bp.route("/change_password", methods=["GET", "POST"])
@@ -40,4 +40,4 @@ def change_password():
 
         form.current_password.errors.append("Invalid old password")
 
-    return render_template("change_password.html", form=form)
+    return render_template("account/change_password.html", form=form)

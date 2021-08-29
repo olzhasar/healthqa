@@ -8,7 +8,7 @@ from common.pagination import Paginator
 from db.database import db
 from questions import forms
 
-bp = Blueprint("questions", __name__, template_folder="templates")
+bp = Blueprint("questions", __name__)
 
 
 @bp.route("/questions/ask", methods=["GET", "POST"])
@@ -27,7 +27,7 @@ def ask():
         )
         return redirect(question.url)
 
-    return render_template("ask_question.html", form=form)
+    return render_template("questions/ask_question.html", form=form)
 
 
 @bp.route("/questions/")
@@ -44,7 +44,7 @@ def all():
     )
 
     return render_template(
-        "question_list.html",
+        "questions/list.html",
         questions=questions,
         paginator=paginator,
     )
@@ -52,7 +52,7 @@ def all():
 
 @bp.route("/tags/")
 def tags():
-    return render_template("tag_list.html")
+    return render_template("questions/tag_list.html")
 
 
 @bp.route("/tags/<string:slug>/")
@@ -74,7 +74,7 @@ def by_tag(slug: str):
     )
 
     return render_template(
-        "question_list.html",
+        "questions/list.html",
         page_title=f'Results for "{tag.name}"',
         questions=questions,
         paginator=paginator,
@@ -97,7 +97,7 @@ def search():
     )
 
     return render_template(
-        "search_results.html",
+        "questions/search_results.html",
         questions=questions,
         query=query,
         paginator=paginator,
@@ -124,7 +124,7 @@ def details(id: int):
     comment_form = forms.CommentForm()
 
     return render_template(
-        "details.html",
+        "questions/details.html",
         question=question,
         answers=answers,
         answer_form=answer_form,
@@ -156,7 +156,7 @@ def edit_question(id: int):
         )
         return redirect(question.url)
 
-    return render_template("question_edit.html", form=form)
+    return render_template("questions/question_edit.html", form=form)
 
 
 @bp.route("/questions/<int:id>/answer", methods=["POST"])
@@ -177,12 +177,14 @@ def answer(id: int):
         else:
             comment_form = forms.CommentForm()
             return render_template(
-                "_answer.html",
+                "questions/_answer.html",
                 answer=answer,
                 comment_form=comment_form,
             )
 
-    return render_template("_answer_form.html", answer_form=form, url=request.url)
+    return render_template(
+        "questions/_answer_form.html", answer_form=form, url=request.url
+    )
 
 
 @bp.route("/answers/<int:id>/edit", methods=["GET", "POST"])
@@ -201,7 +203,7 @@ def edit_answer(id: int):
         crud.answer.update(db, answer=answer, new_content=form.content.data)
         return redirect(answer.url)
 
-    return render_template("answer_edit.html", form=form)
+    return render_template("questions/answer_edit.html", form=form)
 
 
 @bp.route("/entries/<int:id>/comment", methods=["POST"])
@@ -221,10 +223,10 @@ def comment(id: int):
             db.rollback()
             return jsonify({"error": "invalid entry_id"}), 400
         else:
-            return render_template("_comment.html", comment=comment)
+            return render_template("questions/_comment.html", comment=comment)
 
     return render_template(
-        "_comment_form.html",
+        "questions/_comment_form.html",
         comment_form=form,
         url=request.url,
     )
@@ -241,9 +243,9 @@ def edit_comment(id: int):
     form = forms.CommentForm(obj=comment)
     if form.validate_on_submit():
         crud.comment.update(db, instance=comment, content=form.content.data)
-        return render_template("_comment.html", comment=comment)
+        return render_template("questions/_comment.html", comment=comment)
 
-    return render_template("_comment_edit.html", form=form, comment=comment)
+    return render_template("questions/_comment_edit.html", form=form, comment=comment)
 
 
 @bp.route("/entries/<int:id>/vote/<int:value>", methods=["POST"])
@@ -264,9 +266,9 @@ def vote(id: int, value: int):
 
     entry = crud.entry.get_with_user_vote(db, id=id, user_id=current_user.id)
     if entry.type == 3:
-        template_name = "_vote_comment.html"
+        template_name = "questions/_vote_comment.html"
     else:
-        template_name = "_vote_large.html"
+        template_name = "questions/_vote_large.html"
 
     return render_template(template_name, entry=entry)
 

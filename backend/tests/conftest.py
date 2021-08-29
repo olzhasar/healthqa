@@ -2,10 +2,10 @@ import pytest
 
 from app.config import settings
 from db import database
-from tests.common import TestSession
+from tests.session import TestSession
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(autouse=True)
 def set_variables(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(settings, "SECRET_KEY", "test_secret_key")
     monkeypatch.setattr(settings, "TESTING", True)

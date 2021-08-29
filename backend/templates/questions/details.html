@@ -21,7 +21,7 @@
       </div>
       <div class="flex">
 	{% with entry=question %}
-	  {% include "_vote_large.html" %}
+	  {% include "questions/_vote_large.html" %}
 	{% endwith %}
 
 	<div class="w-full">
@@ -51,11 +51,11 @@
 
 	  <div id="question_comments" class="mt-8 text-sm text-gray-800">
 	    {% for comment in question.comments %}
-	      {% include "_comment.html" %}
+	      {% include "questions/_comment.html" %}
 	    {% endfor %}
 
 	    {% with url=url_for('questions.comment', id=question.id) %}
-	      {% include "_comment_form.html" %}
+	      {% include "questions/_comment_form.html" %}
 	    {% endwith %}
 	  </div>
 
@@ -64,12 +64,12 @@
     </div>
 
     {% for answer in answers %}
-      {% include "_answer.html" %}
+      {% include "questions/_answer.html" %}
     {% endfor %}
 
     {% if current_user.is_authenticated %}
       {% with url=url_for('questions.answer', id=question.id) %}
-	{% include "_answer_form.html" %}
+	{% include "questions/_answer_form.html" %}
       {% endwith %}
     {% endif %}
   </div>

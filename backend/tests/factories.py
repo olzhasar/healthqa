@@ -3,7 +3,7 @@ import factory.fuzzy
 
 from models import Answer, Comment, Question, Tag, TagCategory, User, Vote
 from models.view import View
-from tests.common import TestSession
+from tests.session import TestSession
 
 
 class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):

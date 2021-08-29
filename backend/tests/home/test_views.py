@@ -25,7 +25,7 @@ class TestIndex:
             response = client.get(self.url)
 
         assert response.status_code == 200
-        assert template_rendered("index.html")
+        assert template_rendered("home/index.html")
 
 
 class TestAbout:
@@ -35,4 +35,4 @@ class TestAbout:
         response = client.get(self.url)
 
         assert response.status_code == 200
-        assert template_rendered("about.html")
+        assert template_rendered("home/about.html")

@@ -10,8 +10,8 @@
 
   <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
     {% for user in users %}
-      {% include "_user_card.html" %}
+      {% include "users/_user_card.html" %}
     {% endfor %}
   </div>
-  {% include "_pagination.html" %}
+  {% include "partials/pagination.html" %}
 {% endblock %}

@@ -20,7 +20,7 @@
 
   <div class="flex flex-col gap-2 md:gap-4">
     {% for question in questions %}
-      {% include "_question_card.html" %}
+      {% include "questions/_question_card.html" %}
     {% else %}
       {% block empty %}
 	<div class="w-full p-8 bg-white shadow rounded text-gray-700 text-lg text-center">
@@ -30,5 +30,5 @@
     {% endfor %}
   </div>
 
-  {% include "_pagination.html" %}
+  {% include "partials/pagination.html" %}
 {% endblock %}

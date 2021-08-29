@@ -17,7 +17,7 @@ from app.config import settings
 from app.factory import create_app
 from app.login import login_manager
 from db.engine import engine
-from tests.common import TestSession
+from tests.session import TestSession
 
 logger = logging.Logger(__name__)
 
