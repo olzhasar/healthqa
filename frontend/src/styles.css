@@ -9,6 +9,18 @@
   display: none;
 }
 
+.trix,
+.rich {
+  line-height: 2em;
+}
+
+.trix br,
+.rich br {
+  display: block;
+  content: "";
+  margin: 0.75em 0;
+}
+
 .trix a,
 .rich a {
   color: #0d9488;
