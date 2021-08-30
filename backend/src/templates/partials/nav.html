@@ -55,10 +55,10 @@
 	  </li>
 	{% else %}
 	  <li class="mr-3 py-2 lg:py-0">
-	    <a class="inline-block text-green-800 whitespace-nowrap bg-white hover:underline py-2 px-4 rounded" href="{{ url_for('auth.login') }}">Log in</a>
+	    <a class="inline-block text-green-700 border border-green-500 hover:bg-green-100 whitespace-nowrap py-2 px-4 rounded" href="{{ url_for('auth.login') }}">Log in</a>
 	  </li>
 	  <li class="mr-3 py-2 lg:py-0">
-	    <a class="inline-block text-white whitespace-nowrap bg-green-600 hover:bg-green-500 py-2 px-4 rounded" href="{{ url_for('auth.signup') }}">Sign Up</a>
+	    <a class="inline-block text-white border border-green-500 bg-green-600 hover:border-green-500 hover:bg-green-500 whitespace-nowrap py-2 px-4 rounded" href="{{ url_for('auth.signup') }}">Sign Up</a>
 	  </li>
 	{% endif %}
       </ul>
