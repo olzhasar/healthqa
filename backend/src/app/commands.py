@@ -13,6 +13,7 @@ from db.database import db
 @with_appcontext
 def create_user(email: str, name: str, password: str):
     user = crud.user.create_user(db, email=email, name=name, password=password)
+    crud.user.mark_email_verified(db, user)
     click.echo(f"Created user with id {user.id}")
 
 
