@@ -11,6 +11,7 @@ services:
       - ./backend/.env
     volumes:
       - gunicorn-socket:/run/gunicorn
+      - ./backend/src/server/gunicorn.conf.py:/app/server/gunicorn.conf.py
     restart: always
     depends_on:
       - db
