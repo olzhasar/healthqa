@@ -50,7 +50,7 @@ jobs:
         run: |
           pipenv run pytest
 
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -89,6 +89,12 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx:latest
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.REPO_NAME }}/nginx:buildcache,mode=max
+
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
 
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.4
