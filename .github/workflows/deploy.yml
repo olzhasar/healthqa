@@ -96,6 +96,7 @@ jobs:
       contents: read
       packages: read
 
+    steps:
       - name: Deploy
         uses: appleboy/ssh-action@v0.1.4
         with:
