@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import deferred, query_expression
 from sqlalchemy.sql.sqltypes import Boolean, DateTime
 
-from db.base import Base
+from models.base import Base
 
 
 class User(Base):

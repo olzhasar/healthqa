@@ -30,10 +30,10 @@ def create_app() -> Flask:
     CSRFProtect(app)
 
     @app.teardown_appcontext
-    def close_db_connection(exception):
-        db = getattr(g, "_database", None)
-        if db is not None:
-            db.close()
+    def teardown(exception):
+        store = getattr(g, "_store", None)
+        if store is not None:
+            store.teardown()
 
     @app.errorhandler(404)
     def error_404(e):

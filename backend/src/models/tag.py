@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, String
 
-from db.base import Base
+from models.base import Base
 
 
 class TagCategory(Base):

@@ -7,7 +7,7 @@ from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import DateTime, Integer, String, Text
 
-from db.base import Base
+from models.base import Base
 from models.entry import Entry
 from models.tag import Tag
 

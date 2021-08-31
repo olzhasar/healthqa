@@ -17,9 +17,8 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from db.base import Base  # noqa: E402
-from db.dsn import get_dsn  # noqa: E402
-from models import *  # noqa
+from models import Base  # noqa: E402  isort:skip
+from storage.db import get_dsn  # noqa: E402  isort:skip
 
 target_metadata = Base.metadata
 
