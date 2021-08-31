@@ -8,13 +8,14 @@ from flask import template_rendered as flask_template_rendered
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
+from storage.base import Store
 from tests.session import TestSession
 
 logger = logging.Logger(__name__)
 
 
 @pytest.fixture
-def db(_prepare_db) -> Generator:
+def db() -> Generator:
     with TestSession() as session:
         session.begin_nested()
         yield session
@@ -24,11 +25,14 @@ def db(_prepare_db) -> Generator:
 
 
 @pytest.fixture
-def redis_db():
-    from db.redis import redis_db
+def store(db):
+    _store = Store(db=db)
 
-    yield redis_db
-    redis_db.flushdb()
+    yield _store
+
+    if _store._redis is not None:
+        _store._redis.flushdb()
+    _store.teardown()
 
 
 @pytest.fixture

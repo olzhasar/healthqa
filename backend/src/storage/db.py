@@ -1,10 +1,15 @@
-from typing import cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, cast
 
 from pydantic import PostgresDsn
 from sqlalchemy import create_engine as sqlalchemy_create_engine
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
 
 from app.config import settings
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine.base import Engine
 
 
 def get_dsn() -> str:
@@ -18,7 +23,7 @@ def get_dsn() -> str:
     )
 
 
-def create_engine():
+def create_engine() -> Engine:
     return sqlalchemy_create_engine(get_dsn(), pool_pre_ping=True)
 
 

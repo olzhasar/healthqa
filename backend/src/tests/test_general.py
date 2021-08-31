@@ -1,7 +1,6 @@
 from flask import g
 
-from db.database import db
-from db.redis import redis_db
+from storage import store
 from tests.session import TestSession
 
 
@@ -12,10 +11,6 @@ def test_config(app):
 
 
 def test_database_patched(with_app_context):
-    db.query()
-    assert g._database == TestSession
-    assert db.bind.url.database.endswith("_test")
-
-
-def test_redis_patched(with_app_context):
-    assert redis_db.connection_pool.connection_kwargs["db"] == 15
+    store.db.query()
+    assert g._store.db == TestSession
+    assert g._store.db.bind.url.database.endswith("_test")
