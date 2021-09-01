@@ -25,13 +25,18 @@ def db() -> Generator:
 
 
 @pytest.fixture
-def store(db):
-    _store = Store(db=db)
+def redis_db() -> Generator:
+    from storage.redis import create_redis
 
+    redis = create_redis()
+    yield redis
+    redis.flushdb()
+
+
+@pytest.fixture
+def store(db, redis_db):
+    _store = Store(db=db, redis=redis_db)
     yield _store
-
-    if _store._redis is not None:
-        _store._redis.flushdb()
     _store.teardown()
 
 

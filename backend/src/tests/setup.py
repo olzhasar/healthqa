@@ -36,3 +36,75 @@ def _patch_create_session(_prepare_db):
         mp.setattr("storage.base.create_session", lambda: TestSession)
 
         yield
+
+
+class StoreBlocker:
+    def __init__(self):
+        self._real_db = self._store_wrapper.db
+        self._real_redis = self._store_wrapper.redis
+
+    @property
+    def _store_wrapper(self):
+        from storage.base import Store
+
+        return Store
+
+    def forbid_db(self, store):
+        raise RuntimeError("Database access is not allowed")
+
+    def forbid_redis(self, store):
+        raise RuntimeError("Redis access is not allowed")
+
+    def block_db(self):
+        self._store_wrapper.db = property(self.forbid_db)
+
+    def block_redis(self):
+        self._store_wrapper.redis = property(self.forbid_redis)
+
+    def unblock_db(self):
+        self._store_wrapper.db = self._real_db
+
+    def unblock_redis(self):
+        self._store_wrapper.redis = self._real_redis
+
+
+@pytest.fixture(scope="session")
+def _store_blocker():
+    return StoreBlocker()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _block_db(_store_blocker):
+    _store_blocker.block_db()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _block_redis(_store_blocker):
+    _store_blocker.block_redis()
+
+
+@pytest.fixture()
+def _unblock_db(_store_blocker):
+    _store_blocker.unblock_db()
+    yield
+    _store_blocker.block_db()
+
+
+@pytest.fixture()
+def _unblock_redis(_store_blocker):
+    _store_blocker.unblock_redis()
+    yield
+    _store_blocker.block_redis()
+
+
+@pytest.fixture(autouse=True)
+def _allow_markers(request):
+    markers = {
+        "allow_db": "_unblock_db",
+        "allow_redis": "_unblock_redis",
+    }
+
+    for marker_name, fixture_name in markers.items():
+        marker = request.node.get_closest_marker(marker_name)
+        if marker:
+            request.getfixturevalue(fixture_name)

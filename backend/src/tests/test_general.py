@@ -1,3 +1,4 @@
+import pytest
 from flask import g
 
 from storage import store
@@ -10,6 +11,7 @@ def test_config(app):
     assert app.config["BCRYPT_ROUNDS"] == 6
 
 
+@pytest.mark.allow_db
 def test_database_patched(with_app_context):
     store.db.query()
     assert g._store.db == TestSession
