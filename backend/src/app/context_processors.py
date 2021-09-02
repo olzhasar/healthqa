@@ -1,7 +1,7 @@
 from flask import Flask
 
 import crud
-from db.database import db
+from storage import store
 
 
 class TagCategoriesLazy:
@@ -10,7 +10,7 @@ class TagCategoriesLazy:
 
     def __iter__(self):
         if not self._tag_categories:
-            self._tag_categories = crud.tag.get_categories_list(db)
+            self._tag_categories = crud.tag.get_categories_list(store.db)
 
         for category in self._tag_categories:
             yield category

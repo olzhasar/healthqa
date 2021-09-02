@@ -3,7 +3,7 @@ from flask import Flask
 from flask.cli import with_appcontext
 
 import crud
-from db.database import db
+from storage import store
 
 
 @click.command("create_user")
@@ -12,8 +12,8 @@ from db.database import db
 @click.option("--password", prompt="Password")
 @with_appcontext
 def create_user(email: str, name: str, password: str):
-    user = crud.user.create_user(db, email=email, name=name, password=password)
-    crud.user.mark_email_verified(db, user=user)
+    user = crud.user.create_user(store.db, email=email, name=name, password=password)
+    crud.user.mark_email_verified(store.db, user=user)
     click.echo(f"Created user with id {user.id}")
 
 

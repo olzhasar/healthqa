@@ -3,7 +3,7 @@ import random
 import click
 
 from app.main import app
-from db.database import db
+from storage import store
 from tests.factories import (
     AnswerFactory,
     CommentFactory,
@@ -34,7 +34,8 @@ def test_data():
         ]
 
         for f in factories:
-            f._meta.sqlalchemy_session = db
+            f._meta.sqlalchemy_session = store.db
+            f._meta.sqlalchemy_session_persistence = "flush"
 
         categories = TagCategoryFactory.create_batch(5)
         tags = []
@@ -67,7 +68,7 @@ def test_data():
 
                 VoteFactory.create_batch(random.randint(1, 7), entry_id=question.id)
 
-            db.commit()
+            store.db.commit()
 
 
 @cli.command()

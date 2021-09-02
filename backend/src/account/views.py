@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 import crud
 from account import forms
 from auth import security
-from db.database import db
+from storage import store
 
 bp = Blueprint("account", __name__, url_prefix="/account", template_folder="templates")
 
@@ -19,7 +19,7 @@ def index():
 def edit_info():
     form = forms.ProfileForm(obj=current_user)
     if form.validate_on_submit():
-        crud.user.update(db, user_id=current_user.id, name=form.name.data)
+        crud.user.update(store.db, user_id=current_user.id, name=form.name.data)
         flash("Account information has been updated")
 
     return render_template("account/edit_info.html", form=form)
@@ -32,7 +32,7 @@ def change_password():
     if form.validate_on_submit():
         if security.check_password(form.current_password.data, current_user.password):
             crud.user.change_password(
-                db, user_id=current_user.id, new_password=form.password.data
+                store.db, user_id=current_user.id, new_password=form.password.data
             )
             flash("Your password has been changed successfully")
 

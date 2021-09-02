@@ -17,7 +17,7 @@ from auth.services import (
     generate_and_send_password_reset_link,
     generate_and_send_verification_link,
 )
-from db.database import db
+from storage import store
 
 bp = Blueprint("auth", __name__)
 
@@ -32,7 +32,7 @@ def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
         try:
-            user = crud.user.get_by_email(db, email=form.email.data)
+            user = crud.user.get_by_email(store.db, email=form.email.data)
         except NoResultFound:
             pass
         else:
@@ -57,7 +57,7 @@ def signup():
     form = forms.SignupForm()
     if form.validate_on_submit():
         user = crud.user.create_user(
-            db,
+            store.db,
             email=form.email.data,
             name=form.name.data,
             password=form.password.data,
@@ -88,7 +88,7 @@ def forgot_password():
     form = forms.ForgotPasswordForm()
     if form.validate_on_submit():
         try:
-            user = crud.user.get_by_email(db, email=form.email.data)
+            user = crud.user.get_by_email(store.db, email=form.email.data)
         except NoResultFound:
             pass
         else:
@@ -115,11 +115,11 @@ def reset_password(token: str):
         return render_template("auth/invalid_token.html")
 
     try:
-        user = crud.user.get(db, id=user_id)
+        user = crud.user.get(store.db, id=user_id)
     except NoResultFound:
         return render_template("auth/invalid_token.html")
 
-    crud.user.reset_password(db, user=user)
+    crud.user.reset_password(store.db, user=user)
     login_user(user)
     return redirect(url_for("auth.set_password"))
 
@@ -132,7 +132,7 @@ def set_password():
     form = forms.SetPasswordForm()
     if form.validate_on_submit():
         crud.user.change_password(
-            db, user_id=current_user.id, new_password=form.password.data
+            store.db, user_id=current_user.id, new_password=form.password.data
         )
         flash("Your password has been changed successfully")
         return redirect(url_for("users.profile", id=current_user.id))
@@ -150,11 +150,11 @@ def verify_email(token: str):
         return render_template("auth/invalid_token.html")
 
     try:
-        user = crud.user.get(db, id=user_id)
+        user = crud.user.get(store.db, id=user_id)
     except NoResultFound:
         return render_template("auth/invalid_token.html")
 
-    crud.user.mark_email_verified(db, user=user)
+    crud.user.mark_email_verified(store.db, user=user)
     login_user(user)
     flash("Welcome on board! Your account has been activated")
     return redirect(url_for("home.index"))

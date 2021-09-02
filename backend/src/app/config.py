@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "healthqa"
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
-    SQLALCHEMY_LOGGING_LEVEL: str = "WARNING"
+    SQLALCHEMY_LOGGING_LEVEL: str = "DEBUG"
 
     EXPLAIN_TEMPLATE_LOADING: bool = False
 
