@@ -18,17 +18,24 @@ def users(repo):
     return UserFactory.create_batch(4)
 
 
-def test_get(repo: UserRepository, user):
-    assert repo.get(user.id) == user
+def test_get(repo: UserRepository, user, max_num_queries):
+    with max_num_queries(1):
+        assert repo.get(user.id) == user
 
 
-def test_non_existing(repo: UserRepository):
+def test_get_non_existing(repo: UserRepository):
     with pytest.raises(exceptions.NotFoundError):
         repo.get(999)
 
 
-def test_get_by_email(repo: UserRepository, user):
-    assert repo.get_by_email(user.email) == user
+def test_get_with_passsword(repo: UserRepository, user, max_num_queries):
+    with max_num_queries(1):
+        assert repo.get(user.id).password == user.password
+
+
+def test_get_by_email(repo: UserRepository, user, max_num_queries):
+    with max_num_queries(1):
+        assert repo.get_by_email(user.email) == user
 
 
 def test_get_by_email_non_existing(repo: UserRepository):
@@ -45,8 +52,11 @@ def test_get_by_email_non_existing(repo: UserRepository):
         (1, 3, 2, (0, 3)),
     ],
 )
-def test_page(users, repo: UserRepository, page, per_page, n_pages, exp_slice):
-    paginator = repo.list(page=page, per_page=per_page)
+def test_list(
+    users, repo: UserRepository, page, per_page, n_pages, exp_slice, max_num_queries
+):
+    with max_num_queries(2):
+        paginator = repo.list(page=page, per_page=per_page)
 
     assert paginator.objects == users[slice(*exp_slice)]
     assert paginator.total == len(users)

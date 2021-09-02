@@ -1,4 +1,5 @@
 from sqlalchemy import exc
+from sqlalchemy.orm import undefer
 
 from auth.security import hash_password
 from common.pagination import Paginator
@@ -8,11 +9,19 @@ from repository.base import BaseRepostitory
 
 
 class UserRepository(BaseRepostitory):
-    def get(self, id: int) -> User:
+    def get(self, id: int, *options, **filter_kwargs) -> User:
         try:
-            return self.db.query(User).filter(User.id == id).one()
+            return (
+                self.db.query(User)
+                .filter(User.id == id, **filter_kwargs)
+                .options(*options)
+                .one()
+            )
         except exc.NoResultFound:
             raise exceptions.NotFoundError
+
+    def get_with_password(self, id: int) -> User:
+        return self.get(options=undefer("password"))
 
     def get_by_email(self, email: str) -> User:
         try:
