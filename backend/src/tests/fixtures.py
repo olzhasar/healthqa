@@ -99,7 +99,6 @@ def as_user(user, db, client):
 
 class QueriesCounter:
     def __init__(self, db: Session):
-        self._count: int = 0
         self._do_count: bool = False
         self.queries: list[tuple[Any, ...]] = []
         event.listen(db.bind, "after_cursor_execute", self.callback)
@@ -114,11 +113,10 @@ class QueriesCounter:
     def callback(self, conn, cursor, statement, parameters, context, executemany):
         if self._do_count:
             if not statement.startswith(("SAVEPOINT", "RELEASE")):
-                self._count += 1
                 self.queries.append((statement, parameters, context))
 
     def __len__(self) -> int:
-        return self._count
+        return len(self.queries)
 
 
 @pytest.fixture
