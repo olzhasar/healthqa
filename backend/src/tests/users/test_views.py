@@ -1,7 +1,13 @@
+import pytest
 from sqlalchemy.orm.session import Session
 
+from tests.factories import UserFactory
 
-def test_all(db: Session, client, template_rendered):
+
+@pytest.mark.allow_db
+def test_all(client, template_rendered):
+    UserFactory.create_batch(3)
+
     url = "/users/"
 
     response = client.get(url)
