@@ -1,5 +1,6 @@
 import logging
 from contextlib import contextmanager
+from functools import partial
 from typing import Any, Generator
 
 import pytest
@@ -15,19 +16,28 @@ from tests.session import TestSession
 logger = logging.Logger(__name__)
 
 
+@pytest.fixture(scope="session")
+def connection(engine: Engine, _setup_db):
+    _connection = engine.connect()
+
+    try:
+        yield _connection
+    finally:
+        _connection.close()
+
+
 @pytest.fixture
-def db(_engine: Engine) -> Generator:
-    connection = _engine.connect()
-
+def db(connection) -> Generator:
     transaction = connection.begin()
-    TestSession.configure(bind=connection)
 
-    with TestSession() as session:
+    session = TestSession(bind=connection)
+    session.begin = partial(session.begin, nested=True)
+
+    try:
         yield session
-
-    transaction.rollback()
-
-    TestSession.remove()
+    finally:
+        TestSession.remove()
+        transaction.rollback()
 
 
 @pytest.fixture

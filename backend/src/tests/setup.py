@@ -1,6 +1,8 @@
 import os
+from typing import Generator
 
 import pytest
+from sqlalchemy.engine.base import Engine
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from alembic.command import upgrade as alembic_upgrade
@@ -9,18 +11,27 @@ from tests.session import TestSession
 
 
 @pytest.fixture(scope="session")
-def _engine():
+def engine() -> Engine:
     from storage.db import create_engine
 
     return create_engine()
 
 
 @pytest.fixture(scope="session")
-def _prepare_db(_engine):
-    if database_exists(_engine.url):
-        drop_database(_engine.url)
+def connection(engine: Engine) -> Generator:
+    _connection = engine.connect()
+    try:
+        yield _connection
+    finally:
+        _connection.close()
 
-    create_database(_engine.url)
+
+@pytest.fixture(scope="session")
+def _setup_db(engine):
+    if database_exists(engine.url):
+        drop_database(engine.url)
+
+    create_database(engine.url)
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,7 +40,7 @@ def _prepare_db(_engine):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _patch_create_session(_prepare_db):
+def _patch_create_session():
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr("storage.base.create_session", lambda: TestSession)
 

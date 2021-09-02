@@ -10,7 +10,7 @@ class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         abstract = True
         sqlalchemy_session = TestSession
-        sqlalchemy_session_persistence = "flush"
+        sqlalchemy_session_persistence = "commit"
 
 
 class UserFactory(BaseFactory):
