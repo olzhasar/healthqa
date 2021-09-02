@@ -1,13 +1,13 @@
 {% if paginator %}
 <div id="pagination" class="py-4 px-4 md:px-0 text-sm text-gray-600 flex flex-wrap gap-2">
   {% if paginator.has_previous %}
-    <a href="{{ request.url|to_page(paginator.current - 1) }}" class="px-4 py-2 bg-white hover:bg-green-400 hover:text-white rounded shadow">Previous</a>
+    <a href="{{ request.url|to_page(paginator.page - 1) }}" class="px-4 py-2 bg-white hover:bg-green-400 hover:text-white rounded shadow">Previous</a>
   {% endif %}
-  {% for i in paginator %}
-  <a {% if paginator.current != i %}href="{{ request.url|to_page(i) }}"{% endif %} class="px-4 py-2 rounded shadow {% if paginator.current == i %}bg-green-500 text-white font-bold{% else %}bg-white hover:bg-green-400 hover:text-white{% endif %}">{{ i }}</a>
+  {% for i in paginator.page_range %}
+  <a {% if paginator.page != i %}href="{{ request.url|to_page(i) }}"{% endif %} class="px-4 py-2 rounded shadow {% if paginator.page == i %}bg-green-500 text-white font-bold{% else %}bg-white hover:bg-green-400 hover:text-white{% endif %}">{{ i }}</a>
   {% endfor %}
   {% if paginator.has_next %}
-    <a href="{{ request.url|to_page(paginator.current + 1) }}" class="px-4 py-2 bg-white hover:bg-green-400 hover:text-white rounded shadow">Next</a>
+    <a href="{{ request.url|to_page(paginator.page + 1) }}" class="px-4 py-2 bg-white hover:bg-green-400 hover:text-white rounded shadow">Next</a>
   {% endif %}
 </div>
 {% endif %}
