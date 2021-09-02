@@ -31,6 +31,8 @@ def db(connection) -> Generator:
     transaction = connection.begin()
 
     session = TestSession(bind=connection)
+    session.begin_nested()
+
     session.begin = partial(session.begin, nested=True)
 
     try:
