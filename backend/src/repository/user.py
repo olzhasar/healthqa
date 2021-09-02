@@ -35,7 +35,36 @@ class UserRepository(BaseRepostitory):
         hashed_password = hash_password(password)
         user = User(email=email, name=name, password=hashed_password)
 
+        try:
+            with self.db.begin():
+                self.db.add(user)
+        except exc.IntegrityError:
+            raise exceptions.AlreadyExistsError(
+                "User with this email is already registered"
+            )
+
+        return user
+
+    def change_password(self, user: User, new_password: str):
+        user.password = hash_password(new_password)
+
         with self.db.begin():
             self.db.add(user)
 
-        return user
+    def reset_password(self, user: User):
+        user.password = None
+
+        with self.db.begin():
+            self.db.add(user)
+
+    def update_info(self, user: User, *, name: str):
+        user.name = name
+
+        with self.db.begin():
+            self.db.add(user)
+
+    def mark_email_verified(self, user: User):
+        user.email_verified = True
+
+        with self.db.begin():
+            self.db.add(user)
