@@ -93,14 +93,14 @@ def _block_redis(_store_blocker):
 
 
 @pytest.fixture()
-def _unblock_db(_store_blocker):
+def _unblock_db(_store_blocker, db):
     _store_blocker.unblock_db()
     yield
     _store_blocker.block_db()
 
 
 @pytest.fixture()
-def _unblock_redis(_store_blocker):
+def _unblock_redis(_store_blocker, redis):
     _store_blocker.unblock_redis()
     yield
     _store_blocker.block_redis()
