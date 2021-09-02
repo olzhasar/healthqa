@@ -6,6 +6,7 @@ import pytest
 from flask import Flask
 from flask import template_rendered as flask_template_rendered
 from sqlalchemy import event
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
 
 from storage.base import Store
@@ -15,11 +16,16 @@ logger = logging.Logger(__name__)
 
 
 @pytest.fixture
-def db() -> Generator:
+def db(_engine: Engine) -> Generator:
+    connection = _engine.connect()
+
+    transaction = connection.begin()
+    TestSession.configure(bind=connection)
+
     with TestSession() as session:
-        session.begin_nested()
         yield session
-        session.rollback()
+
+    transaction.rollback()
 
     TestSession.remove()
 

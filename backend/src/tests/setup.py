@@ -27,8 +27,6 @@ def _prepare_db(_engine):
     alembic_cfg = AlembicConfig(os.path.join(base_dir, "alembic.ini"))
     alembic_upgrade(alembic_cfg, "head")
 
-    TestSession.configure(bind=_engine)
-
 
 @pytest.fixture(scope="session", autouse=True)
 def _patch_create_session(_prepare_db):
