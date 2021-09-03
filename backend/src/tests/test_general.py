@@ -15,4 +15,4 @@ def test_config(app):
 def test_database_patched(with_app_context):
     store.db.query()
     assert g._store.db == TestSession
-    assert g._store.db.bind.url.database.endswith("_test")
+    assert g._store.db.bind.engine.url.database.endswith("_test")
