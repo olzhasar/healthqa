@@ -1,13 +1,12 @@
 import logging
 from contextlib import contextmanager
-from functools import partial
 from typing import Any, Generator
 
 import pytest
 from flask import Flask
 from flask import template_rendered as flask_template_rendered
 from sqlalchemy import event
-from sqlalchemy.engine.base import Engine
+from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.orm import Session
 
 from storage.base import Store
@@ -27,13 +26,16 @@ def connection(engine: Engine, _setup_db):
 
 
 @pytest.fixture
-def db(connection) -> Generator:
+def db(connection: Connection, monkeypatch) -> Generator:
     transaction = connection.begin()
 
     session = TestSession(bind=connection)
     session.begin_nested()
 
-    session.begin = partial(session.begin, nested=True)
+    @event.listens_for(session, "after_transaction_end")
+    def reset_savepoint(db_session, db_transaction):
+        if db_transaction.nested and not db_transaction._parent.nested:
+            db_session.begin_nested()
 
     try:
         yield session
