@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NoReturn, TypeVar
+from typing import TYPE_CHECKING, NoReturn, Optional, TypeVar
 
 from models import Base
 from storage import Store
+from storage import store as main_store
 
 if TYPE_CHECKING:
     from redis import Redis
@@ -18,8 +19,8 @@ ModelType = TypeVar("ModelType", bound=Base)
 class BaseRepostitory:
     store: Store
 
-    def __init__(self, store: Store) -> NoReturn:
-        self.store = store
+    def __init__(self, store: Optional[Store] = None) -> NoReturn:
+        self.store = store or main_store
 
     @property
     def db(self) -> Session:
