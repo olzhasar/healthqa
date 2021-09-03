@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy.orm.session import Session
 
 from auth.security import check_password
 from repository import exceptions
@@ -19,8 +20,7 @@ def users(repo):
 
 
 def test_get(repo: UserRepository, user, max_num_queries):
-    with max_num_queries(1):
-        assert repo.get(user.id) == user
+    assert repo.get(user.id) == user
 
 
 def test_get_non_existing(repo: UserRepository):
@@ -28,9 +28,13 @@ def test_get_non_existing(repo: UserRepository):
         repo.get(999)
 
 
-def test_get_with_passsword(repo: UserRepository, user, max_num_queries):
+def test_get_with_passsword(repo: UserRepository, db: Session, user, max_num_queries):
+    user_id = user.id
+    user_password = user.password
+    db.expire(user)
+
     with max_num_queries(1):
-        assert repo.get(user.id).password == user.password
+        assert repo.get_with_password(user_id).password == user_password
 
 
 def test_get_by_email(repo: UserRepository, user, max_num_queries):

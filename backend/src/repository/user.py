@@ -21,7 +21,7 @@ class UserRepository(BaseRepostitory):
             raise exceptions.NotFoundError
 
     def get_with_password(self, id: int) -> User:
-        return self.get(options=undefer("password"))
+        return self.get(id, undefer("password"))
 
     def get_by_email(self, email: str) -> User:
         try:
@@ -44,36 +44,39 @@ class UserRepository(BaseRepostitory):
         hashed_password = hash_password(password)
         user = User(email=email, name=name, password=hashed_password)
 
+        self.db.add(user)
         try:
-            with self.db.begin():
-                self.db.add(user)
+            self.db.flush()
         except exc.IntegrityError:
+            self.db.rollback()
             raise exceptions.AlreadyExistsError(
                 "User with this email is already registered"
             )
+        else:
+            self.db.commit()
 
         return user
 
     def change_password(self, user: User, new_password: str):
         user.password = hash_password(new_password)
 
-        with self.db.begin():
-            self.db.add(user)
+        self.db.add(user)
+        self.db.commit()
 
     def reset_password(self, user: User):
         user.password = None
 
-        with self.db.begin():
-            self.db.add(user)
+        self.db.add(user)
+        self.db.commit()
 
     def update_info(self, user: User, *, name: str):
         user.name = name
 
-        with self.db.begin():
-            self.db.add(user)
+        self.db.add(user)
+        self.db.commit()
 
     def mark_email_verified(self, user: User):
         user.email_verified = True
 
-        with self.db.begin():
-            self.db.add(user)
+        self.db.add(user)
+        self.db.commit()
