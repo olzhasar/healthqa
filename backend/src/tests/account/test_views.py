@@ -1,8 +1,15 @@
 import pytest
-from sqlalchemy.orm import Session
 
 from auth import security
+from repository.user import UserRepository
 from tests.utils import full_url_for
+
+pytestmark = [pytest.mark.allow_db]
+
+
+@pytest.fixture
+def user_repo(store):
+    return UserRepository(store=store)
 
 
 class TestMain:
@@ -23,7 +30,7 @@ class TestMain:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-    def test_post_ok(self, db: Session, as_user, user, data):
+    def test_post_ok(self, user_repo: UserRepository, as_user, user, data):
         response = as_user.post(
             self.url,
             follow_redirects=False,
@@ -32,10 +39,10 @@ class TestMain:
 
         assert response.status_code == 200
 
-        db.refresh(user)
+        user_repo.refresh(user)
         assert user.name == data["name"]
 
-    def test_post_missing_data(self, db: Session, as_user, user):
+    def test_post_missing_data(self, as_user, user):
         response = as_user.post(
             self.url,
             follow_redirects=False,
@@ -60,7 +67,7 @@ class TestChangePassword:
             "password_repeat": "123qweasd",
         }
 
-    def test_get(self, db: Session, as_user):
+    def test_get(self, as_user):
         response = as_user.get(
             self.url,
             follow_redirects=False,
@@ -68,7 +75,7 @@ class TestChangePassword:
 
         assert response.status_code == 200
 
-    def test_ok(self, db: Session, as_user, user, data):
+    def test_ok(self, user_repo: UserRepository, as_user, user, data):
         response = as_user.post(
             self.url,
             data=data,
@@ -78,10 +85,10 @@ class TestChangePassword:
         assert response.status_code == 302
         assert response.location == full_url_for("users.profile", id=user.id)
 
-        db.refresh(user)
+        user_repo.refresh(user)
         assert security.check_password(data["password"], user.password)
 
-    def test_wrong_old_password(self, db: Session, as_user, user, data):
+    def test_wrong_old_password(self, user_repo: UserRepository, as_user, user, data):
         data["current_password"] = "wrong_password"
 
         response = as_user.post(
@@ -92,10 +99,10 @@ class TestChangePassword:
 
         assert response.status_code == 200
 
-        db.refresh(user)
+        user_repo.refresh(user)
         assert security.check_password("old_password", user.password)
 
-    def test_passwords_mismatch(self, db: Session, as_user, user, data):
+    def test_passwords_mismatch(self, user_repo: UserRepository, as_user, user, data):
         data["password_repeat"] = "wrong_password"
 
         response = as_user.post(
@@ -106,7 +113,7 @@ class TestChangePassword:
 
         assert response.status_code == 200
 
-        db.refresh(user)
+        user_repo.refresh(user)
         assert security.check_password("old_password", user.password)
 
     def test_not_logged_in(self, client):
