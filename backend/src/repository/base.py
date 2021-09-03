@@ -1,18 +1,24 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn, TypeVar
 
+from models import Base
 from storage import Store
 
 if TYPE_CHECKING:
     from redis import Redis
     from sqlalchemy.orm.session import Session
 
+    from common.pagination import Paginator
+
+
+ModelType = TypeVar("ModelType", bound=Base)
+
 
 class BaseRepostitory:
     store: Store
 
-    def __init__(self, store: Store):
+    def __init__(self, store: Store) -> NoReturn:
         self.store = store
 
     @property
@@ -23,8 +29,12 @@ class BaseRepostitory:
     def redis(self) -> Redis:
         return self.store.redis
 
-    def get(self, id: int):
+    def refresh(self, *instances: ModelType):
+        for instance in instances:
+            self.db.refresh(instance)
+
+    def get(self, id: int) -> ModelType:
         raise NotImplementedError
 
-    def list(self, limit: int, offset: int):
+    def list(self, limit: int, offset: int) -> Paginator[ModelType]:
         raise NotImplementedError

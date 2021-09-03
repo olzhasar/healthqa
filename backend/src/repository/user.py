@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 from sqlalchemy import exc
 from sqlalchemy.orm import undefer
 
@@ -57,25 +59,25 @@ class UserRepository(BaseRepostitory):
 
         return user
 
-    def change_password(self, user: User, new_password: str):
+    def change_password(self, user: User, new_password: str) -> NoReturn:
         user.password = hash_password(new_password)
 
         self.db.add(user)
         self.db.commit()
 
-    def reset_password(self, user: User):
+    def reset_password(self, user: User) -> NoReturn:
         user.password = None
 
         self.db.add(user)
         self.db.commit()
 
-    def update_info(self, user: User, *, name: str):
+    def update_info(self, user: User, *, name: str) -> NoReturn:
         user.name = name
 
         self.db.add(user)
         self.db.commit()
 
-    def mark_email_verified(self, user: User):
+    def mark_email_verified(self, user: User) -> NoReturn:
         user.email_verified = True
 
         self.db.add(user)
