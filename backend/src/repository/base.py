@@ -17,6 +17,10 @@ ModelType = TypeVar("ModelType", bound=Base)
 
 
 class BaseRepostitory:
+    """
+    Class for isolating data sources activities
+    """
+
     store: Store
 
     def __init__(self, store: Optional[Store] = None) -> NoReturn:

@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class Store:
+    """Class to serve as a single access point to all data sources"""
+
     _db: Optional[Session]
     _redis_db: Optional[Redis]
 
