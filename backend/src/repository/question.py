@@ -6,20 +6,13 @@ from sqlalchemy.sql.expression import and_, or_
 from common.pagination import Paginator
 from models import Comment, Question, User, Vote
 from models.question import question_tags_table
-from repository import exceptions
 from repository.base import BaseRepostitory
 from storage import Store
 
 PER_PAGE = 16
 
 
-class QuestionRepository(BaseRepostitory):
-    def get(self, store: Store, id: int) -> Question:
-        question = store.db.query(Question).get(id)
-        if not question:
-            raise exceptions.NotFoundError
-        return question
-
+class QuestionRepository(BaseRepostitory[Question]):
     def get_with_related(self, store: Store, id: int, user_id: int = 0) -> Question:
         CommentUser = aliased(User)
         CommentVote = aliased(Vote)
@@ -97,38 +90,17 @@ class QuestionRepository(BaseRepostitory):
 
         store.db.commit()
 
-    def count(self, store: Store, filters: list[Any]) -> int:
-        return store.db.query(Question.id).filter(*filters).count()
+    def _list_default_ordering(self) -> List[Any]:
+        return [Question.id.desc()]
 
-    def list(
-        self,
-        store: Store,
-        *,
-        page: int = 1,
-        per_page: int = PER_PAGE,
-        filters: list[Any] = None
-    ) -> Paginator[Question]:
-
-        filters = filters or []
-        filters.append(Question.deleted_at.is_(None))
-
-        total = self.count(store, filters)
-        offset = Paginator.calc_offset(page, per_page)
-
-        objects = (
-            store.db.query(Question)
-            .options(
-                joinedload(Question.user),
-                joinedload(Question.tags),
-            )
-            .filter(*filters)
-            .order_by(Question.id.desc())
-            .limit(per_page)
-            .offset(offset)
-            .all()
+    def _list_base_query(self, store: Store):
+        return store.db.query(Question).options(
+            joinedload(Question.user),
+            joinedload(Question.tags),
         )
 
-        return Paginator(objects=objects, total=total, page=page, per_page=per_page)
+    def _list_default_filters(self):
+        return [Question.deleted_at.is_(None)]
 
     def list_for_user(
         self, store: Store, user: User, *, page: int = 1, per_page: int = PER_PAGE
