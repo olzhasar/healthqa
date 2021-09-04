@@ -21,7 +21,7 @@ class QuestionRepository(BaseRepostitory[Question]):
         CommentUser = aliased(User)
         CommentVote = aliased(Vote)
 
-        return (
+        query = (
             store.db.query(Question)
             .join(User, Question.user_id == User.id)
             .outerjoin(
@@ -49,8 +49,9 @@ class QuestionRepository(BaseRepostitory[Question]):
                 ),
             )
             .filter(Question.id == id, Question.deleted_at.is_(None))
-            .one()
         )
+
+        return self._get(store, query)
 
     def create(
         self, store: Store, *, user: User, title: str, content: str, tags: List[int]

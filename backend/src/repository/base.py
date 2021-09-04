@@ -1,5 +1,6 @@
 from typing import Any, Generic, List, TypeVar, get_args
 
+from sqlalchemy import exc
 from sqlalchemy.orm.query import Query
 
 from common.pagination import Paginator
@@ -23,23 +24,20 @@ class BaseRepostitory(Generic[ModelType]):
         """
         return get_args(cls.__orig_bases__[0])[0]
 
+    def _get(self, store, query: Query) -> ModelType:
+        try:
+            return query.one()
+        except exc.NoResultFound:
+            raise exceptions.NotFoundError
+
     def get(
         self,
         store: Store,
         id: int,
-        *,
-        options: List[Any] = None,
-        filters: List[Any] = None
     ) -> ModelType:
 
-        options = options or []
-        filters = filters or []
-
-        instance = store.db.query(self.model).options(*options).filter(*filters).get(id)
-        if instance is None:
-            raise exceptions.NotFoundError
-
-        return instance
+        query = store.db.query(self.model).filter(self.model.id == id)
+        return self._get(store, query)
 
     def exists(self, store: Store, id: int) -> bool:
         return bool(store.db.query(self.model.id).filter(self.model.id == id).first())

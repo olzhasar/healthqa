@@ -17,13 +17,14 @@ if TYPE_CHECKING:
 
 class EntryRepository(BaseRepostitory[Entry]):
     def get_with_user_vote(self, store: Store, *, id: int, user_id: int) -> Entry:
-        return (
+        query = (
             store.db.query(Entry)
             .outerjoin(Vote, and_(Entry.id == Vote.entry_id, Vote.user_id == user_id))
             .options(contains_eager(Entry.user_vote))
             .filter(Entry.id == id)
-            .one()
         )
+
+        return self._get(store, query)
 
     def get_score(self, store: Store, *, id: int) -> int:
         return store.db.query(Entry.score).filter(Entry.id == id).scalar()

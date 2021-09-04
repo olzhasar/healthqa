@@ -2,10 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import exc
-
 from models import Vote
-from repository import exceptions
 from repository.base import BaseRepostitory
 
 if TYPE_CHECKING:
@@ -14,14 +11,11 @@ if TYPE_CHECKING:
 
 class VoteRepository(BaseRepostitory[Vote]):
     def get(self, store: Store, *, user_id: int, entry_id: int):
-        try:
-            return (
-                store.db.query(Vote)
-                .filter(Vote.entry_id == entry_id, Vote.user_id == user_id)
-                .one()
-            )
-        except exc.NoResultFound:
-            raise exceptions.NotFoundError
+        query = store.db.query(Vote).filter(
+            Vote.entry_id == entry_id, Vote.user_id == user_id
+        )
+
+        return self._get(store, query)
 
     def exists(self, store: Store, *, user_id: int, entry_id: int):
         return bool(

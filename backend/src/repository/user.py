@@ -24,10 +24,8 @@ class UserRepository(BaseRepostitory[User]):
         )
 
     def get_by_email(self, store: Store, email: str) -> User:
-        try:
-            return store.db.query(User).filter(User.email == email).one()
-        except exc.NoResultFound:
-            raise exceptions.NotFoundError
+        query = store.db.query(User).filter(User.email == email)
+        return self._get(store, query)
 
     def create(self, store: Store, *, email: str, name: str, password: str) -> User:
         hashed_password = hash_password(password)
