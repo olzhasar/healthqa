@@ -6,7 +6,7 @@ from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.sql.expression import and_, or_
 
 from common.pagination import Paginator
-from models import Comment, Question, User, Vote
+from models import Comment, Question, Tag, User, Vote
 from models.question import question_tags_table
 from repository.base import BaseRepostitory
 
@@ -119,6 +119,14 @@ class QuestionRepository(BaseRepostitory[Question]):
     ) -> Paginator[Question]:
 
         filters = [Question.user_id == user.id]
+
+        return self.list(store, page=page, per_page=per_page, filters=filters)
+
+    def list_by_tag(
+        self, store: Store, tag: Tag, *, page: int = 1, per_page: int = PER_PAGE
+    ) -> Paginator[Question]:
+
+        filters = [Question.tags.any(id=tag.id)]
 
         return self.list(store, page=page, per_page=per_page, filters=filters)
 

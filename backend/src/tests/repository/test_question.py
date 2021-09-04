@@ -1,5 +1,6 @@
 import pytest
 from faker import Faker
+from wtforms.validators import StopValidation
 
 import repository as repo
 from models import Comment, Vote
@@ -133,29 +134,6 @@ def test_update(store: Store, question, tag):
 
 
 @pytest.fixture
-def question_list_params():
-    return [
-        ("first", 3, 2, "tag_1"),
-        ("second", 2, 5, "tag_2"),
-        ("third", 5, 5, "tag_2"),
-        ("fourth", 5, 3, "tag_1"),
-    ]
-
-
-@pytest.fixture
-def question_list(question_list_params):
-    questions = []
-
-    for title, answer_count, score, tag_name in question_list_params:
-        tag = factories.TagFactory(name=tag_name)
-        question = factories.QuestionFactory(title=title, score=score, tags=[tag])
-        factories.AnswerFactory.create_batch(answer_count, question=question)
-        questions.append(question)
-
-    return questions
-
-
-@pytest.fixture
 def questions():
     return factories.QuestionFactory.create_batch(4)
 
@@ -181,6 +159,45 @@ def test_list(
     assert paginator.page == page
     assert paginator.per_page == per_page
     assert len(paginator) == exp_n_pages
+
+
+@pytest.fixture
+def question_list_params():
+    return [
+        ("first", 3, 2, "tag_1"),
+        ("second", 2, 5, "tag_2"),
+        ("third", 5, 5, "tag_2"),
+        ("fourth", 5, 3, "tag_1"),
+    ]
+
+
+@pytest.fixture
+def question_list(question_list_params):
+    questions = []
+
+    for title, answer_count, score, tag_name in question_list_params:
+        tag = factories.TagFactory(name=tag_name)
+        question = factories.QuestionFactory(title=title, score=score, tags=[tag])
+        factories.AnswerFactory.create_batch(answer_count, question=question)
+        questions.append(question)
+
+    return questions
+
+
+@pytest.mark.parametrize(
+    ("tag_name", "result"),
+    [
+        ("tag_1", ["first", "fourth"]),
+        ("tag_2", ["second", "third"]),
+    ],
+)
+def test_list_by_tag(store: Store, question_list, tag_name, result, max_num_queries):
+    tag = factories.TagFactory(name=tag_name)
+
+    with max_num_queries(2):
+        paginator = repo.question.list_by_tag(store, tag=tag)
+
+    assert {q.title for q in paginator.objects} == set(result)
 
 
 @pytest.fixture()
