@@ -1,11 +1,15 @@
-from typing import List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import aliased, contains_eager
 from sqlalchemy.sql.expression import and_
 
 from models import Answer, Comment, Question, User, Vote
 from repository.base import BaseRepostitory
-from storage.base import Store
+
+if TYPE_CHECKING:
+    from storage.base import Store
 
 
 class AnswerRepostiory(BaseRepostitory[Answer]):

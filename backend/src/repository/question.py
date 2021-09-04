@@ -1,4 +1,6 @@
-from typing import Any, List, NoReturn
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, List, NoReturn
 
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.sql.expression import and_, or_
@@ -7,7 +9,9 @@ from common.pagination import Paginator
 from models import Comment, Question, User, Vote
 from models.question import question_tags_table
 from repository.base import BaseRepostitory
-from storage import Store
+
+if TYPE_CHECKING:
+    from storage import Store
 
 PER_PAGE = 16
 

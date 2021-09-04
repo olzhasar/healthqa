@@ -1,4 +1,6 @@
-from typing import NoReturn
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, NoReturn
 
 from sqlalchemy import exc
 from sqlalchemy.orm import undefer
@@ -7,7 +9,9 @@ from auth.security import hash_password
 from models.user import User
 from repository import exceptions
 from repository.base import BaseRepostitory
-from storage.base import Store
+
+if TYPE_CHECKING:
+    from storage.base import Store
 
 
 class UserRepository(BaseRepostitory[User]):
