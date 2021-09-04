@@ -2,8 +2,8 @@ from flask import Blueprint, abort, render_template
 from flask.globals import request
 
 import crud
+import repository as repo
 from repository.exceptions import NotFoundError
-from repository.user import UserRepository
 from storage import store
 
 bp = Blueprint("users", __name__, url_prefix="/users")
@@ -13,17 +13,15 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 def all():
     page = int(request.args.get("page", 1))
 
-    repo = UserRepository(store)
-    paginator = repo.list(page=page, per_page=16)
+    paginator = repo.user.list(store, page=page, per_page=16)
 
     return render_template("users/list.html", paginator=paginator)
 
 
 @bp.route("/<int:id>/")
 def profile(id: int):
-    repo = UserRepository(store)
     try:
-        user = repo.get(id)
+        user = repo.user.get(store, id)
     except NotFoundError:
         abort(404)
 
