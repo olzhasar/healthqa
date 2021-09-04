@@ -41,6 +41,9 @@ class BaseRepostitory(Generic[ModelType]):
 
         return instance
 
+    def exists(self, store: Store, id: int) -> bool:
+        return bool(store.db.query(self.model.id).filter(self.model.id == id).first())
+
     def count(self, store: Store, *, filters: List[Any]):
         filters = filters or []
         return store.db.query(self.model.id).filter(*filters).count()
