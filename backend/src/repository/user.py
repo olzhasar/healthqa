@@ -4,46 +4,26 @@ from sqlalchemy import exc
 from sqlalchemy.orm import undefer
 
 from auth.security import hash_password
-from common.pagination import Paginator
 from models.user import User
 from repository import exceptions
 from repository.base import BaseRepostitory
 from storage.base import Store
 
 
-class UserRepository(BaseRepostitory):
-    def get(self, store: Store, id: int, *options, **filter_kwargs) -> User:
-        try:
-            return (
-                store.db.query(User)
-                .filter(User.id == id, **filter_kwargs)
-                .options(*options)
-                .one()
-            )
-        except exc.NoResultFound:
-            raise exceptions.NotFoundError
-
-    def get_with_password(self, store: Store, id: int) -> User:
-        return self.get(store, id, undefer("password"))
+class UserRepository(BaseRepostitory[User]):
+    def first_with_password(self, store: Store, id: int) -> User:
+        return (
+            store.db.query(User)
+            .options(undefer("password"))
+            .filter(User.id == id)
+            .first()
+        )
 
     def get_by_email(self, store: Store, email: str) -> User:
         try:
             return store.db.query(User).filter(User.email == email).one()
         except exc.NoResultFound:
             raise exceptions.NotFoundError
-
-    def count(self, store: Store) -> int:
-        return store.db.query(User.id).count()
-
-    def list(
-        self, store: Store, *, page: int = 1, per_page: int = 16
-    ) -> Paginator[User]:
-        total = self.count(store)
-        offset = Paginator.calc_offset(page, per_page)
-
-        objects = store.db.query(User).limit(per_page).offset(offset).all()
-
-        return Paginator(objects=objects, total=total, page=page, per_page=per_page)
 
     def create(self, store: Store, *, email: str, name: str, password: str) -> User:
         hashed_password = hash_password(password)

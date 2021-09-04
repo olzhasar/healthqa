@@ -24,13 +24,17 @@ def test_get_non_existing(store: Store):
         repo.user.get(store, 999)
 
 
-def test_get_with_passsword(store: Store, db: Session, user, max_num_queries):
+def test_first_with_passsword(store: Store, db: Session, user, max_num_queries):
     user_id = user.id
     user_password = user.password
     db.expire(user)
 
     with max_num_queries(1):
-        assert repo.user.get_with_password(store, user_id).password == user_password
+        assert repo.user.first_with_password(store, user_id).password == user_password
+
+
+def test_first_with_passsword_non_existing(store: Store, db: Session):
+    assert repo.user.first_with_password(store, 999) is None
 
 
 def test_get_by_email(store: Store, user, max_num_queries):
