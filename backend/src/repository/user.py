@@ -8,13 +8,14 @@ from common.pagination import Paginator
 from models.user import User
 from repository import exceptions
 from repository.base import BaseRepostitory
+from storage.base import Store
 
 
 class UserRepository(BaseRepostitory):
-    def get(self, id: int, *options, **filter_kwargs) -> User:
+    def get(self, store: Store, id: int, *options, **filter_kwargs) -> User:
         try:
             return (
-                self.db.query(User)
+                store.db.query(User)
                 .filter(User.id == id, **filter_kwargs)
                 .options(*options)
                 .one()
@@ -22,63 +23,68 @@ class UserRepository(BaseRepostitory):
         except exc.NoResultFound:
             raise exceptions.NotFoundError
 
-    def get_with_password(self, id: int) -> User:
-        return self.get(id, undefer("password"))
+    def get_with_password(self, store: Store, id: int) -> User:
+        return self.get(store, id, undefer("password"))
 
-    def get_by_email(self, email: str) -> User:
+    def get_by_email(self, store: Store, email: str) -> User:
         try:
-            return self.db.query(User).filter(User.email == email).one()
+            return store.db.query(User).filter(User.email == email).one()
         except exc.NoResultFound:
             raise exceptions.NotFoundError
 
-    def count(self) -> int:
-        return self.db.query(User.id).count()
+    def count(self, store: Store) -> int:
+        return store.db.query(User.id).count()
 
-    def list(self, *, page: int = 1, per_page: int = 16) -> Paginator[User]:
-        total = self.count()
+    def list(
+        self, store: Store, *, page: int = 1, per_page: int = 16
+    ) -> Paginator[User]:
+        total = self.count(store)
         offset = Paginator.calc_offset(page, per_page)
 
-        objects = self.db.query(User).limit(per_page).offset(offset).all()
+        objects = store.db.query(User).limit(per_page).offset(offset).all()
 
         return Paginator(objects=objects, total=total, page=page, per_page=per_page)
 
-    def create(self, *, email: str, name: str, password: str) -> User:
+    def create(self, store: Store, *, email: str, name: str, password: str) -> User:
         hashed_password = hash_password(password)
         user = User(email=email, name=name, password=hashed_password)
 
-        self.db.add(user)
+        store.db.add(user)
         try:
-            self.db.flush()
+            store.db.flush()
         except exc.IntegrityError:
-            self.db.rollback()
+            store.db.rollback()
             raise exceptions.AlreadyExistsError(
                 "User with this email is already registered"
             )
         else:
-            self.db.commit()
+            store.db.commit()
 
         return user
 
-    def change_password(self, user: User, new_password: str) -> NoReturn:
+    def change_password(self, store: Store, user: User, new_password: str) -> NoReturn:
         user.password = hash_password(new_password)
 
-        self.db.add(user)
-        self.db.commit()
+        store.db.add(user)
+        store.db.commit()
 
-    def reset_password(self, user: User) -> NoReturn:
+    def reset_password(self, store: Store, user: User) -> NoReturn:
         user.password = None
 
-        self.db.add(user)
-        self.db.commit()
+        store.db.add(user)
+        store.db.commit()
 
-    def update_info(self, user: User, *, name: str) -> NoReturn:
+    def update_info(self, store: Store, user: User, *, name: str) -> NoReturn:
         user.name = name
 
-        self.db.add(user)
-        self.db.commit()
+        store.db.add(user)
+        store.db.commit()
 
-    def mark_email_verified(self, user: User) -> NoReturn:
+    def mark_email_verified(self, store: Store, user: User) -> NoReturn:
         user.email_verified = True
 
-        self.db.add(user)
-        self.db.commit()
+        store.db.add(user)
+        store.db.commit()
+
+
+user = UserRepository()
