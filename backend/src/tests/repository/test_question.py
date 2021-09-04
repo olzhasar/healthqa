@@ -1,6 +1,5 @@
 import pytest
 from faker import Faker
-from wtforms.validators import StopValidation
 
 import repository as repo
 from models import Comment, Vote
@@ -15,6 +14,11 @@ pytestmark = [pytest.mark.allow_db]
 def test_get(store: Store, question, max_num_queries):
     with max_num_queries(1):
         assert repo.question.get(store, question.id) == question
+
+
+def test_first_for_user(store: Store, question, other_user):
+    assert repo.question.first_for_user(store, question.user) == question
+    assert repo.question.first_for_user(store, other_user) is None
 
 
 @pytest.fixture

@@ -53,6 +53,9 @@ class QuestionRepository(BaseRepostitory[Question]):
 
         return self._get(store, query)
 
+    def first_for_user(self, store: Store, user: User):
+        return store.db.query(Question).filter(Question.user_id == user.id).first()
+
     def create(
         self, store: Store, *, user: User, title: str, content: str, tags: List[int]
     ) -> Question:
