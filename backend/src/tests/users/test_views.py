@@ -15,6 +15,7 @@ def test_all(client, template_rendered):
     assert template_rendered("users/list.html")
 
 
+@pytest.mark.allow_db
 class TestProfile:
     url = "/users/{id}/"
 

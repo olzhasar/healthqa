@@ -1,9 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
+import repository as repo
 from account import forms
 from auth import security
-from repository.user import UserRepository
+from storage import store
 
 bp = Blueprint("account", __name__, url_prefix="/account", template_folder="templates")
 
@@ -18,9 +19,7 @@ def index():
 def edit_info():
     form = forms.ProfileForm(obj=current_user)
     if form.validate_on_submit():
-        repo = UserRepository()
-        repo.update_info(current_user, name=form.name.data)
-
+        repo.user.update_info(store, current_user, name=form.name.data)
         flash("Account information has been updated")
 
     return render_template("account/edit_info.html", form=form)
@@ -32,8 +31,9 @@ def change_password():
     form = forms.ChangePasswordForm()
     if form.validate_on_submit():
         if security.check_password(form.current_password.data, current_user.password):
-            repo = UserRepository()
-            repo.change_password(current_user, new_password=form.password.data)
+            repo.user.change_password(
+                store, current_user, new_password=form.password.data
+            )
 
             flash("Your password has been changed successfully")
             return redirect(url_for("users.profile", id=current_user.id))

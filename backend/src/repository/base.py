@@ -49,7 +49,7 @@ class BaseRepostitory(Generic[ModelType]):
 
         return bool(query.first())
 
-    def count(self, store: Store, *, filters: List[Any]):
+    def count(self, store: Store, *, filters: List[Any] = None):
         filters = filters or []
         return store.db.query(self.model.id).filter(*filters).count()
 

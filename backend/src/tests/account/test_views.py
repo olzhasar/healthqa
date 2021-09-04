@@ -1,15 +1,10 @@
 import pytest
 
 from auth import security
-from repository.user import UserRepository
+from storage import Store
 from tests.utils import full_url_for
 
 pytestmark = [pytest.mark.allow_db]
-
-
-@pytest.fixture
-def user_repo(store):
-    return UserRepository(store=store)
 
 
 class TestMain:
@@ -30,7 +25,7 @@ class TestMain:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-    def test_post_ok(self, user_repo: UserRepository, as_user, user, data):
+    def test_post_ok(self, store: Store, as_user, user, data):
         response = as_user.post(
             self.url,
             follow_redirects=False,
@@ -39,7 +34,7 @@ class TestMain:
 
         assert response.status_code == 200
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert user.name == data["name"]
 
     def test_post_missing_data(self, as_user, user):
@@ -75,7 +70,7 @@ class TestChangePassword:
 
         assert response.status_code == 200
 
-    def test_ok(self, user_repo: UserRepository, as_user, user, data):
+    def test_ok(self, store: Store, as_user, user, data):
         response = as_user.post(
             self.url,
             data=data,
@@ -85,10 +80,10 @@ class TestChangePassword:
         assert response.status_code == 302
         assert response.location == full_url_for("users.profile", id=user.id)
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert security.check_password(data["password"], user.password)
 
-    def test_wrong_old_password(self, user_repo: UserRepository, as_user, user, data):
+    def test_wrong_old_password(self, store: Store, as_user, user, data):
         data["current_password"] = "wrong_password"
 
         response = as_user.post(
@@ -99,10 +94,10 @@ class TestChangePassword:
 
         assert response.status_code == 200
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert security.check_password("old_password", user.password)
 
-    def test_passwords_mismatch(self, user_repo: UserRepository, as_user, user, data):
+    def test_passwords_mismatch(self, store: Store, as_user, user, data):
         data["password_repeat"] = "wrong_password"
 
         response = as_user.post(
@@ -113,7 +108,7 @@ class TestChangePassword:
 
         assert response.status_code == 200
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert security.check_password("old_password", user.password)
 
     def test_not_logged_in(self, client):

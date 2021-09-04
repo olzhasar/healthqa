@@ -1,7 +1,6 @@
 from flask import Blueprint, abort, render_template
 from flask.globals import request
 
-import crud
 import repository as repo
 from repository.exceptions import NotFoundError
 from storage import store
@@ -28,11 +27,11 @@ def profile(id: int):
     tab = request.args.get("tab", "questions")
 
     if tab == "questions":
-        questions = crud.question.get_list_for_user(store.db, user_id=user.id)
+        questions = repo.question.all_for_user(store, user)
         answers = []
     else:
         questions = []
-        answers = crud.answer.get_list_for_user(store.db, user_id=user.id)
+        answers = repo.answer.all_for_user(store, user)
 
     return render_template(
         "users/profile.html", user=user, questions=questions, answers=answers, tab=tab

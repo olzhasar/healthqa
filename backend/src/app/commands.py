@@ -2,7 +2,7 @@ import click
 from flask import Flask
 from flask.cli import with_appcontext
 
-import crud
+import repository as repo
 from storage import store
 
 
@@ -12,8 +12,8 @@ from storage import store
 @click.option("--password", prompt="Password")
 @with_appcontext
 def create_user(email: str, name: str, password: str):
-    user = crud.user.create_user(store.db, email=email, name=name, password=password)
-    crud.user.mark_email_verified(store.db, user=user)
+    user = repo.user.create(store.db, email=email, name=name, password=password)
+    repo.user.mark_email_verified(store, user)
     click.echo(f"Created user with id {user.id}")
 
 

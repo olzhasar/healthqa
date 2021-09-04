@@ -3,14 +3,16 @@ from datetime import datetime
 import pytest
 from faker import Faker
 from pytest_factoryboy import LazyFixture
-from sqlalchemy import func
 from sqlalchemy.orm.session import Session
 
-from models import Answer, Comment, Question, Vote
+import repository as repo
+from storage import Store
 from tests import factories
 from tests.utils import full_url_for
 
 fake = Faker()
+
+pytestmark = [pytest.mark.allow_db]
 
 
 class TestAskQuestion:
@@ -28,14 +30,14 @@ class TestAskQuestion:
             "tags": [t.id for t in tags],
         }
 
-    def test_ok(self, as_user, user, data, db, tags):
+    def test_ok(self, store: Store, as_user, user, data, tags):
         response = as_user.post(
             self.url,
             data=data,
             follow_redirects=False,
         )
 
-        question = db.query(Question).filter(Question.user_id == user.id).first()
+        question = repo.question.first_for_user(store, user)
 
         assert response.status_code == 302
         assert response.location == full_url_for("questions.details", id=question.id)
@@ -46,7 +48,7 @@ class TestAskQuestion:
         assert question.tags == tags
 
     @pytest.mark.parametrize("missing_field", ["title", "content", "tags"])
-    def test_missing_fields(self, as_user, user, data, missing_field, db):
+    def test_missing_fields(self, store: Store, as_user, user, data, missing_field):
         data.pop(missing_field)
 
         response = as_user.post(
@@ -56,9 +58,7 @@ class TestAskQuestion:
         )
 
         assert response.status_code == 200
-        assert not bool(
-            db.query(Question.id).filter(Question.user_id == user.id).first()
-        )
+        assert not repo.question.exists(store)
 
     @pytest.mark.parametrize(
         ("field_name", "field_value"),
@@ -69,7 +69,7 @@ class TestAskQuestion:
         ],
     )
     def test_fields_length_validation(
-        self, as_user, user, data, db, field_name, field_value
+        self, store: Store, as_user, user, data, field_name, field_value
     ):
         data[field_name] = field_value
 
@@ -80,11 +80,9 @@ class TestAskQuestion:
         )
 
         assert response.status_code == 200
-        assert not bool(
-            db.query(Question.id).filter(Question.title == data["title"]).first()
-        )
+        assert not repo.question.exists(store)
 
-    def test_unauthorized(self, client, data, db):
+    def test_unauthorized(self, store: Store, client, data):
         response = client.post(
             self.url,
             data=data,
@@ -94,9 +92,7 @@ class TestAskQuestion:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-        assert not bool(
-            db.query(Question.id).filter(Question.title == data["title"]).first()
-        )
+        assert not repo.question.exists(store)
 
 
 class TestAllQuestions:
@@ -148,7 +144,7 @@ class TestSearch:
 class TestDetails:
     url = "/questions/{id}"
 
-    def test_ok(self, client, db, question_with_related, max_num_queries):
+    def test_ok(self, client, question_with_related, max_num_queries):
         with max_num_queries(4):
             response = client.get(self.url.format(id=question_with_related.id))
 
@@ -175,21 +171,21 @@ class TestEditQuestion:
             "tags": [t.id for t in tags],
         }
 
-    def test_get(self, db: Session, as_user, question):
+    def test_get(self, as_user, question):
         response = as_user.get(
             self.url.format(id=question.id),
             follow_redirects=False,
         )
         assert response.status_code == 200
 
-    def test_not_found(self, db: Session, as_user):
+    def test_not_found(self, as_user):
         response = as_user.get(
             self.url.format(id=999),
             follow_redirects=False,
         )
         assert response.status_code == 404
 
-    def test_get_unauthorized(self, db: Session, client, question):
+    def test_get_unauthorized(self, client, question):
         response = client.get(
             self.url.format(id=question.id),
             follow_redirects=False,
@@ -205,7 +201,7 @@ class TestEditQuestion:
         )
         assert response.status_code == 403
 
-    def test_post_ok(self, db: Session, as_user, question, data, tags):
+    def test_post_ok(self, store: Store, as_user, question, data, tags):
         response = as_user.post(
             self.url.format(id=question.id),
             data=data,
@@ -214,12 +210,12 @@ class TestEditQuestion:
         assert response.status_code == 302
         assert response.location == full_url_for("questions.details", id=question.id)
 
-        db.refresh(question)
+        store.refresh(question)
         assert question.title == data["title"]
         assert question.content == data["content"]
         assert question.tags == tags
 
-    def test_post_unauthorized(self, db: Session, client, question, data):
+    def test_post_unauthorized(self, store: Store, client, question, data):
         response = client.post(
             self.url.format(id=question.id),
             data=data,
@@ -228,7 +224,11 @@ class TestEditQuestion:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-    def test_post_error(self, db: Session, as_user, question, data):
+        store.refresh(question)
+        assert question.title != data["title"]
+        assert question.content != data["content"]
+
+    def test_post_error(self, store: Store, as_user, question, data):
         data["content"] = "short"
 
         response = as_user.post(
@@ -238,7 +238,7 @@ class TestEditQuestion:
         )
         assert response.status_code == 200
 
-        db.refresh(question)
+        store.refresh(question)
         assert question.title != data["title"]
         assert question.content != data["content"]
 
@@ -250,7 +250,7 @@ class TestAnswer:
     def data(self):
         return {"content": fake.paragraph()}
 
-    def test_unauthorized(self, client, db, question, data):
+    def test_unauthorized(self, store: Store, client, question, data):
         response = client.post(
             self.url.format(id=question.id),
             data=data,
@@ -259,9 +259,9 @@ class TestAnswer:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-        assert db.query(func.count(Answer.id)).scalar() == 0
+        assert not repo.answer.exists(store)
 
-    def test_ok(self, as_user, user, db, question, data):
+    def test_ok(self, store: Store, as_user, user, question, data):
         response = as_user.post(
             self.url.format(id=question.id),
             data=data,
@@ -269,13 +269,13 @@ class TestAnswer:
         )
         assert response.status_code == 200
 
-        answer = db.query(Answer).filter(Answer.question_id == question.id).first()
+        answer = repo.answer.first(store)
 
         assert answer
         assert answer.user == user
         assert answer.content == data["content"]
 
-    def test_unexisting_question_id(self, as_user, db, data):
+    def test_unexisting_question_id(self, store: Store, as_user, data):
         response = as_user.post(
             self.url.format(id=999),
             data=data,
@@ -284,7 +284,7 @@ class TestAnswer:
         assert response.status_code == 403
         assert response.json == {"error": "invalid question_id"}
 
-        assert db.query(func.count(Answer.id)).scalar() == 0
+        assert not repo.answer.exists(store)
 
 
 class TestEditAnswer:
@@ -294,21 +294,21 @@ class TestEditAnswer:
     def new_content(self):
         return fake.paragraph()
 
-    def test_get(self, db: Session, as_user, answer):
+    def test_get(self, as_user, answer):
         response = as_user.get(
             self.url.format(id=answer.id),
             follow_redirects=False,
         )
         assert response.status_code == 200
 
-    def test_not_found(self, db: Session, as_user):
+    def test_not_found(self, as_user):
         response = as_user.get(
             self.url.format(id=999),
             follow_redirects=False,
         )
         assert response.status_code == 404
 
-    def test_get_unauthorized(self, db: Session, client, answer):
+    def test_get_unauthorized(self, client, answer):
         response = client.get(
             self.url.format(id=answer.id),
             follow_redirects=False,
@@ -324,7 +324,7 @@ class TestEditAnswer:
         )
         assert response.status_code == 403
 
-    def test_post_ok(self, db: Session, as_user, answer, new_content):
+    def test_post_ok(self, store: Store, as_user, answer, new_content):
         response = as_user.post(
             self.url.format(id=answer.id),
             data={"content": new_content},
@@ -337,10 +337,10 @@ class TestEditAnswer:
             + f"#answer_{answer.id}"
         )
 
-        db.refresh(answer)
+        store.refresh(answer)
         assert answer.content == new_content
 
-    def test_post_unauthorized(self, db: Session, client, answer, new_content):
+    def test_post_unauthorized(self, store: Session, client, answer, new_content):
         response = client.post(
             self.url.format(id=answer.id),
             data={"content": new_content},
@@ -349,7 +349,10 @@ class TestEditAnswer:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-    def test_post_error(self, db: Session, as_user, answer, new_content):
+        store.refresh(answer)
+        assert answer.content != new_content
+
+    def test_post_error(self, store: Store, as_user, answer, new_content):
         response = as_user.post(
             self.url.format(id=answer.id),
             data={"content": "short"},
@@ -357,7 +360,7 @@ class TestEditAnswer:
         )
         assert response.status_code == 200
 
-        db.refresh(answer)
+        store.refresh(answer)
         assert answer.content != new_content
 
 
@@ -368,7 +371,7 @@ class TestComment:
     def data(self):
         return {"content": fake.paragraph()}
 
-    def test_unauthorized(self, client, db, question_or_answer, data):
+    def test_unauthorized(self, store: Store, client, question_or_answer, data):
         response = client.post(
             self.url.format(id=question_or_answer.id),
             data=data,
@@ -377,9 +380,9 @@ class TestComment:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-        assert db.query(func.count(Comment.id)).scalar() == 0
+        assert not repo.comment.exists(store)
 
-    def test_ok(self, as_user, user, db, question_or_answer, data):
+    def test_ok(self, store: Store, as_user, user, question_or_answer, data):
         response = as_user.post(
             self.url.format(id=question_or_answer.id),
             data=data,
@@ -387,15 +390,13 @@ class TestComment:
         )
         assert response.status_code == 200
 
-        comment = (
-            db.query(Comment).filter(Comment.entry_id == question_or_answer.id).first()
-        )
+        comment = repo.comment.first(store)
 
-        assert comment
+        assert comment.entry_id == question_or_answer.id
         assert comment.user == user
         assert comment.content == data["content"]
 
-    def test_unexisting_entry(self, as_user, db, data):
+    def test_unexisting_entry(self, store: Store, as_user, data):
         response = as_user.post(
             self.url.format(id=999),
             data=data,
@@ -404,7 +405,7 @@ class TestComment:
         assert response.status_code == 400
         assert response.json == {"error": "invalid entry_id"}
 
-        assert db.query(func.count(Comment.id)).scalar() == 0
+        assert not repo.comment.exists(store)
 
 
 class TestEditComment:
@@ -423,7 +424,7 @@ class TestEditComment:
     def data(self):
         return {"content": fake.paragraph()}
 
-    def test_get(self, db: Session, as_user, comment):
+    def test_get(self, as_user, comment):
         response = as_user.get(
             self.url.format(id=comment.id),
             follow_redirects=False,
@@ -431,7 +432,7 @@ class TestEditComment:
 
         assert response.status_code == 200
 
-    def test_get_unexisting(self, db: Session, as_user):
+    def test_get_unexisting(self, as_user):
         response = as_user.get(
             self.url.format(id=999),
             follow_redirects=False,
@@ -439,7 +440,7 @@ class TestEditComment:
 
         assert response.status_code == 404
 
-    def test_get_unauthorized(self, db: Session, client, comment):
+    def test_get_unauthorized(self, client, comment):
         response = client.get(
             self.url.format(id=comment.id),
             follow_redirects=False,
@@ -448,7 +449,7 @@ class TestEditComment:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
-    def test_post_ok(self, db: Session, as_user, comment, data):
+    def test_post_ok(self, store: Store, as_user, comment, data):
         response = as_user.post(
             self.url.format(id=comment.id),
             data=data,
@@ -457,10 +458,10 @@ class TestEditComment:
 
         assert response.status_code == 200
 
-        db.refresh(comment)
+        store.refresh(comment)
         assert comment.content == data["content"]
 
-    def test_post_invalid_data(self, db: Session, as_user, comment):
+    def test_post_invalid_data(self, store: Store, as_user, comment):
         response = as_user.post(
             self.url.format(id=comment.id),
             data={"content": "short"},
@@ -469,10 +470,10 @@ class TestEditComment:
 
         assert response.status_code == 200
 
-        db.refresh(comment)
+        store.refresh(comment)
         assert comment.content != "short"
 
-    def test_post_unexisting(self, db: Session, as_user, data):
+    def test_post_unexisting(self, store: Store, as_user, data):
         response = as_user.post(
             self.url.format(id=999),
             data=data,
@@ -481,7 +482,7 @@ class TestEditComment:
 
         assert response.status_code == 404
 
-    def test_post_unauthorized(self, db: Session, client, comment, data):
+    def test_post_unauthorized(self, store: Store, client, comment, data):
         response = client.post(
             self.url.format(id=comment.id),
             data=data,
@@ -491,24 +492,27 @@ class TestEditComment:
         assert response.status_code == 302
         assert response.location.startswith(full_url_for("auth.login"))
 
+        store.refresh(comment)
+        assert comment.content != data["content"]
+
 
 class TestVote:
     url = "/entries/{id}/vote/{value}"
 
-    def test_new_vote(self, db: Session, as_user, user, question):
+    def test_new_vote(self, store: Store, as_user, user, question):
         response = as_user.post(
             self.url.format(id=question.id, value=1),
         )
 
         assert response.status_code == 200
 
-        from_db = db.query(Vote).filter(Vote.entry_id == question.id).first()
+        vote = repo.vote.first(store)
 
-        assert from_db
-        assert from_db.entry == question
-        assert from_db.value == 1
+        assert vote.user == user
+        assert vote.entry == question
+        assert vote.value == 1
 
-    def test_update_existing(self, db: Session, as_user, user, question):
+    def test_update_existing(self, store: Store, as_user, user, question):
         existing = factories.VoteFactory(user=user, entry_id=question.id, value=-1)
 
         response = as_user.post(
@@ -517,10 +521,10 @@ class TestVote:
 
         assert response.status_code == 200
 
-        db.refresh(existing)
+        store.refresh(existing)
         assert existing.value == 1
 
-    def test_delete(self, db: Session, as_user, user, question):
+    def test_delete(self, store: Store, as_user, user, question):
         factories.VoteFactory(user=user, entry_id=question.id, value=1)
 
         response = as_user.post(
@@ -528,14 +532,9 @@ class TestVote:
         )
 
         assert response.status_code == 200
+        assert not repo.vote.exists(store, user_id=user.id, entry_id=question.id)
 
-        assert not bool(
-            db.query(Vote.id)
-            .filter(Vote.user_id == user.id, Vote.entry_id == question.id)
-            .first()
-        )
-
-    def test_error(self, db: Session, as_user, user, question):
+    def test_error(self, store: Store, as_user, user, question):
         response = as_user.post(
             self.url.format(id=question.id, value=5),
         )
@@ -543,23 +542,19 @@ class TestVote:
         assert response.status_code == 400
         assert response.json == {"error": "Invalid vote value"}
 
-        assert not bool(
-            db.query(Vote.id)
-            .filter(Vote.user_id == user.id, Vote.entry_id == question.id)
-            .first()
-        )
+        assert not repo.vote.exists(store, user_id=user.id, entry_id=question.id)
 
 
 class TestDeleteEntry:
     url = "/entries/{id}"
 
     @pytest.mark.freeze_time("2030-01-01")
-    def test_ok(self, db: Session, as_user, entry):
+    def test_ok(self, store: Store, as_user, entry):
         response = as_user.delete(self.url.format(id=entry.id))
 
         assert response.status_code == 204
 
-        db.refresh(entry)
+        store.refresh(entry)
         assert entry.deleted_at == datetime(2030, 1, 1)
 
     def test_unexisting_question(self, as_user):

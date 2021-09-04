@@ -1,6 +1,6 @@
 from flask import Flask
 
-import crud
+import repository as repo
 from storage import store
 
 
@@ -10,7 +10,7 @@ class TagCategoriesLazy:
 
     def __iter__(self):
         if not self._tag_categories:
-            self._tag_categories = crud.tag.get_categories_list(store.db)
+            self._tag_categories = repo.tag_category.all(store)
 
         for category in self._tag_categories:
             yield category
