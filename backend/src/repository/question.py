@@ -106,6 +106,14 @@ class QuestionRepository(BaseRepostitory[Question]):
     def _list_default_filters(self):
         return [Question.deleted_at.is_(None)]
 
+    def all_for_user(self, store: Store, user: User) -> List[Question]:
+        return (
+            store.db.query(Question)
+            .filter(Question.user_id == user.id)
+            .order_by(Question.created_at.desc())
+            .all()
+        )
+
     def list_for_user(
         self, store: Store, user: User, *, page: int = 1, per_page: int = PER_PAGE
     ) -> Paginator[Question]:

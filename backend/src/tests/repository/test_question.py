@@ -188,6 +188,11 @@ def user_questions(user):
     return factories.QuestionFactory.create_batch(4, user=user)
 
 
+def test_all_for_user(store: Store, user, other_user, user_questions):
+    assert set(repo.question.all_for_user(store, user)) == set(user_questions)
+    assert repo.question.all_for_user(store, other_user) == []
+
+
 @pytest.mark.parametrize(
     ("page", "per_page", "exp_n_pages", "exp_slice"),
     [
