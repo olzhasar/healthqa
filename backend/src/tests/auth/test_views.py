@@ -5,16 +5,12 @@ import freezegun
 import pytest
 from pytest_mock.plugin import MockerFixture
 
+import repository as repo
 from auth import security
-from repository.user import UserRepository
+from storage.base import Store
 from tests.utils import full_url_for
 
 pytestmark = [pytest.mark.allow_db]
-
-
-@pytest.fixture
-def user_repo(store):
-    return UserRepository(store=store)
 
 
 @pytest.fixture
@@ -52,8 +48,8 @@ class TestSignup:
 
     def test_ok(
         self,
+        store: Store,
         client,
-        user_repo,
         mock_generate_and_send_verification_link: MagicMock,
         data,
     ):
@@ -66,13 +62,13 @@ class TestSignup:
         assert response.status_code == 302
         assert response.location == full_url_for("auth.verification_required")
 
-        user = user_repo.get_by_email(data["email"])
+        user = repo.user.get_by_email(store, data["email"])
         assert user.id
         assert security.check_password(data["password"], user.password)
 
         mock_generate_and_send_verification_link.assert_called_once_with(user)
 
-    def test_email_exists(self, user_repo, client, data, user):
+    def test_email_exists(self, store: Store, client, data, user):
         data["email"] = user.email
 
         response = client.post(
@@ -82,7 +78,7 @@ class TestSignup:
         )
 
         assert response.status_code == 200
-        assert user_repo.count() == 1
+        assert repo.user.count(store) == 1
 
     @pytest.mark.parametrize(
         "missing_field",
@@ -93,7 +89,7 @@ class TestSignup:
             "password_repeat",
         ],
     )
-    def test_field_missing(self, client, data, user_repo, missing_field):
+    def test_field_missing(self, store: Store, client, data, missing_field):
         data.pop(missing_field)
 
         response = client.post(
@@ -103,9 +99,9 @@ class TestSignup:
         )
 
         assert response.status_code == 200
-        assert user_repo.count() == 0
+        assert repo.user.count(store) == 0
 
-    def test_passwords_mismatch(self, client, data, user_repo):
+    def test_passwords_mismatch(self, store: Store, client, data):
         data["password_repeat"] = "wrong_password"
 
         response = client.post(
@@ -115,9 +111,9 @@ class TestSignup:
         )
 
         assert response.status_code == 200
-        assert user_repo.count() == 0
+        assert repo.user.count(store) == 0
 
-    def test_wrong_email(self, client, data, user_repo):
+    def test_wrong_email(self, store: Store, client, data):
         data["email"] = "aslkfja@aslfas"
 
         response = client.post(
@@ -127,9 +123,9 @@ class TestSignup:
         )
 
         assert response.status_code == 200
-        assert user_repo.count() == 0
+        assert repo.user.count(store) == 0
 
-    def test_password_min_length(self, client, data, user_repo):
+    def test_password_min_length(self, store: Store, client, data):
         data["password"] = "123"
         data["password_repeat"] = "123"
 
@@ -140,7 +136,7 @@ class TestSignup:
         )
 
         assert response.status_code == 200
-        assert user_repo.count() == 0
+        assert repo.user.count(store) == 0
 
 
 class TestLogin:
@@ -286,7 +282,7 @@ class TestForgotPasswordSent:
 class TestResetPassword:
     url = "/reset_password/{token}"
 
-    def test_ok(self, user_repo: UserRepository, client, user):
+    def test_ok(self, store: Store, client, user):
         token = security.make_url_safe_token(user.id)
 
         response = client.get(
@@ -297,10 +293,10 @@ class TestResetPassword:
         assert response.status_code == 302
         assert response.location == full_url_for("auth.set_password")
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert user.password is None
 
-    def test_invalid_token(self, user_repo: UserRepository, client, user):
+    def test_invalid_token(self, store: Store, client, user):
         token = secrets.token_urlsafe()
 
         response = client.get(
@@ -310,7 +306,7 @@ class TestResetPassword:
 
         assert response.status_code == 200
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert user.password is not None
 
     def test_invalid_user(self, client):
@@ -323,7 +319,7 @@ class TestResetPassword:
 
         assert response.status_code == 200
 
-    def test_expired_token(self, user_repo: UserRepository, client, user):
+    def test_expired_token(self, store: Store, client, user):
         with freezegun.freeze_time("2020-01-01 12:00:00") as frozen:
             token = security.make_url_safe_token(user.id)
 
@@ -336,7 +332,7 @@ class TestResetPassword:
 
             assert response.status_code == 200
 
-            user_repo.refresh(user)
+            store.refresh(user)
             assert user.password is not None
 
 
@@ -379,7 +375,7 @@ class TestSetPassword:
 
         assert response.status_code == 403
 
-    def test_post_ok(self, user_repo: UserRepository, as_user, user, data):
+    def test_post_ok(self, store: Store, as_user, user, data):
         response = as_user.post(
             self.url,
             data=data,
@@ -389,10 +385,10 @@ class TestSetPassword:
         assert response.status_code == 302
         assert response.location == full_url_for("users.profile", id=user.id)
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert security.check_password("123qweasd", user.password)
 
-    def test_post_error(self, user_repo: UserRepository, as_user, user, data):
+    def test_post_error(self, store: Store, as_user, user, data):
         data["password_repeat"] = "wrong_password"
 
         response = as_user.post(
@@ -403,13 +399,11 @@ class TestSetPassword:
 
         assert response.status_code == 200
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert not user.password
 
     @pytest.mark.parametrize("user__password", ["not_empty"])
-    def test_post_password_not_empty(
-        self, user_repo: UserRepository, as_user, user, data
-    ):
+    def test_post_password_not_empty(self, store: Store, as_user, user, data):
         response = as_user.post(
             self.url,
             data=data,
@@ -418,7 +412,7 @@ class TestSetPassword:
 
         assert response.status_code == 403
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert not security.check_password("123qweasd", user.password)
 
     def test_post_unauthorized(self, client, data):
@@ -438,7 +432,7 @@ class TestVerifyEmail:
     def user__email_verified(self):
         return False
 
-    def test_ok(self, user_repo: UserRepository, client, user):
+    def test_ok(self, store: Store, client, user):
         token = security.make_url_safe_token(user.id)
 
         response = client.get(
@@ -449,10 +443,10 @@ class TestVerifyEmail:
         assert response.status_code == 302
         assert response.location == full_url_for("home.index")
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert user.email_verified is True
 
-    def test_invalid_token(self, user_repo: UserRepository, client, user):
+    def test_invalid_token(self, store: Store, client, user):
         token = secrets.token_urlsafe()
 
         response = client.get(
@@ -462,10 +456,10 @@ class TestVerifyEmail:
 
         assert response.status_code == 200
 
-        user_repo.refresh(user)
+        store.refresh(user)
         assert user.email_verified is False
 
-    def test_invalid_user(self, user_repo: UserRepository, client):
+    def test_invalid_user(self, client):
         token = security.make_url_safe_token(999)
 
         response = client.get(
@@ -475,7 +469,7 @@ class TestVerifyEmail:
 
         assert response.status_code == 200
 
-    def test_expired_token(self, user_repo: UserRepository, client, user):
+    def test_expired_token(self, store: Store, client, user):
         with freezegun.freeze_time("2020-01-01 12:00:00") as frozen:
             token = security.make_url_safe_token(user.id)
 
@@ -488,5 +482,5 @@ class TestVerifyEmail:
 
             assert response.status_code == 200
 
-            user_repo.refresh(user)
+            store.refresh(user)
             assert user.email_verified is False

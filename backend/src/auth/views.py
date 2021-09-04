@@ -10,13 +10,14 @@ from flask import (
 )
 from flask_login import current_user, login_user, logout_user
 
+import repository as repo
 from auth import forms, security
 from auth.services import (
     generate_and_send_password_reset_link,
     generate_and_send_verification_link,
 )
 from repository.exceptions import AlreadyExistsError, NotFoundError
-from repository.user import UserRepository
+from storage import store
 
 bp = Blueprint("auth", __name__)
 
@@ -28,12 +29,10 @@ def login():
 
     error = None
 
-    repo = UserRepository()
-
     form = forms.LoginForm()
     if form.validate_on_submit():
         try:
-            user = repo.get_by_email(form.email.data)
+            user = repo.user.get_by_email(store, form.email.data)
         except NotFoundError:
             pass
         else:
@@ -57,10 +56,9 @@ def signup():
 
     form = forms.SignupForm()
     if form.validate_on_submit():
-        repo = UserRepository()
-
         try:
-            user = repo.create(
+            user = repo.user.create(
+                store,
                 email=form.email.data,
                 name=form.name.data,
                 password=form.password.data,
@@ -93,10 +91,8 @@ def logout():
 def forgot_password():
     form = forms.ForgotPasswordForm()
     if form.validate_on_submit():
-        repo = UserRepository()
-
         try:
-            user = repo.get_by_email(form.email.data)
+            user = repo.user.get_by_email(store, form.email.data)
         except NotFoundError:
             pass
         else:
@@ -122,13 +118,12 @@ def reset_password(token: str):
     except ValueError:
         return render_template("auth/invalid_token.html")
 
-    repo = UserRepository()
     try:
-        user = repo.get(user_id)
+        user = repo.user.get(store, user_id)
     except NotFoundError:
         return render_template("auth/invalid_token.html")
 
-    repo.reset_password(user)
+    repo.user.reset_password(store, user)
     login_user(user)
     return redirect(url_for("auth.set_password"))
 
@@ -140,8 +135,7 @@ def set_password():
 
     form = forms.SetPasswordForm()
     if form.validate_on_submit():
-        repo = UserRepository()
-        repo.change_password(current_user, new_password=form.password.data)
+        repo.user.change_password(store, current_user, new_password=form.password.data)
         flash("Your password has been changed successfully")
         return redirect(url_for("users.profile", id=current_user.id))
 
@@ -157,13 +151,12 @@ def verify_email(token: str):
     except ValueError:
         return render_template("auth/invalid_token.html")
 
-    repo = UserRepository()
     try:
-        user = repo.get(user_id)
+        user = repo.user.get(store, user_id)
     except NotFoundError:
         return render_template("auth/invalid_token.html")
 
-    repo.mark_email_verified(user)
+    repo.user.mark_email_verified(store, user)
     login_user(user)
     flash("Welcome on board! Your account has been activated")
     return redirect(url_for("home.index"))
