@@ -10,14 +10,14 @@ if TYPE_CHECKING:
 
 
 class VoteRepository(BaseRepostitory[Vote]):
-    def get(self, store: Store, *, user_id: int, entry_id: int):
+    def get(self, store: Store, *, user_id: int, entry_id: int) -> Vote:
         query = store.db.query(Vote).filter(
             Vote.entry_id == entry_id, Vote.user_id == user_id
         )
 
         return self._get(store, query)
 
-    def exists(self, store: Store, *, user_id: int, entry_id: int):
+    def exists(self, store: Store, *, user_id: int, entry_id: int) -> bool:
         return bool(
             store.db.query(Vote.id)
             .filter(Vote.entry_id == entry_id, Vote.user_id == user_id)

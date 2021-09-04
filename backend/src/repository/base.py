@@ -1,4 +1,4 @@
-from typing import Any, Generic, List, TypeVar, get_args
+from typing import Any, Generic, List, Optional, TypeVar, get_args
 
 from sqlalchemy import exc
 from sqlalchemy.orm.query import Query
@@ -39,8 +39,15 @@ class BaseRepostitory(Generic[ModelType]):
         query = store.db.query(self.model).filter(self.model.id == id)
         return self._get(store, query)
 
-    def exists(self, store: Store, id: int) -> bool:
-        return bool(store.db.query(self.model.id).filter(self.model.id == id).first())
+    def first(self, store: Store) -> ModelType:
+        return store.db.query(self.model).first()
+
+    def exists(self, store: Store, id: Optional[int] = None) -> bool:
+        query = store.db.query(self.model.id)
+        if id:
+            query = query.filter(self.model.id == id)
+
+        return bool(query.first())
 
     def count(self, store: Store, *, filters: List[Any]):
         filters = filters or []

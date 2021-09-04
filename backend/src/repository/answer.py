@@ -27,7 +27,7 @@ class AnswerRepostiory(BaseRepostitory[Answer]):
 
         return answer
 
-    def update(self, store: Store, *, answer: Answer, new_content: str) -> None:
+    def update(self, store: Store, answer: Answer, *, new_content: str) -> None:
         answer.content = new_content
         store.db.add(answer)
         store.db.commit()
