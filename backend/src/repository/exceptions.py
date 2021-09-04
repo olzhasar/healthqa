@@ -1,6 +1,6 @@
-class NotFoundError(BaseException):
+class NotFoundError(Exception):
     pass
 
 
-class AlreadyExistsError(BaseException):
+class AlreadyExistsError(Exception):
     pass
