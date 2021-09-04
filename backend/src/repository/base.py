@@ -34,10 +34,6 @@ class BaseRepostitory:
     def redis(self) -> Redis:
         return self.store.redis
 
-    def refresh(self, *instances: ModelType):
-        for instance in instances:
-            self.db.refresh(instance)
-
     def get(self, id: int) -> ModelType:
         raise NotImplementedError
 

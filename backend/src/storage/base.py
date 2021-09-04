@@ -22,7 +22,7 @@ class Store:
         self._db = db
         self._redis = redis
 
-    def teardown(self):
+    def teardown(self) -> None:
         """
         Close all connections
         """
@@ -44,6 +44,9 @@ class Store:
         if self._redis is None:
             self._redis = create_redis()
         return self._redis
+
+    def refresh(self, instance, *args, **kwargs) -> None:
+        return self.db.refresh(instance, *args, **kwargs)
 
 
 def get_store() -> Store:
