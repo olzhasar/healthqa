@@ -38,7 +38,7 @@ question_tags_table = Table(
 class Question(Entry):
     __tablename__ = "questions"
 
-    id = Column(Integer, ForeignKey("entries.id"), primary_key=True)
+    id: int = Column(Integer, ForeignKey("entries.id"), primary_key=True)
 
     edited_at = Column(DateTime, onupdate=datetime.utcnow)
 
@@ -57,5 +57,5 @@ class Question(Entry):
     }
 
     @property
-    def url(self):
+    def url(self) -> str:
         return url_for("questions.details", id=self.id)

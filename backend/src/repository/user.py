@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import exc
 from sqlalchemy.orm import undefer
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class UserRepository(BaseRepostitory[User]):
-    def first_with_password(self, store: Store, id: int) -> User:
+    def first_with_password(self, store: Store, id: int) -> Optional[User]:
         return (
             store.db.query(User)
             .options(undefer("password"))
@@ -25,7 +25,7 @@ class UserRepository(BaseRepostitory[User]):
 
     def get_by_email(self, store: Store, email: str) -> User:
         query = store.db.query(User).filter(User.email == email)
-        return self._get(store, query)
+        return self._get(query)
 
     def create(self, store: Store, *, email: str, name: str, password: str) -> User:
         hashed_password = hash_password(password)
@@ -44,25 +44,25 @@ class UserRepository(BaseRepostitory[User]):
 
         return user
 
-    def change_password(self, store: Store, user: User, new_password: str) -> NoReturn:
+    def change_password(self, store: Store, user: User, new_password: str) -> None:
         user.password = hash_password(new_password)
 
         store.db.add(user)
         store.db.commit()
 
-    def reset_password(self, store: Store, user: User) -> NoReturn:
+    def reset_password(self, store: Store, user: User) -> None:
         user.password = None
 
         store.db.add(user)
         store.db.commit()
 
-    def update_info(self, store: Store, user: User, *, name: str) -> NoReturn:
+    def update_info(self, store: Store, user: User, *, name: str) -> None:
         user.name = name
 
         store.db.add(user)
         store.db.commit()
 
-    def mark_email_verified(self, store: Store, user: User) -> NoReturn:
+    def mark_email_verified(self, store: Store, user: User) -> None:
         user.email_verified = True
 
         store.db.add(user)

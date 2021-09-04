@@ -24,12 +24,12 @@ class EntryRepository(BaseRepostitory[Entry]):
             .filter(Entry.id == id)
         )
 
-        return self._get(store, query)
+        return self._get(query)
 
     def get_score(self, store: Store, *, id: int) -> int:
         return store.db.query(Entry.score).filter(Entry.id == id).scalar()
 
-    def mark_as_deleted(self, store: Store, *, id: int, user_id: int):
+    def mark_as_deleted(self, store: Store, *, id: int, user_id: int) -> None:
         try:
             entry = (
                 store.db.query(Entry)

@@ -30,7 +30,7 @@ class Answer(Entry):
     }
 
     @property
-    def url(self):
+    def url(self) -> str:
         return url_for("questions.details", id=self.question_id) + f"#answer_{self.id}"
 
 

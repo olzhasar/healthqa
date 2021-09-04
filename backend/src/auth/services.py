@@ -7,7 +7,7 @@ from models.user import User
 from worker import queue
 
 
-def generate_and_send_verification_link(user: User):
+def generate_and_send_verification_link(user: User) -> None:
     token = security.make_url_safe_token(user.id)
     url = url_for("auth.verify_email", token=token, _external=True)
     email_context = dict(name=user.name, url=url)
@@ -21,7 +21,7 @@ def generate_and_send_verification_link(user: User):
     )
 
 
-def generate_and_send_password_reset_link(user: User):
+def generate_and_send_password_reset_link(user: User) -> None:
     token = security.make_url_safe_token(user.id)
     url = url_for("auth.reset_password", token=token, _external=True)
     email_context = dict(name=user.name, url=url)

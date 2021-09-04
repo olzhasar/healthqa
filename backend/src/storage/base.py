@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from flask import g
 
@@ -45,7 +45,7 @@ class Store:
             self._redis = create_redis()
         return self._redis
 
-    def refresh(self, instance, *args, **kwargs) -> None:
+    def refresh(self, instance: Any, *args: Any, **kwargs: Any) -> None:
         return self.db.refresh(instance, *args, **kwargs)
 
 

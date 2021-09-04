@@ -15,7 +15,7 @@ class VoteRepository(BaseRepostitory[Vote]):
             Vote.entry_id == entry_id, Vote.user_id == user_id
         )
 
-        return self._get(store, query)
+        return self._get(query)
 
     def exists(self, store: Store, *, user_id: int, entry_id: int) -> bool:
         return bool(

@@ -22,24 +22,19 @@ class BaseRepostitory(Generic[ModelType]):
         """
         Retrieve ModelType specified in Generic
         """
-        return get_args(cls.__orig_bases__[0])[0]
+        return get_args(cls.__orig_bases__[0])[0]  # type: ignore
 
-    def _get(self, store, query: Query) -> ModelType:
+    def _get(self, query: Query) -> ModelType:
         try:
             return query.one()
         except exc.NoResultFound:
             raise exceptions.NotFoundError
 
-    def get(
-        self,
-        store: Store,
-        id: int,
-    ) -> ModelType:
-
+    def get(self, store: Store, id: int) -> ModelType:
         query = store.db.query(self.model).filter(self.model.id == id)
-        return self._get(store, query)
+        return self._get(query)
 
-    def first(self, store: Store) -> ModelType:
+    def first(self, store: Store) -> Optional[ModelType]:
         return store.db.query(self.model).first()
 
     def exists(self, store: Store, id: Optional[int] = None) -> bool:
@@ -49,7 +44,7 @@ class BaseRepostitory(Generic[ModelType]):
 
         return bool(query.first())
 
-    def count(self, store: Store, *, filters: List[Any] = None):
+    def count(self, store: Store, *, filters: List[Any] = None) -> int:
         filters = filters or []
         return store.db.query(self.model.id).filter(*filters).count()
 
@@ -73,7 +68,7 @@ class BaseRepostitory(Generic[ModelType]):
         offset: int = 0,
         order_by: List[Any] = None,
         filters: List[Any] = None
-    ):
+    ) -> List[ModelType]:
         order_by = order_by or self._list_default_ordering()
 
         filters = filters or self._list_default_filters()

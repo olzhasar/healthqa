@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING
 
 from models import Comment, User
 from repository.base import BaseRepostitory
@@ -14,7 +14,7 @@ class CommentRepostiory(BaseRepostitory[Comment]):
         query = store.db.query(Comment).filter(
             Comment.id == id, Comment.user_id == user_id
         )
-        return self._get(store, query)
+        return self._get(query)
 
     def create(
         self, store: Store, *, user: User, entry_id: int, content: str
@@ -30,7 +30,7 @@ class CommentRepostiory(BaseRepostitory[Comment]):
 
         return comment
 
-    def update(self, store: Store, instance: Comment, *, content: str) -> NoReturn:
+    def update(self, store: Store, instance: Comment, *, content: str) -> None:
         instance.content = content
 
         store.db.add(instance)

@@ -21,10 +21,10 @@ class Paginator(Generic[ModelType]):
         self.n_pages = (total - 1) // per_page + 1
 
     @staticmethod
-    def calc_offset(page: int, per_page):
+    def calc_offset(page: int, per_page: int) -> int:
         return per_page * (page - 1)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.n_pages
 
     @property
@@ -36,7 +36,7 @@ class Paginator(Generic[ModelType]):
         return self.page > 1
 
     @property
-    def page_range(self):
+    def page_range(self) -> range:
         low = max(1, self.page - 4)
         high = min(self.n_pages + 1, self.page + 5)
 

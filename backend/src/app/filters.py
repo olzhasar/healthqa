@@ -20,6 +20,6 @@ def time_ago(dt: datetime) -> str:
     return timeago.format(dt, now=datetime.utcnow())
 
 
-def init_app(app: Flask):
+def init_app(app: Flask) -> None:
     app.jinja_env.filters["to_page"] = to_page
     app.jinja_env.filters["time_ago"] = time_ago

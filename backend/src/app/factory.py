@@ -14,8 +14,8 @@ from users.views import bp as users_bp
 def create_app() -> Flask:
     app = Flask(
         __name__,
-        template_folder=settings.TEMPLATES_DIR,
-        static_folder=settings.STATIC_DIR,
+        template_folder=str(settings.TEMPLATES_DIR),
+        static_folder=str(settings.STATIC_DIR),
         static_url_path="/static",
     )
 
@@ -29,8 +29,8 @@ def create_app() -> Flask:
 
     CSRFProtect(app)
 
-    @app.teardown_appcontext
-    def teardown(exception):
+    @app.teardown_appcontext  # type:ignore
+    def teardown(exception: Exception) -> None:
         store = getattr(g, "_store", None)
         if store is not None:
             store.teardown()

@@ -12,7 +12,7 @@ from models.base import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id: int = Column(Integer, primary_key=True)
 
     created_at = deferred(Column(DateTime, nullable=False, default=datetime.utcnow))
     modified_at = deferred(

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, NoReturn
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.sql.expression import and_, or_
@@ -11,6 +11,8 @@ from models.question import question_tags_table
 from repository.base import BaseRepostitory
 
 if TYPE_CHECKING:
+    from sqlalchemy.orm.query import Query
+
     from storage import Store
 
 PER_PAGE = 16
@@ -51,9 +53,9 @@ class QuestionRepository(BaseRepostitory[Question]):
             .filter(Question.id == id, Question.deleted_at.is_(None))
         )
 
-        return self._get(store, query)
+        return self._get(query)
 
-    def first_for_user(self, store: Store, user: User):
+    def first_for_user(self, store: Store, user: User) -> Optional[Question]:
         return store.db.query(Question).filter(Question.user_id == user.id).first()
 
     def create(
@@ -80,7 +82,7 @@ class QuestionRepository(BaseRepostitory[Question]):
         new_title: str,
         new_content: str,
         tags: List[int]
-    ) -> NoReturn:
+    ) -> None:
 
         question.title = new_title
         question.content = new_content
@@ -101,13 +103,13 @@ class QuestionRepository(BaseRepostitory[Question]):
     def _list_default_ordering(self) -> List[Any]:
         return [Question.id.desc()]
 
-    def _list_base_query(self, store: Store):
+    def _list_base_query(self, store: Store) -> Query:
         return store.db.query(Question).options(
             joinedload(Question.user),
             joinedload(Question.tags),
         )
 
-    def _list_default_filters(self):
+    def _list_default_filters(self) -> List[Any]:
         return [Question.deleted_at.is_(None)]
 
     def all_for_user(self, store: Store, user: User) -> List[Question]:
@@ -135,7 +137,7 @@ class QuestionRepository(BaseRepostitory[Question]):
         return self.list(store, page=page, per_page=per_page, filters=filters)
 
     @staticmethod
-    def _clean_search_query(query: str):
+    def _clean_search_query(query: str) -> str:
         words = query.replace("\\", "").strip().split(" ")
         return "&".join(words)
 

@@ -1,6 +1,7 @@
 import random
 
 import click
+import factory
 
 from app.main import app
 from storage import store
@@ -16,14 +17,14 @@ from tests.factories import (
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
 @cli.command("create_test_data")
-def test_data():
+def test_data() -> None:
     with app.app_context():
-        factories = [
+        factories: list[factory.alchemy.SQLAlchemyModelFactory] = [
             AnswerFactory,
             CommentFactory,
             QuestionFactory,
@@ -72,7 +73,7 @@ def test_data():
 
 
 @cli.command()
-def run():
+def run() -> None:
     app.run()
 
 

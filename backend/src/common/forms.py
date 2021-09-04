@@ -1,14 +1,20 @@
+from __future__ import annotations
+
 import uuid
+from typing import TYPE_CHECKING, Any, Iterator, List, Tuple
 
 from markupsafe import Markup, escape
 from wtforms import Field, SelectMultipleField, StringField
 from wtforms.widgets.core import html_params
 
-from models import TagCategory
+if TYPE_CHECKING:
+    from wtforms.form import Form
+
+    from models import Tag, TagCategory
 
 
 class TrixWidget:
-    def __call__(self, field: Field, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         id = uuid.uuid4()
         if "required" not in kwargs and "required" in getattr(field, "flags", []):
             kwargs["required"] = True
@@ -50,17 +56,17 @@ class ChoiceCategory:
         self.data = data
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._instance.name
 
-    def iter_tags(self) -> tuple[int, str, bool]:
+    def iter_tags(self) -> Iterator[Tuple[int, str, bool]]:
         for tag in self._instance.tags:
             selected = self.data is not None and tag.id in self.data
             yield tag.id, tag.name, selected
 
 
 class TagsWidget:
-    def __call__(self, field: Field, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         field_id = kwargs.pop("id", field.id)
         html = ["<div>"]
         for category in field.iter_categories():
@@ -92,17 +98,17 @@ class TagsWidget:
 class TagsField(SelectMultipleField):
     widget = TagsWidget()
 
-    def process_data(self, value):
+    def process_data(self, value: List[Tag]) -> None:
         try:
             self.data = [tag.id for tag in value]
         except TypeError:
             self.data = None
 
-    def iter_categories(self):
+    def iter_categories(self) -> Iterator[ChoiceCategory]:
         for category in self.choices:
             yield ChoiceCategory(category, self.data)
 
-    def pre_validate(self, form):
+    def pre_validate(self, form: Form) -> None:
         if self.data:
             values = []
             for category in self.choices:

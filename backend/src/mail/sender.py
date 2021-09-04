@@ -23,7 +23,7 @@ def send_mail(*, to: str, subject: str, message: str) -> None:
 
 def send_templated_email(
     *, to: str, subject: str, template: EmailTemplate, context: dict[str, Any]
-):
+) -> None:
     loader = FileSystemLoader(settings.EMAIL_TEMPLATES_DIR)
     env = Environment(loader=loader)
 

@@ -1,10 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime, Integer, Text
 
 from models.entry import Entry
+
+if TYPE_CHECKING:
+    from models.vote import Vote  # noqa:F401 to avoid mypy error
 
 
 class Comment(Entry):

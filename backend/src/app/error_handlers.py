@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
 from flask import render_template
 
@@ -10,15 +10,15 @@ if TYPE_CHECKING:
     from flask import Flask
 
 
-def handle_404(e):
+def handle_404(e: Exception) -> Tuple[str, int]:
     return render_template("404.html"), 404
 
 
-def handle_500(e):
+def handle_500(e: Exception) -> Tuple[str, int]:
     return render_template("500.html"), 500
 
 
-def init_app(app: Flask):
+def init_app(app: Flask) -> None:
     app.register_error_handler(404, handle_404)
     app.register_error_handler(NotFoundError, handle_404)
     app.register_error_handler(500, handle_500)
