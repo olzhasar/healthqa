@@ -20,6 +20,7 @@ itsdangerous = "*"
 gunicorn = "*"
 timeago = "*"
 python-slugify = "*"
+sentry-sdk = {extras = ["flask"], version = "*"}
 
 [dev-packages]
 flake8 = "*"

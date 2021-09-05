@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     FRONTEND_DIR = BASE_DIR.parent.parent.joinpath("frontend")
     STATIC_DIR = FRONTEND_DIR.joinpath("dist")
 
+    SENTRY_DSN: str = ""
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.3
+
     class Config:
         env_file = ".env"
 
