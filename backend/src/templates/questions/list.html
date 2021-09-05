@@ -19,7 +19,8 @@
   </div>
 
   <div class="flex flex-col gap-2 md:gap-4">
-    {% for question in questions %}
+    {% block questions %}
+    {% for question in paginator.objects %}
       {% include "questions/_question_card.html" %}
     {% else %}
       {% block empty %}
@@ -28,7 +29,10 @@
 	</div>
       {% endblock %}
     {% endfor %}
+    {% endblock %}
   </div>
 
+  {% block pagination %}
   {% include "partials/pagination.html" %}
+  {% endblock %}
 {% endblock %}

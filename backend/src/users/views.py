@@ -1,42 +1,32 @@
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, render_template
 from flask.globals import request
-from sqlalchemy.exc import NoResultFound
 
-import crud
-from common.pagination import Paginator
-from db.database import db
+import repository as repo
+from storage import store
 
 bp = Blueprint("users", __name__, url_prefix="/users")
 
 
 @bp.route("/")
 def all():
-    paginator = Paginator(
-        total=crud.user.count(db),
-        current=request.args.get("page", 1),
-        per_page=16,
-    )
+    page = int(request.args.get("page", 1))
 
-    users = crud.user.for_list(db, limit=paginator.limit, offset=paginator.offset)
+    paginator = repo.user.list(store, page=page, per_page=16)
 
-    return render_template("users/list.html", users=users, paginator=paginator)
+    return render_template("users/list.html", paginator=paginator)
 
 
 @bp.route("/<int:id>/")
 def profile(id: int):
-    try:
-        user = crud.user.get_with_counts(db, id=id)
-    except NoResultFound:
-        abort(404)
+    user = repo.user.get_with_counts(store, id)
 
     tab = request.args.get("tab", "questions")
-
     if tab == "questions":
-        questions = crud.question.get_list_for_user(db, user_id=user.id)
+        questions = repo.question.all_for_user(store, user)
         answers = []
     else:
         questions = []
-        answers = crud.answer.get_list_for_user(db, user_id=user.id)
+        answers = repo.answer.all_for_user(store, user)
 
     return render_template(
         "users/profile.html", user=user, questions=questions, answers=answers, tab=tab

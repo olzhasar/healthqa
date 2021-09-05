@@ -1,10 +1,10 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-import crud
+import repository as repo
 from account import forms
 from auth import security
-from db.database import db
+from storage import store
 
 bp = Blueprint("account", __name__, url_prefix="/account", template_folder="templates")
 
@@ -19,7 +19,7 @@ def index():
 def edit_info():
     form = forms.ProfileForm(obj=current_user)
     if form.validate_on_submit():
-        crud.user.update(db, user_id=current_user.id, name=form.name.data)
+        repo.user.update_info(store, current_user, name=form.name.data)
         flash("Account information has been updated")
 
     return render_template("account/edit_info.html", form=form)
@@ -31,11 +31,11 @@ def change_password():
     form = forms.ChangePasswordForm()
     if form.validate_on_submit():
         if security.check_password(form.current_password.data, current_user.password):
-            crud.user.change_password(
-                db, user_id=current_user.id, new_password=form.password.data
+            repo.user.change_password(
+                store, current_user, new_password=form.password.data
             )
-            flash("Your password has been changed successfully")
 
+            flash("Your password has been changed successfully")
             return redirect(url_for("users.profile", id=current_user.id))
 
         form.current_password.errors.append("Invalid old password")

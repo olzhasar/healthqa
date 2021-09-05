@@ -1,14 +1,14 @@
 from flask import Blueprint, render_template
 
-import crud
-from db.database import db
+import repository as repo
+from storage import store
 
 bp = Blueprint("home", __name__, template_folder="templates")
 
 
 @bp.route("/")
 def index():
-    questions = crud.question.get_popular_list(db, limit=20)
+    questions = repo.question.all(store, limit=20)
     return render_template("home/index.html", questions=questions)
 
 

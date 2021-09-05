@@ -3,6 +3,8 @@ import pytest
 from tests import factories
 
 
+@pytest.mark.allow_db
+@pytest.mark.allow_redis
 class TestIndex:
     url = "/"
 

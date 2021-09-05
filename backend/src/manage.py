@@ -1,9 +1,10 @@
 import random
 
 import click
+import factory
 
 from app.main import app
-from db.database import db
+from storage import store
 from tests.factories import (
     AnswerFactory,
     CommentFactory,
@@ -16,14 +17,14 @@ from tests.factories import (
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
 @cli.command("create_test_data")
-def test_data():
+def test_data() -> None:
     with app.app_context():
-        factories = [
+        factories: list[factory.alchemy.SQLAlchemyModelFactory] = [
             AnswerFactory,
             CommentFactory,
             QuestionFactory,
@@ -34,7 +35,8 @@ def test_data():
         ]
 
         for f in factories:
-            f._meta.sqlalchemy_session = db
+            f._meta.sqlalchemy_session = store.db
+            f._meta.sqlalchemy_session_persistence = "flush"
 
         categories = TagCategoryFactory.create_batch(5)
         tags = []
@@ -67,11 +69,11 @@ def test_data():
 
                 VoteFactory.create_batch(random.randint(1, 7), entry_id=question.id)
 
-            db.commit()
+            store.db.commit()
 
 
 @cli.command()
-def run():
+def run() -> None:
     app.run()
 
 

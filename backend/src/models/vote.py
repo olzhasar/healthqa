@@ -4,7 +4,7 @@ from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.sql.schema import Column, ForeignKey, UniqueConstraint
 from sqlalchemy.sql.sqltypes import DateTime, Integer, SmallInteger
 
-from db.base import Base
+from models.base import Base
 from models.entry import Entry
 from models.user import User
 

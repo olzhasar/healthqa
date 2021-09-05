@@ -5,6 +5,12 @@
 
 {% set page_title = "Top questions" %}
 
+{% block questions %}
+  {% for question in questions %}
+    {% include "questions/_question_card.html" %}
+  {% endfor %}
+{% endblock %}
+
 {% block bottom %}
   <div class="flex justify-between mb-4">
     <div></div>
@@ -13,5 +19,7 @@
     </a>
   </div>
 {% endblock %}
+
+{% block pagination %}{% endblock %}
 
 {% set active_page = 'home' %}

@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import cast
 
 import bcrypt
 from itsdangerous.exc import BadSignature, SignatureExpired
@@ -30,7 +30,7 @@ def make_url_safe_token(user_id: int) -> str:
     return result
 
 
-def get_user_id_from_token(token: str, max_age: int) -> Optional[int]:
+def get_user_id_from_token(token: str, max_age: int) -> int:
     signer = URLSafeTimedSerializer(settings.SECRET_KEY)
     try:
         return signer.loads(token, max_age=max_age)

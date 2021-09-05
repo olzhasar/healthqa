@@ -9,15 +9,15 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_user, logout_user
-from sqlalchemy.exc import NoResultFound
 
-import crud
+import repository as repo
 from auth import forms, security
 from auth.services import (
     generate_and_send_password_reset_link,
     generate_and_send_verification_link,
 )
-from db.database import db
+from repository.exceptions import AlreadyExistsError, NotFoundError
+from storage import store
 
 bp = Blueprint("auth", __name__)
 
@@ -32,8 +32,8 @@ def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
         try:
-            user = crud.user.get_by_email(db, email=form.email.data)
-        except NoResultFound:
+            user = repo.user.get_by_email(store, form.email.data)
+        except NotFoundError:
             pass
         else:
             if security.check_password(form.password.data, user.password):
@@ -56,14 +56,18 @@ def signup():
 
     form = forms.SignupForm()
     if form.validate_on_submit():
-        user = crud.user.create_user(
-            db,
-            email=form.email.data,
-            name=form.name.data,
-            password=form.password.data,
-        )
-        generate_and_send_verification_link(user)
-        return redirect(url_for("auth.verification_required"))
+        try:
+            user = repo.user.create(
+                store,
+                email=form.email.data,
+                name=form.name.data,
+                password=form.password.data,
+            )
+        except AlreadyExistsError:
+            form.email.errors.append("User with this email is already registered")
+        else:
+            generate_and_send_verification_link(user)
+            return redirect(url_for("auth.verification_required"))
     return render_template("auth/signup.html", form=form)
 
 
@@ -88,8 +92,8 @@ def forgot_password():
     form = forms.ForgotPasswordForm()
     if form.validate_on_submit():
         try:
-            user = crud.user.get_by_email(db, email=form.email.data)
-        except NoResultFound:
+            user = repo.user.get_by_email(store, form.email.data)
+        except NotFoundError:
             pass
         else:
             generate_and_send_password_reset_link(user)
@@ -115,11 +119,11 @@ def reset_password(token: str):
         return render_template("auth/invalid_token.html")
 
     try:
-        user = crud.user.get(db, id=user_id)
-    except NoResultFound:
+        user = repo.user.get(store, user_id)
+    except NotFoundError:
         return render_template("auth/invalid_token.html")
 
-    crud.user.reset_password(db, user=user)
+    repo.user.reset_password(store, user)
     login_user(user)
     return redirect(url_for("auth.set_password"))
 
@@ -131,9 +135,7 @@ def set_password():
 
     form = forms.SetPasswordForm()
     if form.validate_on_submit():
-        crud.user.change_password(
-            db, user_id=current_user.id, new_password=form.password.data
-        )
+        repo.user.change_password(store, current_user, new_password=form.password.data)
         flash("Your password has been changed successfully")
         return redirect(url_for("users.profile", id=current_user.id))
 
@@ -150,11 +152,11 @@ def verify_email(token: str):
         return render_template("auth/invalid_token.html")
 
     try:
-        user = crud.user.get(db, id=user_id)
-    except NoResultFound:
+        user = repo.user.get(store, user_id)
+    except NotFoundError:
         return render_template("auth/invalid_token.html")
 
-    crud.user.mark_email_verified(db, user=user)
+    repo.user.mark_email_verified(store, user)
     login_user(user)
     flash("Welcome on board! Your account has been activated")
     return redirect(url_for("home.index"))

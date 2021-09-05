@@ -1,45 +1,46 @@
 import pytest
 from faker import Faker
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm.session import Session
 
-import crud
+import repository as repo
 from models import Answer, Comment, Vote
+from repository import exceptions
+from storage import Store
 from tests import factories
 
 fake = Faker()
 
+pytestmark = [pytest.mark.allow_db]
 
-def test_get(db: Session, answer, max_num_queries):
+
+def test_get(store: Store, answer, max_num_queries):
     with max_num_queries(1):
-        from_db = crud.answer.get(db, id=answer.id)
+        assert repo.answer.get(store, answer.id) == answer
 
-    assert from_db
-    assert isinstance(from_db, Answer)
 
-    with pytest.raises(NoResultFound):
-        crud.user.get(db, id=999)
+def test_get_non_existing(store: Store):
+    with pytest.raises(exceptions.NotFoundError):
+        repo.answer.get(store, 999)
 
 
 @pytest.mark.parametrize("answer__content", ["Old content"])
-def test_update(db: Session, answer):
-    crud.answer.update(db, answer=answer, new_content="New content")
+def test_update(store: Store, answer):
+    repo.answer.update(store, answer=answer, new_content="New content")
 
-    db.refresh(answer)
+    store.db.refresh(answer)
     assert answer.content == "New content"
 
 
-def test_create_answer(db: Session, user, question):
+def test_create_answer(store: Store, user, question):
     content = fake.paragraph()
 
-    answer = crud.answer.create(
-        db,
+    answer = repo.answer.create(
+        store,
         user=user,
         question_id=question.id,
         content=content,
     )
 
-    from_db = db.query(Answer).filter(Answer.user_id == user.id).one()
+    from_db = repo.answer.get(store, answer.id)
 
     assert from_db == answer
     assert from_db.id
@@ -48,29 +49,29 @@ def test_create_answer(db: Session, user, question):
     assert from_db.content == content
 
 
-def test_get_list_for_user(db: Session, user, other_user):
+def test_all_for_user(store: Store, user, other_user):
     answers = factories.AnswerFactory.create_batch(3, user=user)
     factories.AnswerFactory.create_batch(3)
 
-    assert set(crud.answer.get_list_for_user(db, user_id=user.id)) == set(answers)
-    assert crud.answer.get_list_for_user(db, user_id=other_user.id) == []
+    assert set(repo.answer.all_for_user(store, user)) == set(answers)
+    assert repo.answer.all_for_user(store, other_user) == []
 
 
-def test_get_list_for_question(db: Session, question_with_related, user):
-    answers = crud.answer.get_list_for_question(
-        db, question_id=question_with_related.id, user_id=user.id
+def test_all_for_question(store: Store, question_with_related, user):
+    answers = repo.answer.all_for_question(
+        store, question_id=question_with_related.id, user_id=user.id
     )
 
     assert len(answers) == 2
     assert set(answers) == set(question_with_related.answers)
 
 
-def test_get_list_for_question_single_query(
-    db: Session, question_with_related, user, max_num_queries
+def test_all_for_question_single_query(
+    store: Store, question_with_related, user, max_num_queries
 ):
     with max_num_queries(1):
-        answers = crud.answer.get_list_for_question(
-            db, question_id=question_with_related.id, user_id=user.id
+        answers = repo.answer.all_for_question(
+            store, question_id=question_with_related.id, user_id=user.id
         )
 
         for answer in answers:
@@ -83,38 +84,40 @@ def test_get_list_for_question_single_query(
                 assert comment.user_vote
 
 
-def test_get_list_for_question_correct_data(db: Session, question_with_related, user):
-    answers = crud.answer.get_list_for_question(
-        db, question_id=question_with_related.id, user_id=user.id
+def test_all_for_question_correct_data(store: Store, question_with_related, user):
+    answers = repo.answer.all_for_question(
+        store, question_id=question_with_related.id, user_id=user.id
     )
 
     for answer in answers:
         assert (
             answer.user.id
-            == db.query(Answer.user_id).filter(Answer.id == answer.id).scalar()
+            == store.db.query(Answer.user_id).filter(Answer.id == answer.id).scalar()
         )
 
         assert (
-            db.query(Vote.user_id)
+            store.db.query(Vote.user_id)
             .filter(Vote.id == answer.user_vote.id, Vote.entry_id == answer.id)
             .scalar()
             == user.id
         )
         for comment in answer.comments:
             assert (
-                db.query(Comment.entry_id).filter(Comment.id == comment.id).scalar()
+                store.db.query(Comment.entry_id)
+                .filter(Comment.id == comment.id)
+                .scalar()
                 == answer.id
             )
             assert (
-                db.query(Vote.user_id)
+                store.db.query(Vote.user_id)
                 .filter(Vote.id == comment.user_vote.id, Vote.entry_id == comment.id)
                 .scalar()
                 == user.id
             )
 
 
-def test_get_list_for_question_no_user(db: Session, question_with_related, user):
-    answers = crud.answer.get_list_for_question(db, question_id=question_with_related.id)
+def test_all_for_question_no_user(store: Store, question_with_related, user):
+    answers = repo.answer.all_for_question(store, question_id=question_with_related.id)
 
     for answer in answers:
         assert not answer.user_vote
@@ -123,12 +126,12 @@ def test_get_list_for_question_no_user(db: Session, question_with_related, user)
             assert not comment.user_vote
 
 
-def test_get_list_for_answer_sorting(db: Session, question):
+def test_all_for_question_sorting(store: Store, question):
     factories.AnswerFactory(question=question, content="first", score=5)
     factories.AnswerFactory(question=question, content="second", score=5)
     factories.AnswerFactory(question=question, content="third", score=0)
     factories.AnswerFactory(question=question, content="fourth", score=7)
 
-    answers = crud.answer.get_list_for_question(db, question_id=question.id)
+    answers = repo.answer.all_for_question(store, question_id=question.id)
 
     assert [a.content for a in answers] == ["fourth", "second", "first", "third"]

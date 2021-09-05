@@ -6,13 +6,13 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import deferred, query_expression
 from sqlalchemy.sql.sqltypes import Boolean, DateTime
 
-from db.base import Base
+from models.base import Base
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id: int = Column(Integer, primary_key=True)
 
     created_at = deferred(Column(DateTime, nullable=False, default=datetime.utcnow))
     modified_at = deferred(

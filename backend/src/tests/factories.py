@@ -2,7 +2,6 @@ import factory
 import factory.fuzzy
 
 from models import Answer, Comment, Question, Tag, TagCategory, User, Vote
-from models.view import View
 from tests.session import TestSession
 
 
@@ -10,7 +9,7 @@ class BaseFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         abstract = True
         sqlalchemy_session = TestSession
-        sqlalchemy_session_persistence = "flush"
+        sqlalchemy_session_persistence = "commit"
 
 
 class UserFactory(BaseFactory):
@@ -82,11 +81,3 @@ class VoteFactory(BaseFactory):
 
     class Meta:
         model = Vote
-
-
-class ViewFactory(BaseFactory):
-    entry_id = None
-    user_id = None
-
-    class Meta:
-        model = View

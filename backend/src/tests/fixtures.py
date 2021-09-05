@@ -6,29 +6,58 @@ import pytest
 from flask import Flask
 from flask import template_rendered as flask_template_rendered
 from sqlalchemy import event
+from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.orm import Session
 
+from storage.base import Store
 from tests.session import TestSession
 
 logger = logging.Logger(__name__)
 
 
+@pytest.fixture(scope="session")
+def connection(engine: Engine, _setup_db):
+    _connection = engine.connect()
+
+    try:
+        yield _connection
+    finally:
+        _connection.close()
+
+
 @pytest.fixture
-def db(_prepare_db) -> Generator:
-    with TestSession() as session:
-        session.begin_nested()
+def db(connection: Connection, monkeypatch) -> Generator:
+    transaction = connection.begin()
+
+    session = TestSession(bind=connection)
+    session.begin_nested()
+
+    @event.listens_for(session, "after_transaction_end")
+    def reset_savepoint(db_session, db_transaction):
+        if db_transaction.nested and not db_transaction._parent.nested:
+            db_session.begin_nested()
+
+    try:
         yield session
-        session.rollback()
-
-    TestSession.remove()
+    finally:
+        TestSession.remove()
+        transaction.rollback()
 
 
 @pytest.fixture
-def redis_db():
-    from db.redis import redis_db
+def redis_db() -> Generator:
+    from storage.redis import create_redis
 
-    yield redis_db
-    redis_db.flushdb()
+    redis = create_redis()
+    yield redis
+    redis.flushdb()
+
+
+@pytest.fixture
+def store(db, redis_db):
+    _store = Store(db=db, redis=redis_db)
+    yield _store
+    _store.teardown()
 
 
 @pytest.fixture
@@ -72,7 +101,6 @@ def as_user(user, db, client):
 
 class QueriesCounter:
     def __init__(self, db: Session):
-        self._count: int = 0
         self._do_count: bool = False
         self.queries: list[tuple[Any, ...]] = []
         event.listen(db.bind, "after_cursor_execute", self.callback)
@@ -87,11 +115,10 @@ class QueriesCounter:
     def callback(self, conn, cursor, statement, parameters, context, executemany):
         if self._do_count:
             if not statement.startswith(("SAVEPOINT", "RELEASE")):
-                self._count += 1
                 self.queries.append((statement, parameters, context))
 
     def __len__(self) -> int:
-        return self._count
+        return len(self.queries)
 
 
 @pytest.fixture

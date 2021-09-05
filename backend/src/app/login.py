@@ -1,18 +1,19 @@
-from flask_login import LoginManager
-from sqlalchemy.orm import undefer
+from __future__ import annotations
 
-from db.database import db
-from models.user import User
+from typing import TYPE_CHECKING, Optional
+
+from flask_login import LoginManager
+
+import repository as repo
+from storage import store
+
+if TYPE_CHECKING:
+    from models.user import User
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 
 
 @login_manager.user_loader
-def load_user(user_id: str):
-    return (
-        db.query(User)
-        .options(undefer("password"))
-        .filter(User.id == int(user_id))
-        .first()
-    )
+def load_user(user_id: str) -> Optional[User]:
+    return repo.user.first_with_password(store, int(user_id))

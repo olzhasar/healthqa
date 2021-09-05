@@ -9,7 +9,7 @@
   </h1>
 
   <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-    {% for user in users %}
+    {% for user in paginator.objects %}
       {% include "users/_user_card.html" %}
     {% endfor %}
   </div>

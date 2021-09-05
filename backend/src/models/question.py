@@ -7,7 +7,7 @@ from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import DateTime, Integer, String, Text
 
-from db.base import Base
+from models.base import Base
 from models.entry import Entry
 from models.tag import Tag
 
@@ -38,7 +38,7 @@ question_tags_table = Table(
 class Question(Entry):
     __tablename__ = "questions"
 
-    id = Column(Integer, ForeignKey("entries.id"), primary_key=True)
+    id: int = Column(Integer, ForeignKey("entries.id"), primary_key=True)
 
     edited_at = Column(DateTime, onupdate=datetime.utcnow)
 
@@ -51,11 +51,12 @@ class Question(Entry):
     )
 
     answer_count: Mapped[int]
+    view_count: int
 
     __mapper_args__ = {
         "polymorphic_identity": 1,
     }
 
     @property
-    def url(self):
+    def url(self) -> str:
         return url_for("questions.details", id=self.id)
