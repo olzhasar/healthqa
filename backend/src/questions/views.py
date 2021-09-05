@@ -83,8 +83,9 @@ def details(id: int):
     if current_user.is_authenticated:
         additional_params["user_id"] = current_user.id
 
-    if request.remote_addr:
-        repo.question.register_view(store, id, request.remote_addr)
+    remote_addr = request.environ.get("HTTP_X_REAL_IP", request.remote_addr)
+    if remote_addr:
+        repo.question.register_view(store, id, remote_addr)
 
     question = repo.question.get_with_related(store, id, **additional_params)
     answers = repo.answer.all_for_question(
