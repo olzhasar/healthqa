@@ -56,7 +56,5 @@ jobs:
 
       - name: Run pytest
         working-directory: ./backend/src
-        env:
-          REDIS_HOST: redis
         run: |
           pipenv run pytest
