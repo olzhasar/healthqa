@@ -1,8 +1,7 @@
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, render_template
 from flask.globals import request
 
 import repository as repo
-from repository.exceptions import NotFoundError
 from storage import store
 
 bp = Blueprint("users", __name__, url_prefix="/users")
@@ -19,13 +18,9 @@ def all():
 
 @bp.route("/<int:id>/")
 def profile(id: int):
-    try:
-        user = repo.user.get(store, id)
-    except NotFoundError:
-        abort(404)
+    user = repo.user.get_with_counts(store, id)
 
     tab = request.args.get("tab", "questions")
-
     if tab == "questions":
         questions = repo.question.all_for_user(store, user)
         answers = []

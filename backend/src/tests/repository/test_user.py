@@ -1,10 +1,15 @@
+import random
+
 import pytest
 from sqlalchemy.orm.session import Session
 
 import repository as repo
 from auth.security import check_password
+from models.answer import Answer
+from models.question import Question
 from repository import exceptions
 from storage.base import Store
+from tests import factories
 from tests.factories import UserFactory
 
 pytestmark = pytest.mark.allow_db
@@ -47,6 +52,33 @@ def test_get_by_email_non_existing(store: Store):
         repo.user.get_by_email(store, "non@existing.com")
 
 
+def _create_random_questions_answers(user):
+    questions = factories.QuestionFactory.create_batch(random.randint(1, 4), user=user)
+    factories.AnswerFactory.create_batch(
+        random.randint(1, 4), question=questions[0], user=user
+    )
+
+
+def test_get_with_counts(store: Store, user, max_num_queries):
+    _create_random_questions_answers(user)
+
+    with max_num_queries(1):
+        from_db = repo.user.get_with_counts(store, user.id)
+
+        assert from_db == user
+        assert from_db.question_count
+        assert from_db.answer_count
+
+    assert (
+        from_db.question_count
+        == store.db.query(Question).filter(Question.user_id == user.id).count()
+    )
+    assert (
+        from_db.answer_count
+        == store.db.query(Answer).filter(Answer.user_id == user.id).count()
+    )
+
+
 @pytest.mark.parametrize(
     ("page", "per_page", "n_pages", "exp_slice"),
     [
@@ -65,6 +97,23 @@ def test_list(store: Store, users, page, per_page, n_pages, exp_slice, max_num_q
     assert paginator.page == page
     assert paginator.per_page == per_page
     assert len(paginator) == n_pages
+
+
+def test_list_counts(store: Store, users):
+    for user in users:
+        _create_random_questions_answers(user)
+
+    paginator = repo.user.list(store)
+
+    for user in paginator.objects:
+        assert (
+            user.question_count
+            == store.db.query(Question).filter(Question.user_id == user.id).count()
+        )
+        assert (
+            user.answer_count
+            == store.db.query(Answer).filter(Answer.user_id == user.id).count()
+        )
 
 
 @pytest.fixture

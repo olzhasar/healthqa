@@ -79,7 +79,12 @@ class BaseRepostitory(Generic[ModelType]):
         )
 
     def list(
-        self, store: Store, *, page: int, per_page: int, filters: List[Any] = None
+        self,
+        store: Store,
+        *,
+        page: int = 1,
+        per_page: int = 16,
+        filters: List[Any] = None
     ) -> Paginator[ModelType]:
         filters = filters or []
         filters.extend(self._list_default_filters())
