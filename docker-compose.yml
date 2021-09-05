@@ -57,6 +57,11 @@ services:
     env_file:
       - ./.db.env
 
+  meili:
+    image: getmeili/meilisearch:latest
+    ports:
+      - "7700:7700"
+
 volumes:
   redis-data:
   pg-data:

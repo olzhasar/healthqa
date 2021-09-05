@@ -21,6 +21,7 @@ gunicorn = "*"
 timeago = "*"
 python-slugify = "*"
 sentry-sdk = {extras = ["flask"], version = "*"}
+meilisearch = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -38,6 +39,7 @@ blinker = "*"
 types-freezegun = "*"
 types-redis = "*"
 types-python-slugify = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.9"
