@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, jsonify, redirect, render_template, request
+from flask import Blueprint, abort, jsonify, redirect, render_template, request, url_for
 from flask.globals import current_app
 from flask_login import current_user, login_required
 
@@ -77,17 +77,21 @@ def search():
     )
 
 
-@bp.route("/questions/<int:id>")
-def details(id: int):
+@bp.route("/questions/<int:id>", strict_slashes=False)
+@bp.route("/questions/<int:id>/<string:slug>")
+def details(id: int, slug: str = None):
     additional_params = {}
     if current_user.is_authenticated:
         additional_params["user_id"] = current_user.id
+
+    question = repo.question.get_with_related(store, id, **additional_params)
+    if slug != question.slug:
+        return redirect(url_for("questions.details", id=id, slug=question.slug), 301)
 
     remote_addr = request.environ.get("HTTP_X_REAL_IP", request.remote_addr)
     if remote_addr:
         repo.question.register_view(store, id, remote_addr)
 
-    question = repo.question.get_with_related(store, id, **additional_params)
     answers = repo.answer.all_for_question(
         store, question_id=question.id, **additional_params
     )

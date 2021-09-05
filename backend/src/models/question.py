@@ -43,6 +43,7 @@ class Question(Entry):
     edited_at = Column(DateTime, onupdate=datetime.utcnow)
 
     title = Column(String(200), nullable=False)
+    slug = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
 
     tags: list[Tag] = relationship("Tag", secondary=question_tags_table)
@@ -59,4 +60,4 @@ class Question(Entry):
 
     @property
     def url(self) -> str:
-        return url_for("questions.details", id=self.id)
+        return url_for("questions.details", id=self.id, slug=self.slug)

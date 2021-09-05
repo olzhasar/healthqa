@@ -40,7 +40,9 @@ class TestAskQuestion:
         question = repo.question.first_for_user(store, user)
 
         assert response.status_code == 302
-        assert response.location == full_url_for("questions.details", id=question.id)
+        assert response.location == full_url_for(
+            "questions.details", id=question.id, slug=question.slug
+        )
 
         assert question
         assert question.title == data["title"]
@@ -146,16 +148,46 @@ class TestSearch:
 
 @pytest.mark.allow_redis
 class TestDetails:
-    url = "/questions/{id}"
+    url = "/questions/{id}/{slug}"
 
     def test_ok(self, client, question_with_related, max_num_queries):
         with max_num_queries(4):
-            response = client.get(self.url.format(id=question_with_related.id))
+            response = client.get(
+                self.url.format(
+                    id=question_with_related.id, slug=question_with_related.slug
+                )
+            )
 
         assert response.status_code == 200
 
-    def test_unexisting_question(self, client):
-        response = client.get(self.url.format(id=999))
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "/questions/{id}",
+            "/questions/{id}/",
+            "/questions/{id}/wrong-slug",
+        ],
+    )
+    def test_redirect(self, client, question_with_related, url):
+        response = client.get(url.format(id=question_with_related.id))
+
+        assert response.status_code == 301
+        assert response.location == full_url_for(
+            "questions.details",
+            id=question_with_related.id,
+            slug=question_with_related.slug,
+        )
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "/questions/{id}",
+            "/questions/{id}/",
+            "/questions/{id}/wrong-slug",
+        ],
+    )
+    def test_unexisting_question(self, client, url):
+        response = client.get(url.format(id=999))
 
         assert response.status_code == 404
 
@@ -212,7 +244,9 @@ class TestEditQuestion:
             follow_redirects=False,
         )
         assert response.status_code == 302
-        assert response.location == full_url_for("questions.details", id=question.id)
+        assert response.location == full_url_for(
+            "questions.details", id=question.id, slug=question.slug
+        )
 
         store.refresh(question)
         assert question.title == data["title"]

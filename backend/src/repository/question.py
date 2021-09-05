@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, List, Optional
 
+from slugify import slugify
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.sql.expression import and_, or_
 
@@ -69,10 +70,16 @@ class QuestionRepository(BaseRepostitory[Question]):
     def register_view(self, store: Store, id: int, user_identifier: str) -> None:
         store.redis.pfadd(self.REDIS_QUESTION_VIEW_KEY.format(id=id), user_identifier)
 
+    @staticmethod
+    def _make_slug(title: str) -> str:
+        """Make slug string from question title"""
+        return slugify(title, max_length=64)
+
     def create(
         self, store: Store, *, user: User, title: str, content: str, tags: List[int]
     ) -> Question:
-        question = Question(user=user, title=title, content=content)
+        slug = self._make_slug(title)
+        question = Question(user=user, title=title, slug=slug, content=content)
 
         store.db.add(question)
         store.db.flush()
@@ -96,6 +103,7 @@ class QuestionRepository(BaseRepostitory[Question]):
     ) -> None:
 
         question.title = new_title
+        question.slug = self._make_slug(new_title)
         question.content = new_content
         store.db.add(question)
 

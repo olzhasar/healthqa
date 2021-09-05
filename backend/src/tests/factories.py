@@ -45,6 +45,7 @@ class QuestionFactory(BaseFactory):
     user = factory.SubFactory(UserFactory)
 
     title = factory.Faker("sentence")
+    slug = factory.Faker("slug")
     content = factory.Faker("paragraph")
 
     score = 0

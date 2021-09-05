@@ -1,5 +1,6 @@
 import pytest
 from faker import Faker
+from slugify import slugify
 
 import repository as repo
 from models import Comment, Vote
@@ -154,6 +155,7 @@ def test_create(store: Store, user, tag, other_tag):
     assert from_db.user == user
     assert from_db.title == title
     assert from_db.content == content
+    assert from_db.slug == slugify(from_db.title)
     assert set(from_db.tags) == set([tag, other_tag])
 
 
@@ -171,6 +173,7 @@ def test_update(store: Store, question, tag):
     store.refresh(question)
 
     assert question.title == "New title"
+    assert question.slug == slugify(question.title)
     assert question.content == "New content"
     assert question.tags == tags
 
