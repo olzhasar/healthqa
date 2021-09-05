@@ -64,19 +64,24 @@ class BaseRepostitory(Generic[ModelType]):
         self,
         store: Store,
         *,
-        limit: int = 16,
-        offset: int = 0,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
         order_by: List[Any] = None,
         filters: List[Any] = None
     ) -> List[ModelType]:
-        order_by = order_by or self._list_default_ordering()
 
-        filters = filters or self._list_default_filters()
-        query = self._list_base_query(store)
+        _order_by = order_by or self._list_default_ordering()
+        _filters = filters or self._list_default_filters()
 
-        return (
-            query.filter(*filters).order_by(*order_by).limit(limit).offset(offset).all()
-        )
+        query = self._list_base_query(store).filter(*_filters).order_by(*_order_by)
+
+        if limit:
+            query = query.limit(limit)
+
+        if offset:
+            query = query.offset(offset)
+
+        return query.all()
 
     def list(
         self,
@@ -86,12 +91,12 @@ class BaseRepostitory(Generic[ModelType]):
         per_page: int = 16,
         filters: List[Any] = None
     ) -> Paginator[ModelType]:
-        filters = filters or []
-        filters.extend(self._list_default_filters())
+        _filters = filters or []
+        _filters.extend(self._list_default_filters())
 
-        total = self.count(store, filters=filters)
+        total = self.count(store, filters=_filters)
         offset = Paginator.calc_offset(page, per_page)
 
-        objects = self.all(store, limit=per_page, offset=offset, filters=filters)
+        objects = self.all(store, limit=per_page, offset=offset, filters=_filters)
 
         return Paginator(objects=objects, total=total, page=page, per_page=per_page)
