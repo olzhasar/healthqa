@@ -82,7 +82,9 @@ def details(id: int):
     additional_params = {}
     if current_user.is_authenticated:
         additional_params["user_id"] = current_user.id
-        # crud.view.create(store.db, entry_id=id, user_id=current_user.id)
+
+    if request.remote_addr:
+        repo.question.register_view(store, id, request.remote_addr)
 
     question = repo.question.get_with_related(store, id, **additional_params)
     answers = repo.answer.all_for_question(

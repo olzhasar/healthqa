@@ -95,6 +95,7 @@ class TestAskQuestion:
         assert not repo.question.exists(store)
 
 
+@pytest.mark.allow_redis
 class TestAllQuestions:
     url = "/questions/"
 
@@ -115,6 +116,7 @@ class TestTags:
         assert response.status_code == 200
 
 
+@pytest.mark.allow_redis
 class TestByTag:
     url = "/tags/{slug}/"
 
@@ -130,6 +132,7 @@ class TestByTag:
         assert response.status_code == 404
 
 
+@pytest.mark.allow_redis
 class TestSearch:
     url = "/questions/search?q={query}"
 
@@ -141,6 +144,7 @@ class TestSearch:
         assert template_rendered("questions/search_results.html")
 
 
+@pytest.mark.allow_redis
 class TestDetails:
     url = "/questions/{id}"
 

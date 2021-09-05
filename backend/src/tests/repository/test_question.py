@@ -8,7 +8,7 @@ from tests import factories
 
 fake = Faker()
 
-pytestmark = [pytest.mark.allow_db]
+pytestmark = [pytest.mark.allow_db, pytest.mark.allow_redis]
 
 
 def test_get(store: Store, question, max_num_queries):
@@ -19,6 +19,33 @@ def test_get(store: Store, question, max_num_queries):
 def test_first_for_user(store: Store, question, other_user):
     assert repo.question.first_for_user(store, question.user) == question
     assert repo.question.first_for_user(store, other_user) is None
+
+
+@pytest.mark.allow_redis
+def test_get_view_count(store: Store):
+    assert repo.question.get_view_count(store, 1) == 0
+
+    key = repo.question.REDIS_QUESTION_VIEW_KEY.format(id=1)
+
+    store.redis.pfadd(key, "192.168.1.1")
+    assert repo.question.get_view_count(store, 1) == 1
+
+    store.redis.pfadd(key, "192.168.1.1")
+    assert repo.question.get_view_count(store, 1) == 1
+
+    store.redis.pfadd(key, "192.168.1.2")
+    assert repo.question.get_view_count(store, 1) == 2
+
+
+@pytest.mark.allow_redis
+def test_register_view(store: Store):
+    assert repo.question.get_view_count(store, 1) == 0
+
+    repo.question.register_view(store, 1, "192.168.1.1")
+    assert repo.question.get_view_count(store, 1) == 1
+
+    repo.question.register_view(store, 1, "192.168.1.2")
+    assert repo.question.get_view_count(store, 1) == 2
 
 
 @pytest.fixture
@@ -36,6 +63,7 @@ def other_data():
             factories.VoteFactory(entry_id=comment.id)
 
 
+@pytest.mark.allow_redis
 def test_get_with_related_single_query(
     store: Store,
     question_with_related,
@@ -52,10 +80,20 @@ def test_get_with_related_single_query(
 
         assert question.user.id
         assert question.user_vote.id
+        assert question.view_count == 0
 
         for comment in question.comments:
             comment.id
             assert comment.user_vote.id
+
+
+def test_get_with_related_view_count(store: Store, question, user):
+    question = repo.question.get_with_related(store, question.id, user_id=user.id)
+    assert question.view_count == 0
+
+    repo.question.register_view(store, question.id, "192.168.1.1")
+    question = repo.question.get_with_related(store, question.id, user_id=user.id)
+    assert question.view_count == 1
 
 
 def test_get_with_related_correct_data(
@@ -140,6 +178,20 @@ def test_update(store: Store, question, tag):
 @pytest.fixture
 def questions():
     return factories.QuestionFactory.create_batch(4)
+
+
+def test_all_view_counts(store: Store, questions):
+    view_counts = [2, 3, 4, 1]
+
+    for i, question in enumerate(questions):
+        for j in range(view_counts[i]):
+            repo.question.register_view(store, question.id, f"192.168.1.{j}")
+
+    result = repo.question.all(store)
+    for question in result:
+        assert question.view_count == repo.question.get_view_count(store, question.id)
+
+    assert [q.view_count for q in result] == list(reversed(view_counts))
 
 
 @pytest.mark.parametrize(

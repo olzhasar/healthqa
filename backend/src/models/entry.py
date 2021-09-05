@@ -27,7 +27,6 @@ class Entry(Base):
     user: User = relationship("User", backref="entries")
 
     score = Column(Integer, nullable=False, default=0, index=True)
-    view_count = Column(Integer, nullable=False, default=0)
 
     votes: list["Vote"] = relationship("Vote", lazy="noload")
     user_vote: Mapped["Vote"] = relationship(

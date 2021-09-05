@@ -19,6 +19,8 @@ PER_PAGE = 16
 
 
 class QuestionRepository(BaseRepostitory[Question]):
+    REDIS_QUESTION_VIEW_KEY = "question:{id}:views"
+
     def get_with_related(self, store: Store, id: int, user_id: int = 0) -> Question:
         CommentUser = aliased(User)
         CommentVote = aliased(Vote)
@@ -53,10 +55,19 @@ class QuestionRepository(BaseRepostitory[Question]):
             .filter(Question.id == id, Question.deleted_at.is_(None))
         )
 
-        return self._get(query)
+        question = self._get(query)
+        question.view_count = self.get_view_count(store, question.id)
+
+        return question
 
     def first_for_user(self, store: Store, user: User) -> Optional[Question]:
         return store.db.query(Question).filter(Question.user_id == user.id).first()
+
+    def get_view_count(self, store: Store, id: int) -> int:
+        return store.redis.pfcount(self.REDIS_QUESTION_VIEW_KEY.format(id=id))
+
+    def register_view(self, store: Store, id: int, user_identifier: str) -> None:
+        store.redis.pfadd(self.REDIS_QUESTION_VIEW_KEY.format(id=id), user_identifier)
 
     def create(
         self, store: Store, *, user: User, title: str, content: str, tags: List[int]
@@ -81,7 +92,7 @@ class QuestionRepository(BaseRepostitory[Question]):
         *,
         new_title: str,
         new_content: str,
-        tags: List[int]
+        tags: List[int],
     ) -> None:
 
         question.title = new_title
@@ -112,13 +123,39 @@ class QuestionRepository(BaseRepostitory[Question]):
     def _list_default_filters(self) -> List[Any]:
         return [Question.deleted_at.is_(None)]
 
-    def all_for_user(self, store: Store, user: User) -> List[Question]:
-        return (
-            store.db.query(Question)
-            .filter(Question.user_id == user.id)
-            .order_by(Question.created_at.desc())
-            .all()
+    def _with_view_counts(
+        self, store: Store, questions: List[Question]
+    ) -> List[Question]:
+        pipe = store.redis.pipeline()
+        for question in questions:
+            _key = self.REDIS_QUESTION_VIEW_KEY.format(id=question.id)
+            pipe.pfcount(_key)
+
+        counts = pipe.execute()
+
+        for question, c in zip(questions, counts):
+            question.view_count = c
+
+        return questions
+
+    def all(
+        self,
+        store: Store,
+        *,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        order_by: List[Any] = None,
+        filters: List[Any] = None,
+    ) -> List[Question]:
+
+        questions = super().all(
+            store, limit=limit, offset=offset, order_by=order_by, filters=filters
         )
+
+        return self._with_view_counts(store, questions)
+
+    def all_for_user(self, store: Store, user: User) -> List[Question]:
+        return self.all(store, filters=[Question.user_id == user.id])
 
     def list_for_user(
         self, store: Store, user: User, *, page: int = 1, per_page: int = PER_PAGE

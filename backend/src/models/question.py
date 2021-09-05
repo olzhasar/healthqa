@@ -51,6 +51,7 @@ class Question(Entry):
     )
 
     answer_count: Mapped[int]
+    view_count: int
 
     __mapper_args__ = {
         "polymorphic_identity": 1,

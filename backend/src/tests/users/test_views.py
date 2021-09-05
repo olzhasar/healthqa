@@ -16,6 +16,7 @@ def test_all(client, template_rendered):
 
 
 @pytest.mark.allow_db
+@pytest.mark.allow_redis
 class TestProfile:
     url = "/users/{id}/"
 
