@@ -8,6 +8,8 @@ services:
 
   worker:
     build: ./backend
+    environment:
+      - SERVER_NAME=localhost:8000
 
   nginx:
     build: .

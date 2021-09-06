@@ -203,6 +203,7 @@ class QuestionRepository(BaseRepostitory[Question]):
             "id": str(question.id),
             "title": question.title,
             "content": strip_tags(question.content),
+            "url": question.url,
         }
 
     def update_search_indexes(self, store: Store, *questions: Question) -> None:

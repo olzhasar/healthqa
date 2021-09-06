@@ -334,7 +334,9 @@ def test_search(store: Store, questions_for_search, query, expected):
     assert paginator.total == len(expected)
 
 
-def test_update_search_indexes(store: Store, meili_client_mock: MagicMock):
+def test_update_search_indexes(
+    store: Store, with_app_context, meili_client_mock: MagicMock
+):
     questions = factories.QuestionFactory.create_batch(2)
 
     docs = []
@@ -344,6 +346,7 @@ def test_update_search_indexes(store: Store, meili_client_mock: MagicMock):
                 "id": str(question.id),
                 "title": question.title,
                 "content": question.content,
+                "url": question.url,
             }
         )
 
