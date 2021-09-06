@@ -31,3 +31,13 @@ server {
 	alias /usr/share/nginx/static/;
     }
 }
+
+server {
+    listen 7700;
+
+    location / {
+        proxy_pass http://meili:7700;
+        proxy_redirect off;
+	proxy_set_header Host $host;
+    }
+}
