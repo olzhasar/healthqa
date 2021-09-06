@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 from faker import Faker
 from slugify import slugify
@@ -330,3 +332,21 @@ def test_search(store: Store, questions_for_search, query, expected):
 
     assert {r.title for r in paginator.objects} == expected
     assert paginator.total == len(expected)
+
+
+def test_update_search_indexes(store: Store, meili_client_mock: MagicMock):
+    questions = factories.QuestionFactory.create_batch(2)
+
+    docs = []
+    for question in questions:
+        docs.append(
+            {
+                "id": str(question.id),
+                "title": question.title,
+                "content": question.content,
+            }
+        )
+
+    repo.question.update_search_indexes(store, *questions)
+
+    meili_client_mock.index("questions").add_documents.assert_called_once_with(docs)

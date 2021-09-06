@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 from pydantic import BaseSettings
 
@@ -28,6 +29,10 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_RQ_DB: int = 0
     REDIS_MAIN_DB: int = 1
+
+    MEILI_HOST: str = "localhost"
+    MEILI_PORT: int = 7700
+    MEILI_API_KEY: Optional[str] = None
 
     EMAIL_HOST: str = "smtp.yandex.com"
     EMAIL_PORT: int = 465
