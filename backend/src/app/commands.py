@@ -24,6 +24,19 @@ def update_search_indexes() -> None:
     repo.question.update_search_indexes(store, *questions)
 
 
+@click.command("configure_search_indexes")
+@with_appcontext
+def configure_search_indexes() -> None:
+    questions_index = store.meili.index("question")
+    questions_index.update_settings(
+        {
+            "searchableAttributes": ["title", "content"],
+            "displayedAttributes": ["id", "title", "url"],
+        }
+    )
+
+
 def init_app(app: Flask) -> None:
     app.cli.add_command(create_user)
     app.cli.add_command(update_search_indexes)
+    app.cli.add_command(configure_search_indexes)
