@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from sqlalchemy import exc
 from sqlalchemy.orm import undefer, with_expression
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.elements import and_
-from sqlalchemy.sql.expression import select
+from sqlalchemy.sql.expression import select, true
 from sqlalchemy.sql.functions import func
 
 from auth.security import hash_password
@@ -53,6 +53,12 @@ class UserRepository(BaseRepostitory[User]):
             .filter(User.id == id)
         )
         return self._get(query)
+
+    def _list_default_filters(self) -> List[Any]:
+        return [User.email_verified == true()]
+
+    def _list_default_ordering(self) -> List[Any]:
+        return [User.created_at]
 
     def _list_base_query(self, store: Store) -> Query:
         return store.db.query(User).options(
