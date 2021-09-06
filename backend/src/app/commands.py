@@ -26,3 +26,4 @@ def update_search_indexes() -> None:
 
 def init_app(app: Flask) -> None:
     app.cli.add_command(create_user)
+    app.cli.add_command(update_search_indexes)
