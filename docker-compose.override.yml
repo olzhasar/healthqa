@@ -13,5 +13,6 @@ services:
     build: .
     ports:
       - "8000:80"
+      - "7700:7700"
     volumes:
       - ./nginx.conf.dev:/etc/nginx/conf.d/nginx.conf

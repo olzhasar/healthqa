@@ -5,6 +5,7 @@ from typing import Any, Generator
 import pytest
 from flask import Flask
 from flask import template_rendered as flask_template_rendered
+from pytest_mock import MockerFixture
 from sqlalchemy import event
 from sqlalchemy.engine.base import Connection, Engine
 from sqlalchemy.orm import Session
@@ -42,6 +43,16 @@ def db(connection: Connection, monkeypatch) -> Generator:
     finally:
         TestSession.remove()
         transaction.rollback()
+
+
+@pytest.fixture(autouse=True)
+def meili_client_mock(mocker: MockerFixture):
+    return mocker.patch("storage.base.Store.meili")
+
+
+@pytest.fixture
+def mock_enqueue(mocker: MockerFixture):
+    return mocker.patch("worker.queue.enqueue")
 
 
 @pytest.fixture

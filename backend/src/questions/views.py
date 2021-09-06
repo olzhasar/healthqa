@@ -3,7 +3,7 @@ from flask.globals import current_app
 from flask_login import current_user, login_required
 
 import repository as repo
-from questions import forms
+from questions import forms, services
 from storage import store
 
 bp = Blueprint("questions", __name__)
@@ -16,7 +16,7 @@ def ask():
     form.tags.choices = repo.tag_category.all(store)
 
     if form.validate_on_submit():
-        question = repo.question.create(
+        question = services.create_question(
             store,
             user=current_user,
             title=form.title.data,
@@ -119,7 +119,7 @@ def edit_question(id: int):
     form.tags.choices = repo.tag_category.all(store)
 
     if form.validate_on_submit():
-        repo.question.update(
+        services.update_question(
             store,
             question,
             new_title=form.title.data,

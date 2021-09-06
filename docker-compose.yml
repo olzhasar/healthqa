@@ -7,6 +7,7 @@ services:
     environment:
       - DB_HOST=db
       - REDIS_HOST=redis
+      - MEILI_HOST=meili
     env_file:
       - ./backend/.env
     volumes:
@@ -24,19 +25,13 @@ services:
     environment:
       - DB_HOST=db
       - REDIS_HOST=redis
+      - MEILI_HOST=meili
     env_file:
       - ./backend/.env
     restart: always
     depends_on:
       - db
       - redis
-
-  nginx:
-    restart: always
-    depends_on:
-      - web
-    volumes:
-      - gunicorn-socket:/run/gunicorn
 
   redis:
     image: redis:6
@@ -57,7 +52,23 @@ services:
     env_file:
       - ./.db.env
 
+  meili:
+    image: getmeili/meilisearch:latest
+    expose:
+      - "7700"
+    volumes:
+      - meili-data:/data.ms
+
+  nginx:
+    restart: always
+    depends_on:
+      - web
+      - meili
+    volumes:
+      - gunicorn-socket:/run/gunicorn
+
 volumes:
   redis-data:
   pg-data:
   gunicorn-socket:
+  meili-data:

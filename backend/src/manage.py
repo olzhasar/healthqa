@@ -3,6 +3,7 @@ import random
 import click
 import factory
 
+import repository as repo
 from app.main import app
 from storage import store
 from tests.factories import (
@@ -19,6 +20,13 @@ from tests.factories import (
 @click.group()
 def cli() -> None:
     pass
+
+
+@cli.command("update_search_indexes")
+def update_search_indexes() -> None:
+    with app.app_context():
+        questions = repo.question.all(store)
+        repo.question.update_search_indexes(store, *questions)
 
 
 @cli.command("create_test_data")

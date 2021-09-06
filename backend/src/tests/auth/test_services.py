@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-from pytest_mock import MockerFixture
 from sqlalchemy.orm.session import Session
 
 from auth import security
@@ -12,11 +11,6 @@ from auth.services import (
 from mail.sender import send_templated_email
 from mail.template import EmailTemplate
 from tests.utils import full_url_for
-
-
-@pytest.fixture
-def mock_enqueue(mocker: MockerFixture):
-    return mocker.patch("worker.queue.enqueue")
 
 
 @pytest.mark.freeze_time("2020-01-01")

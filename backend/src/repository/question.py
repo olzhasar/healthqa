@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from slugify import slugify
 from sqlalchemy.orm import aliased, contains_eager, joinedload
 from sqlalchemy.sql.expression import and_, or_
 
 from common.pagination import Paginator
+from common.utils import strip_tags
 from models import Comment, Question, Tag, User, Vote
 from models.question import question_tags_table
 from repository.base import BaseRepostitory
@@ -196,6 +197,20 @@ class QuestionRepository(BaseRepostitory[Question]):
         ]
 
         return self.list(store, page=page, per_page=per_page, filters=filters)
+
+    def _build_meili_document(self, question: Question) -> Dict[str, Any]:
+        return {
+            "id": str(question.id),
+            "title": question.title,
+            "content": strip_tags(question.content),
+        }
+
+    def update_search_indexes(self, store: Store, *questions: Question) -> None:
+        index = store.meili.index("questions")
+
+        docs = [self._build_meili_document(q) for q in questions]
+
+        index.add_documents(docs)
 
 
 question = QuestionRepository()
