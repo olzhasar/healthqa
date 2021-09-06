@@ -21,18 +21,7 @@
       </button>
     </div>
     <div class="w-full flex-grow lg:flex lg:content-center lg:items-center lg:w-auto hidden lg:block mt-2 lg:mt-0 z-20" id="nav-content">
-      <div class="flex- w-full mx-auto content-center p-4 lg:py-0">
-	<form action="{{ url_for('questions.search') }}" method="GET">
-	  <div class="relative pull-right px-4 md:pr-0">
-	    <input type="search" id="q" name="q" placeholder="Search" class="w-full text-gray-800 transition border border-gray-400 focus:outline-none focus:ring-1 ring-green-500 py-1 pr-2 pl-10 appearance-none leading-loose rounded">
-	    <div class="absolute search-icon" style="top: 0.75rem;left: 1.75rem;">
-	      <svg class="fill-current pointer-events-none text-gray-800 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-		<path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
-	      </svg>
-	    </div>
-	  </div>
-	</form>
-      </div>
+      {% include "partials/search_bar.html" %}
       <ul class="list-reset flex justify-end items-center">
 	{% if current_user.is_authenticated %}
 	  <li class="py-2 lg:py-0 relative ml-4" x-data="{ dropdownOpen: false }" @mouseover="dropdownOpen = true" @mouseover.away="dropdownOpen = false">

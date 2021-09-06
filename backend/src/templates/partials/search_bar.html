@@ -1,0 +1,19 @@
+<div class="flex- w-full mx-auto content-center p-4 lg:py-0" x-data="instantSearch()">
+  <form action="{{ url_for('questions.search') }}" method="GET" autocomplete="off">
+    <div class="relative pull-right px-4 md:pr-0">
+      <input @input.debounce="fetchResults" type="search" id="q" name="q" x-model="searchQuery" placeholder="Search" class="w-full text-gray-800 transition border border-gray-400 focus:outline-none focus:ring-1 ring-green-500 py-1 pr-2 pl-10 appearance-none leading-loose rounded">
+      <div class="absolute search-icon" style="top: 0.75rem;left: 1.75rem;">
+	<svg class="fill-current pointer-events-none text-gray-800 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+	  <path d="M12.9 14.32a8 8 0 1 1 1.41-1.41l5.35 5.33-1.42 1.42-5.33-5.34zM8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"></path>
+	</svg>
+      </div>
+      <ul class="absolute bg-white border" style="top: 3rem">
+	<template x-for="item in searchResults" :key="item.id">
+	  <a :href="item.url">
+	    <li class="p-4 text-lg" x-text="item.title"></li>
+	  </a>
+	</template>
+      </ul>
+    </div>
+  </form>
+</div>

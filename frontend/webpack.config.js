@@ -4,9 +4,7 @@ const path = require("path");
 
 const isProduction = process.env.NODE_ENV == "production";
 
-const outputPath = isProduction
-  ? path.resolve(__dirname, "dist")
-  : path.resolve(__dirname, "../backend", "static");
+const outputPath = path.resolve(__dirname, "dist");
 
 const stylesHandler = "style-loader";
 
