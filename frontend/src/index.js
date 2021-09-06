@@ -5,8 +5,10 @@ import { MeiliSearch } from "meilisearch";
 import Alpine from "alpinejs";
 
 function instantSearch() {
+  const meiliURL =
+    window.location.protocol + "//" + window.location.hostname + ":7700";
   const client = new MeiliSearch({
-    host: "http://127.0.0.1:7700",
+    host: meiliURL,
   });
   const questionsIndex = client.index("questions");
 
