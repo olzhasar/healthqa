@@ -17,5 +17,12 @@ def create_user(email: str, name: str, password: str) -> None:
     click.echo(f"Created user with id {user.id}")
 
 
+@click.command("update_search_indexes")
+@with_appcontext
+def update_search_indexes() -> None:
+    questions = repo.question.all(store)
+    repo.question.update_search_indexes(store, *questions)
+
+
 def init_app(app: Flask) -> None:
     app.cli.add_command(create_user)
